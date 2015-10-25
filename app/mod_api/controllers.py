@@ -426,27 +426,81 @@ def delete_like():
 
 @token_required
 def get_groups():
-    return jsonify({'result':'hi'})
+    name = request.args.get('name')
+    member = request.args.get('member')
+    # print Group.query.filter_by(name=name).all()
+    get_groups_query = db.session.query(Group).join(Group_member).distinct(name)
+    # print get_groups_query.all()
+    if member is not None:
+        get_groups_query = get_groups_query.filter(Group_member.user_id==member).filter(Group.name==Group_member.group_name)
+
+    if name is not None:
+        get_groups_query = get_groups_query.filter(Group.name.contains(name))
+
+    group_list = get_groups_query.all()
+    print group_list
+
+    return jsonify({'result':[
+        {'name':group.name,
+        'members':[user.user_id for user in Group_member.query.filter_by(group_name=group.name).with_entities(Group_member.user_id).all()],
+        'privacy':group.privacy,
+        } for group in group_list ]})
 
 
 @token_required
-def get_group():
-    return jsonify({'result':'hi'})
+def get_group(group_name):
+    group= db.session.query(Group).join(Group_member).filter(Group.name==group_name).first()
+    
+    return jsonify({'result':{'name':group.name,
+        'members':[user.user_id for user in Group_member.query.filter_by(group_name=group.name).with_entities(Group_member.user_id).all()],
+        'privacy':group.privacy,
+        }})
 
 
 @token_required
 def post_group():
-    return jsonify({'result':'hi'})
+    name = request.json.get('name')
+    members = request.json.get('members')
+    privacy = request.json.get('privacy')
+    if Group.query.filter_by(name=name).first() is not None:
+        return jsonify({'message':'group name already exist'}),400
+    group = Group(name=name, privacy=privacy)
+    db.session.add(group)
+    member = Group_member(role='manager',user_id=session['userid'],group_name=name)
+    db.session.add(member)
+    for each_member in members:
+        member = Group_member(user_id=each_member, role='member',group_name=name)
+        db.session.add(member)
+    db.session.commit()
+    db.session.rollback()
+
+    return jsonify({'result':'success'})
 
 
 @token_required
-def invite_group_member():
-    return jsonify({'result':'hi'})
+def invite_group_member(group_name):
+    member_list = request.json.get('members')
+    for each_member in member_list:
+        if Group_member.query.filter_by(group_name=group_name, user_id=each_member) is not None:
+            pass
+        else:
+            group_member = Group_member(group_name=group_name, user_id=each_member)
+            db.session.add(group_member)
+            db.session.commit()
+
+    return jsonify({'result':'success'})
 
 
 @token_required
 def delete_group():
-    return jsonify({'result':'hi'})
+    group_name = request.args.get('group_name')
+    member_list = Group_member.query.filter_by(group_name = group_name).all()
+    for each_member in member_list:
+        db.session.delete(each_member)
+    group = Group.query.filter_by(group_name=group_name).first()
+    db.session.delete(group)
+    db.session.commit()
+    return jsonify({'result':'success'})
 
 
 
@@ -926,8 +980,8 @@ api.add_url_rule('/like', 'post like', post_like, methods=['POST'])
 api.add_url_rule('/like', 'delete like', delete_like, methods=['DELETE']) 
 
 api.add_url_rule('/groups', 'get groups', get_groups, methods=['GET']) 
-api.add_url_rule('/groups/<group_id>', 'get group', get_group, methods=['GET']) 
+api.add_url_rule('/groups/<group_name>', 'get group', get_group, methods=['GET']) 
 api.add_url_rule('/groups', 'post groups', post_group, methods=['POST']) 
-api.add_url_rule('/groups/<groupd_id>/members', 'invite group member', invite_group_member, methods=['POST']) 
-api.add_url_rule('/groups/<group_id>', 'delete group', delete_group, methods=['DELETE']) 
+api.add_url_rule('/groups/<group_name>/members', 'invite group member', invite_group_member, methods=['POST']) 
+api.add_url_rule('/groups/<group_name>', 'delete group', delete_group, methods=['DELETE']) 
 
