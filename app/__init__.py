@@ -29,9 +29,7 @@ def create_app(config=None):
 	print 'create app'
 
 	r = redis.Redis(host='localhost', port=6379, db=0)
-	app.redis = r
-	
-	
+	app.redis = r	
 
 	from app.mod_api.controllers import api
 	# Initialize SQL Alchemy and Flask-Login
@@ -61,6 +59,5 @@ def create_app(config=None):
 
 	app.register_blueprint(api)
 	from app import views
-	from app import tasks
 
 	return app
