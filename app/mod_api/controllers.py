@@ -307,6 +307,7 @@ def get_comments():
         get_comments_query.append(User.name.contains(name))
     comments_list = db.session.query(Comment, User).filter(and_(
                     *get_comments_query)).order_by(Comment.id).all()
+    
     return jsonify({'result':[{
         'post_id':comment.Comment.post_id,
         'user_id':comment.Comment.user_id,

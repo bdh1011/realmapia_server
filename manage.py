@@ -6,7 +6,6 @@ from flask.ext.migrate import Migrate, MigrateCommand
 from app.database import db
 from app import models
 from app import create_app
-from app import make_celery
 from app import r
 
 app = create_app()
