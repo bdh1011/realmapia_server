@@ -1,0 +1,18 @@
+
+{% extends "header.html" %}
+{% block body %}
+	<link rel='stylesheet' type='text/css'  href='{{url_for("static",filename="css/inspection.css")}}'>
+	<script src="{{url_for('static',filename='js/inspection.js')}}"></script>
+	<div class="main_top">
+		<div class="inspection_header_wrapper">
+			<div class="inspection_type_wrapper">
+					<a href="/assign_inspection"><div class="assign_inspection_span active">Assign Inspection</div></a>
+				
+					<a href="/inspection_analysis"><div class="inspection_analysis_span">Inspection Analysis</div></a>
+			</div>
+		</div>
+	</div>
+	{% block innerbody %}{% endblock %}
+
+
+{% endblock %}

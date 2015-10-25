@@ -1,0 +1,13 @@
+
+/*web*/
+@media(min-width: 768px){
+	#navbar{
+		position: fixed;
+		width: 100%;
+		height: 100px;
+		background-color: #F00;
+		top: 0;
+	}
+
+}
+

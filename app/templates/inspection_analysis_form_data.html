@@ -1,0 +1,98 @@
+{% extends "inspection_nav.html" %}
+{% block innerbody %}
+
+<script type="text/javascript">
+	
+
+
+</script>
+
+<div id="wrap">
+	<div id="manage">
+		<div class="headMenu">
+			<div id="formType">Form</div>
+			<div class="inputDiv"><input type="text" id="formTypeInput" class="headMenuText" name="formType"></div>
+			<div id="roomId">Room</div>
+			<div class="inputDiv"><input type="text" id="roomIdInput" class="headMenuText" name="roomId"></div>
+			<div id="formSearch" class="headMenuButton" >search</div>
+		</div>
+		<div id="main">
+			<div id="mainLeft">
+				<div id="leftTitle" class="title">
+					<span>list</span>
+				</div>
+				<div id="formDataMenu" class="subMenu">
+				Form data
+				</div>
+				<div id="evalCheckMenu" class="subMenu">
+				Evaluator analysis
+				</div>
+				<div id="attendCheckMenu" class="subMenu">
+				Attendant analysis
+				</div>
+				
+					<div id="attendRankMenu" class="subMenu">
+					<a href="/manage/inspection/attend_rank">
+					Attendant Ranking
+					</a>
+					</div>
+				
+				
+					<div id="evalRankMenu" class="subMenu">
+					<a href="/manage/inspection/eval_rank">
+					Evaluator Ranking
+					</a>
+					</div>
+				
+			</div>
+			<div id="form_data_content">
+				<div id="mainTitle" class="title">
+					<div class="item_num">No.</div>
+					<div class="item_form">Form</div>
+					<div class="item_description">Item description</div>
+					<div class="item_avg_point">avg point</div>
+					<div class="item_total_point">total point</div>
+					<div class="item_percent">percentage</div>
+					<div id="add_form"></div>
+				</div>
+				<ul id="form_list">
+				{% for each_form in form_list %}
+					<li class="contentList" data-form-id="{{each_form.id}}">
+						<div class="item_num">{{each_form.form_num}}</div>
+						<div class="item_form">{{each_form.form_type}}</div>
+						<div class="item_description">{{each_form.description}}</div>
+						<div class="item_avg_point">{{each_form.avr_point}}</div>
+						<div class="item_total_point">{{each_form.total_point}}</div>
+						<div class="item_percent">{{each_form.point_percent}}</div>
+						<img class="form_data_delete_btn" src="{{url_for('static',filename='img/ic_delete.png')}}"><img class="form_data_edit_btn" src="{{url_for('static',filename='img/ic_edit.png')}}">
+					</li>
+					<li class="itemDetail">
+						<div class="itemDetailTitle">
+							<div class="detailRoomNum">Room</div>
+							<div class="detailEval">Evaluator</div>
+							<div class="detailAttend">Attendant</div>
+							<div class="detailPoint">point</div>
+							<div class="detailDate">day</div>
+							<div class="comment">comment</div>
+						</div>
+						{% for each_evaluate in each_form.evaluation_list %}
+							<div class="itemDetailList">
+								<div class="detailRoomNum">{{each_evaluate.inspect.room_num}}</div>
+								<div class="detailEval">{{each_evaluate.inspect.employee_id}}</div>
+								<div class="detailAttend">{{each_evaluate.assign.employee_id}}</div>
+								<div class="detailPoint">{{each_evaluate.check}}</div>
+								<div class="detailDate">{{each_evaluate.timestamp.strftime('%y-%m-%d')}}</div>
+								<div class="comment">{{each_evaluate.comment}}</div>
+							</div>
+						{% endfor %}
+					</li>
+
+				{% endfor %}
+					
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

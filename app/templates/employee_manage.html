@@ -1,0 +1,356 @@
+{% extends "header.html" %}
+{% block body %}
+	<script>
+
+		$(document).ready(function(){
+		
+			$(document).on("click", '.joined_survey_btn',function(){
+				$('.created_survey_btn').removeClass('active');
+				$(this).addClass('active');
+
+				$('.created_survey').css('display','none');
+				$('.joined_survey').css('display','block');
+			});
+
+			$(document).on("click", '.created_survey_btn',function(){
+				$('.joined_survey_btn').removeClass('active');
+				$(this).addClass('active');
+
+				$('.joined_survey').css('display','none');
+				$('.created_survey').css('display','block');
+			});
+
+
+			$(document).on("click", '.share_x_btn',function(){
+				$('.overlay').toggle();
+				$('.share_x_btn').remove();
+			});
+
+			$(document).on("click", '#add_team',function(){
+				$('.overlay').toggle();
+				$('.share_x_btn').remove();
+			});
+
+			$(document).on("click", '.data_wrapper',function(){
+				var pathname = window.location.pathname;
+				var survey_link = $(this).attr("data-survey-link");
+				
+
+				$.ajax({ type: "POST", url: pathname.substring(0,pathname.length-7)+'survey/'+survey_link+'/download', contentType: "application/json; charset=utf-8", dataType: "json", success: function(data){ alert(data)}, failure: function(errMsg) { alert("a");}});
+
+
+
+	
+
+		});
+
+			$(".login_date").each(function(){
+				var login_date = String($(this).text());
+				console.log(login_date);
+				$(this).html(login_date.substring(0,19));
+			});
+
+			$('#addButton').click(function(){
+				var staff_name = $('#staff_name_input').val()
+				var staff_position = $('#positions').val()
+				var new_staff = {'name':staff_name, 'position':staff_position}
+				console.log(new_staff);
+				$.ajax({ type: "POST", url: '/manage/add_staff', contentType: "application/json; charset=utf-8", dataType: "json",
+				data: JSON.stringify({"staff": new_staff}), 
+				success: function(data){ window.location.reload();}, 
+				failure: function(errMsg) { alert("a");}});
+
+
+			})
+
+			$('#add_team').click(function(){
+				$(".add_team_input_wrapper").remove();
+				var add_team_li = "\
+					<li class='each_team_list add_team_input_wrapper'>\
+						<input type='text' id='add_team_input'>\
+						<div id='add_team_submit'>OK</div>\
+						</li>"
+				$("#team_list").append(add_team_li)
+				$("#add_team_input").focus();
+				$('#add_team_submit').click(function(){
+				var add_team_name = $('#add_team_input').val()
+				console.log(add_team_name);
+				$.ajax({ type: "POST", url: '/manage/add_team', contentType: "application/json; charset=utf-8", dataType: "json",
+					data: JSON.stringify({"team": add_team_name}), 
+					success: function(data){ 
+						var add_team_li = "\
+							<li class='each_team_list'>\
+								<div class='team_name'>"+add_team_name+"</div>\
+									<img class='team_delete_btn' src='{{url_for('static',filename='img/ic_remove.png')}}''>\
+								<img class='team_edit_btn' src='{{url_for('static',filename='img/ic_edit.png')}}''>\
+								</li>"
+						$(".add_team_input_wrapper").remove();
+						$("#team_list").append(add_team_li);
+					;}, 
+					failure: function(errMsg) { alert("already exist");}});
+				})
+			})
+
+			
+		
+			$('.team_delete_btn').click(function(){
+				var this_team_list = $(this).parent()
+				var delete_team_name = $(this).parent().find('.team_name')[0].innerHTML;
+				console.log(delete_team_name)
+				$.ajax({ type: "POST", url: '/manage/delete_team', contentType: "application/json; charset=utf-8", dataType: "json",
+					data: JSON.stringify({"team": delete_team_name}), 
+					success: function(data){
+						console.log(this_team_list);
+						this_team_list.remove();
+					;}, 
+					failure: function(errMsg) { alert("already exist");}});
+			})
+
+
+			$('.team_edit_btn').click(function(){
+				var name_from = $(this).parent().find('.team_name')[0].innerHTML;
+				
+				var edit_team_li = "\
+					<li class='each_team_list' id='add_team_input_wrapper'>\
+						<input type='text' id='add_team_input' value='"+name_from+"'>\
+						<div id='add_team_submit'>OK</div>\
+						</li>"
+				
+				$(this).parent().after(edit_team_li);
+				
+				$("#add_team_input").focus();
+				$('#add_team_submit').click(function(){
+				var name_to = $('#add_team_input').val()
+				$.ajax({ type: "POST", url: '/manage/edit_team_name', contentType: "application/json; charset=utf-8", dataType: "json",
+					data: JSON.stringify({"name_from":name_from,"name_to": name_to}), 
+					success: function(data){ 
+						var add_team_li = "\
+							<li class='each_team_list'>\
+								<div class='team_name'>"+name_to+"</div>\
+									<img class='team_delete_btn' src='{{url_for('static',filename='img/ic_remove.png')}}''>\
+								<img class='team_edit_btn' src='{{url_for('static',filename='img/ic_edit.png')}}''>\
+								</li>"
+						
+						$("#add_team_input_wrapper").after(add_team_li);
+						$("#add_team_input_wrapper").remove();
+					;}, 
+					failure: function(errMsg) { alert("already exist");}});
+				})
+
+				$(this).parent().remove()
+			})
+
+			$('.team_delete_btn').click(function(){
+				var this_team_list = $(this).parent()
+				var delete_team_name = $(this).parent().find('.team_name')[0].innerHTML;
+				console.log(delete_team_name)
+				$.ajax({ type: "POST", url: '/manage/delete_team', contentType: "application/json; charset=utf-8", dataType: "json",
+					data: JSON.stringify({"team": delete_team_name}), 
+					success: function(data){
+						console.log(this_team_list);
+						this_team_list.remove();
+					;}, 
+					failure: function(errMsg) { alert("already exist");}});
+			})
+
+
+
+			$('.each_team_list').click(function(){
+				$(this).css({'backgroundColor':'#d3eff9'});
+				window.location.href='/manage/employee_manage?team='+$(this).find('.team_name')[0].innerHTML;
+
+			})
+			
+
+
+
+			$('.staff_edit_btn').click(function(){
+				var staff_id = $(this).parent().attr("data-staff-id");
+				var staff_name = $(this).parent().find(".staff_name")[0].innerHTML;
+				var position = $(this).parent().find(".position")[0].innerHTML;
+				var staff_team = $(this).parent().find(".staff_team")[0].innerHTML;
+				var login_date = $(this).parent().find(".login_date")[0].innerHTML;
+				var inspect_score = $(this).parent().find(".inspect_score")[0].innerHTML;
+				var inspect_date = $(this).parent().find(".inspect_date")[0].innerHTML;
+
+				var edit_staff_li = "\
+					<li class='each_staff_list' id='edit_staff_list'>\
+								<input class='staff_name'  value='"+staff_name+"'></input>\
+								<select id='staff_position' value="+position+"name='position'>\
+	                        		<option selected='selected' value="+position+" disabled>"+position+"</option>\
+	                    		</select>\
+	                    		<select id='staff_team' name='staff_team'>\
+	                        		<option selected value="+staff_team+" disabled>"+staff_team+"</option>\
+	                    		</select>\
+								<input disabled class='login_date' value='"+login_date+"'></input>\
+								<input disabled class='inspect_score' value='"+inspect_score+"'></input>\
+								<input disabled class='inspect_date' value='"+inspect_date+"'></input>\
+								<div id='edit_staff_submit'>OK</div>\
+							</li>"
+				$(this).parent().after(edit_staff_li)
+
+				//get team list
+				$.ajax({ type: "GET", url: '/manage/teams', contentType: "application/json; charset=utf-8", dataType: "json",
+					success: function(data){
+						for (i = 0; i < data['team_list'].length; i++){
+			                $('#staff_team').append('<option value='+data['team_list'][i]+'>'+data['team_list'][i]+'</option>');
+			            }
+					;}, 
+					failure: function(errMsg) { alert("already exist");}
+				});
+
+				//get position list
+				var positions = ['security','cleaner','manager']
+	            for (i = 0; i < positions.length; i++){
+	                $('#staff_position').append('<option value='+positions[i]+'>'+positions[i]+'</option>');
+
+	            }
+				$(this).parent().remove();
+
+				//edit staff submit
+				$('#edit_staff_submit').click(function(){
+					var name_to = $('input.staff_name').val();
+					var staff_position = $('select#staff_position option:selected').val();
+					var staff_team = $('select#staff_team option:selected').val();
+					var login_date = $('input.login_date').val();
+					var inspect_score = $('input.inspect_score').val();
+					var inspect_date = $('input.inspect_date').val();
+					console.log(name_to);
+					console.log(staff_position);
+					console.log(staff_team);
+
+					$.ajax({ type: "POST", url: '/manage/edit_staff', contentType: "application/json; charset=utf-8", dataType: "json",
+						data: JSON.stringify({"staff_id":staff_id,"name_to": name_to, 'staff_position':staff_position,'staff_team':staff_team}), 
+						success: function(data){ 
+							var add_staff_li = "\
+								<li class='each_staff_list' data-staff-id='"+staff_id+"'>\
+								<div class='staff_name'>"+name_to+"</div>\
+								<div class='position'>"+staff_position+"</div>\
+								<div class='staff_team'>"+staff_team+"</div>\
+								<div class='login_date'>"+login_date+"</div>\
+								<div class='inspect_score'>"+inspect_score+"</div>\
+								<div class='inspect_date'>"+inspect_date+"</div>\
+								<img class='staff_delete_btn' src='{{url_for('static',filename='img/ic_remove.png')}}''>\
+								<img class='staff_edit_btn' src='{{url_for('static',filename='img/ic_edit.png')}}'>\
+								</li>"
+							$("#edit_staff_list").after(add_staff_li);
+							$("#edit_staff_list").remove();
+						;}, 
+						failure: function(errMsg) { alert("already exist");}});
+				})
+			})
+
+			$('.staff_delete_btn').click(function(){
+				var staff_id = $(this).parent().attr("data-staff-id");
+				var this_staff_list = $(this).parent()
+				
+				$.ajax({ type: "POST", url: '/manage/delete_staff', contentType: "application/json; charset=utf-8", dataType: "json",
+					data: JSON.stringify({"staff": staff_id}), 
+					success: function(data){
+						this_staff_list.remove();
+					;}, 
+					failure: function(errMsg) { alert("already exist");}});
+			})
+
+			
+		})
+	</script>
+	<div class="overlay"></div>
+	<div class="main_wrapper">
+		<div class="main_top">
+			<div class="employee_header_wrapper">
+				<div class="employee_type_wrapper">
+
+						<div class="employee_staff active">Staff</div>
+					
+						<div class="employee_supervisor">Supervisor</div>
+				</div>
+				<div class="right_wrapper">
+					<div class="search_wrapper">
+						<form>
+						<input id="search" name="search" type="search" placeholder="employee name">
+
+							<i class="search_icon"></i>
+						</form>
+					</div>
+				</div>
+			</div>
+				
+		</div>
+
+		<div id="employee_wrapper">
+			<div id="manage">
+			
+				<div id="addStaff">
+					<div id="staffName">Name</div>								<!-- -->
+					<input id="staff_name_input" type="text" name="staff_name">
+					<div id="position_span">Position</div>
+					<div class="team_select">
+
+						<select id="positions" name="position">
+	                        <option selected disabled>Position</option>
+	                    </select>		
+                    </div>
+					<div id="addButton" class="inputDiv">Add staff</div>
+				</div>
+			
+				<div id="employee_main">
+					<div id="mainLeft">
+						<div id="add_team"></div>
+						<div class="title">
+							<span>department list</span>
+						</div>
+						<div id="team_list">
+							<ul>
+								<li class="each_team_list">
+									<div class="team_name">all</div>
+								</li>
+								{% for each_team in team_list %}
+								<li class="each_team_list">
+									<div class="team_name">{{each_team.name}}</div>
+									<img class="team_delete_btn" src="{{url_for('static',filename='img/ic_remove.png')}}">
+									<img class="team_edit_btn" src="{{url_for('static',filename='img/ic_edit.png')}}">
+								</li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+					<div id="mainContent">
+						<div class="title">
+							<div class="staff_name">name</div>
+							<div class="position">position</div>
+							<div class="staff_team">team</div>
+							<div class="login_date">log in</div>
+							<div class="inspect_score">inspection</div>
+							<div class="inspect_date">inspection date</div>
+						</div>
+						<ul id="staff_list">
+						{% for each_employee in employee_list %}
+							<li class="each_staff_list" data-staff-id="{{each_employee.id}}">
+								<div class="staff_name">{{each_employee.name}}</div>
+								<div class="position">{{each_employee.position}}</div>
+								<div class="staff_team">{{each_employee.team}}</div>
+								<div class="login_date">{{each_employee.recent_login_timestamp}}</div>
+								<div class="inspect_score">100</div>
+								<div class="inspect_date">2015-08-20</div>
+								<img class="staff_delete_btn" src="{{url_for('static',filename='img/ic_remove.png')}}">
+								<img class="staff_edit_btn" src="{{url_for('static',filename='img/ic_edit.png')}}">
+							</li>
+						{% endfor %}
+						</ul>
+					</div>
+				</div>
+			
+
+
+
+			</div>
+		</div>
+		<script>
+				 var positions = ['security','cleaner','manager']
+            for (i = 0; i < positions.length; i++){
+                $('#positions').append('<option value='+positions[i]+'>'+positions[i]+'</option>');
+
+            }
+		</script>
+{% endblock %}

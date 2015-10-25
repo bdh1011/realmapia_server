@@ -1,0 +1,594 @@
+{% extends "inspection_nav.html" %}
+{% block innerbody %}
+
+<script src="http://code.jquery.com/jquery-1.7.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		var openedDetail=0;
+		resizeBackground(openedDetail);
+		$("#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList").click(function(){
+			var detailInfo = $(this).next("div");
+			if(detailInfo.attr("class")=="contentDetail"){
+				if(detailInfo.is(":hidden")){
+					openedDetail+=detailInfo.find(".detailList").length;
+					detailInfo.slideDown("slow");
+				}
+				else{
+					openedDetail-=detailInfo.find(".detailList").length;
+					detailInfo.slideUp("slow");
+				}
+				resizeBackground(openedDetail);
+			}
+		});
+	});
+
+	function resizeBackground(detailLength){
+		var margin = 7.1;
+		var headMenuHeight = $("#wrap> #manage> .headMenu").height();
+		var detailHeight = $("#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail> .detailList").height() * detailLength;
+		var contentListHeight = 
+		$("#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList").height() * 
+		$("#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList").length;
+
+		var wrapHeight =
+		headMenuHeight +
+		$("#wrap> #manage> #main> #mainContent> #attendInfo").height() +
+		$("#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title").height() +
+		contentListHeight + 
+		detailHeight + 
+		$("#wrap> #manage> #main> #mainContent> #attendCountGraph").height() +
+		$("#wrap> #manage> #main> #mainContent> #attendPercentGraph").height() +
+		margin*3;
+
+		$("#wrap").css("height",wrapHeight);
+		$("#wrap> #manage").css("height",wrapHeight-margin);
+		$("#wrap> #manage> #main").css("height",wrapHeight-headMenuHeight-margin*3);
+	}
+</script>
+<style type="text/css">
+/*
+	wrap 에 100% 가 적용되지 않아 추가
+*/
+html, body{
+	margin:0px 0px;
+	padding: 0px 0px;
+}
+#wrap{
+	width: 100%;
+	height: 584.3px;
+	position: absolute;
+	background-color: #f1f1f1;
+	font-size:8.5px;
+}
+#wrap> #manage{
+	width: 92%;
+	height: 578.2px;
+	margin-top: 7.1px;
+	margin-left:4%;
+}
+
+/* staff add menu */
+#wrap> #manage> .headMenu{
+	width: 100%;
+	height: 36.3px;
+	border-radius:7px;
+	background-color: #ffffff;
+}
+#wrap> #manage> .headMenu> #startDate{
+	width:19.9px;
+	height:10px;
+	position:relative;
+	float:left;
+	margin-top:13.2px;
+	margin-left:25.5px;
+}
+#wrap> #manage> .headMenu> #endDate{
+	width:9.2px;
+	height:10px;
+	position:relative;
+	float:left;
+	margin-top:13.2px;
+	margin-left:24.2px;
+}
+#wrap> #manage> .headMenu> .inputDiv{
+	width:107.6px;
+	height: 21.3px;
+	position:relative;
+	float:left;
+	margin:7.5px 0px;
+	margin-left:7.1px;
+	background-color: #f0f0f0;
+	border-radius:7px;
+}
+#wrap> #manage> .headMenu> .inputDiv> .headMenuText{
+	width:74.6px;
+	margin:4px 0px 5.7px 9px;
+	border: none;
+	border-color: transparent;
+	background-color: #f0f0f0;
+	font-size:10px;
+	color:#d0d0d0;
+}
+#wrap> #manage> .headMenu> .inputDiv> .calender{
+	height:13px;
+	width:13px;
+	position:absolute;
+	float:right;
+	margin-top:4.3px;
+	margin-right:6.8px;
+	background-color:blue;
+}
+#wrap> #manage> .headMenu> #employSearchDiv{
+	width:280.2px;
+	margin-left:45.5px;
+}
+#wrap> #manage> .headMenu> #employSearchDiv> #employSearchInput{
+	width:260.2px;
+}
+#wrap> #manage> .headMenu> .headMenuButton{
+	position:relative;
+	float:left;
+	width:107.6px;
+	height: 21.3px;
+	margin:7.5px 0px;
+	margin-left:37.1px;
+	background-color: #19a1d1;
+	border-radius:7px;
+	font-size:8.5px;
+	line-height:21px;
+	text-align:center;
+	color:#ffffff;
+}
+#wrap> #manage> .headMenu> .headMenuButton:hover{
+	cursor:default;
+}
+#wrap> #manage> .headMenu> #formSearch{
+	width:59px;
+	margin-left:7.1px;
+}
+
+/* main content */
+
+#wrap> #manage> #main{
+	width: 100%;
+	height: 534.5px;
+	margin-top: 7.1px;
+}
+#wrap> #manage> #main> #mainLeft{
+	height:100%;
+	width: 19%;
+	position: relative;
+	float:left;
+	border-radius:7px;
+	background-color: #ffffff;
+}
+#wrap> #manage> #main> #mainLeft> #leftTitle{
+	text-indent:10.7px;
+}
+#wrap> #manage> #main> #mainLeft> .subMenu{
+	position: relative;
+	float:left;
+	width: 100%;
+	height:33.4px;
+	border-bottom:0.7px solid #eeecec;
+	line-height:33.4px;
+	text-indent:10.7px;
+	font-size:10px;
+}
+#wrap> #manage> #main> #mainLeft> .subMenu:last-child{
+	border-bottom:none;
+}
+#wrap> #manage> #main> #mainLeft> .title{
+	position: relative;
+	float:left;
+	width: 100%;
+	height: 35.6px;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:46.8px;
+	color: #19a1d1;
+}
+#wrap> #manage> #main> #mainLeft> #attendCheckMenu{
+		background-color:#d3eff9;
+}
+#wrap> #manage> #main> #mainContent{
+	width: 80%;
+	height:100%;
+	position: relative;
+	float:left;
+	margin-left:1%;
+	border-radius:7px;
+	background-color: #ffffff;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo{
+	width: 100%;
+	height:112.5px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .title{
+	width: 100%;
+	height: 35.6px;
+	position: relative;
+	float:left;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:46.8px;
+	color: #19a1d1;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .title> .attendName{
+	width:145.2px;
+	position: relative;
+	float:left;
+	margin-left:28.8px;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .title> .recentInspectDate{
+	width:144.3px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .title> .recentRoomNum{
+	width:31px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .title> .recentPercent{
+	width:80px;
+	position: relative;
+	float:left;
+	margin-left:55px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .contentList{
+	width: 100%;
+	height:33.4px;
+	position: relative;
+	float:left;
+	border-bottom:0.7px solid #eeecec;
+	line-height:33.4px;
+	font-size:10px;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .contentList:last-child{
+	border-bottom:none;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .contentList> .attendName{
+	width:145.2px;
+	position: relative;
+	float:left;
+	margin-left:28.8px;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .contentList> .recentInspectDate{
+	width:144.3px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .contentList> .recentRoomNum{
+	width:31px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendInfo> .contentList> .recentPercent{
+	width:80px;
+	position: relative;
+	float:left;
+	margin-left:55px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo{
+	width: 100%;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title{
+	width: 100%;
+	height: 35.6px;
+	position: relative;
+	float:left;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:46.8px;
+	color: #19a1d1;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .month{
+	width:51px;
+	position: relative;
+	float:left;
+	margin-left:21px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .count{
+	width:30px;
+	position: relative;
+	float:left;
+	margin-left:38px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .totalCnt{
+	width:50px;
+	position: relative;
+	float:left;
+	margin-left:29.2px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .overallPercent{
+	width:80px;
+	position: relative;
+	float:left;
+	margin-left:35px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .day{
+	width:40px;
+	position: relative;
+	float:left;
+	margin-left:12.8px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .room{
+	width:31px;
+	position: relative;
+	float:left;
+	margin-left:35px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .percent{
+	width:51px;
+	position: relative;
+	float:left;
+	margin-left:53px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .title> .evaluator{
+	width:111px;
+	position: relative;
+	float:left;
+	margin-left:13px;
+	text-align:center;
+}
+
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList{
+	width: 100%;
+	height:33.4px;
+	position: relative;
+	float:left;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:33.4px;
+	font-size:10px;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList> .month{
+	width:51px;
+	position: relative;
+	float:left;
+	margin-left:21px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList> .count{
+	width:30px;
+	position: relative;
+	float:left;
+	margin-left:38px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList> .totalCnt{
+	width:50px;
+	position: relative;
+	float:left;
+	margin-left:29.2px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentList> .overallPercent{
+	width:80px;
+	position: relative;
+	float:left;
+	margin-left:35px;
+	text-align:center;
+}
+
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail{
+	width: 100%;
+	position: relative;
+	float:left;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:33.4px;
+	font-size:10px;
+	display:none;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail> .detailList{
+	width: 100%;
+	height:33.4px;
+	position: relative;
+	float:left;
+	border-bottom:0.7px solid #eeecec;
+	line-height:33.4px;
+	font-size:10px;	
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail> .detailList:last-child{
+	border-bottom:none;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail> .detailList> .day{
+	width:40px;
+	position: relative;
+	float:left;
+	margin-left:343px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail> .detailList> .room{
+	width:31px;
+	position: relative;
+	float:left;
+	margin-left:35px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail> .detailList> .percent{
+	width:51px;
+	position: relative;
+	float:left;
+	margin-left:53px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendTimeInfo> .contentDetail> .detailList> .evaluator{
+	width:111px;
+	position: relative;
+	float:left;
+	margin-left:13px;
+	text-align:center;
+}
+#wrap> #manage> #main> #mainContent> #attendCountGraph{
+	width: 100%;
+	height:239.6px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #mainContent> #attendCountGraph> .title{
+	width: 100%;
+	height: 58.4px;
+	position: relative;
+	float:left;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:86.8px;
+	color: #19a1d1;
+}
+#wrap> #manage> #main> #mainContent> #attendCountGraph> .title> .graphDay{
+	width:97px;
+	position: relative;
+	float:left;
+	margin-left:29px;
+}
+#wrap> #manage> #main> #mainContent> #attendCountGraph> .title> .graphCnt{
+	width:40px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #mainContent> #attendPercentGraph{
+	width: 100%;
+	height:239.6px;
+	position: relative;
+	float:left;
+	border-bottom:0.7px solid #eeecec;
+	line-height:33.4px;
+	font-size:10px;	
+}
+#wrap> #manage> #main> #mainContent> #attendPercentGraph> .title{
+	width: 100%;
+	height: 58.4px;
+	position: relative;
+	float:left;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:86.8px;
+	color: #19a1d1;
+}
+#wrap> #manage> #main> #mainContent> #attendPercentGraph> .title> .graphDay{
+	width:97px;
+	position: relative;
+	float:left;
+	margin-left:29px;
+}
+#wrap> #manage> #main> #mainContent> #attendPercentGraph> .title> .graphPercent{
+	width:40px;
+	position: relative;
+	float:left;
+}
+
+</style>
+<div id="wrap">
+	<div id="manage">
+		<div class="headMenu">
+			<div id="employSearchDiv" class="inputDiv"><input type="text" id="employSearchInput" class="headMenuText" name="employSearch"></div>
+			<div id="startDate">From</div>
+			<div class="inputDiv"><input type="text" id="startDateInput" class="headMenuText" name="startDate"><img id="startDateCalender" class="calender"></div>
+			<div id="endDate">To</div>
+			<div class="inputDiv"><input type="text" id="endDateInput" class="headMenuText" name="endDate"><img id="endDateCalender" class="calender"></div>
+			<div id="formSearch" class="headMenuButton" >search</div>
+		</div>
+		<div id="main">
+			<div id="mainLeft">
+				<div id="leftTitle" class="title">
+					<span>list</span>
+				</div>
+				<div id="formDataMenu" class="subMenu">
+				Form data
+				</div>
+				<div id="evalCheckMenu" class="subMenu">
+				Evaluator analysis
+				</div>
+				<div id="attendCheckMenu" class="subMenu">
+				Attendant analysis
+				</div>
+				<div id="attendRankMenu" class="subMenu">
+				Attendant Ranking
+				</div>
+				<div id="evalRankMenu" class="subMenu">
+				Evaluator Ranking
+				</div>
+			</div>
+			<div id="mainContent">
+				<div id="attendInfo">
+					<div class="title">
+						<div class="attendName">attendant name</div>
+						<div class="recentInspectDate">recent inspection date</div>
+						<div class="recentRoomNum">room</div>
+						<div class="recentPercent">recent percentage</div>
+					</div>
+					<div class="contentList">
+						<div class="attendName">Stacy Ann Ferguson</div>
+						<div class="recentInspectDate">2015-09-10, 12:00am</div>
+						<div class="recentRoomNum">1013</div>
+						<div class="recentPercent">80.06</div>
+					</div>
+				</div>
+				<div id="attendTimeInfo">
+					<div class="title">
+						<div class="month">month</div>
+						<div class="count">count</div>
+						<div class="totalCnt">total count</div>
+						<div class="overallPercent">overall percentage</div>
+						<div class="day">Day</div>
+						<div class="room">Room</div>
+						<div class="percent">Percentage</div>
+						<div class="evaluator">Evaluator</div>
+					</div>
+					<div class="contentList">
+						<div class="month">2015-08</div>
+						<div class="count">10</div>
+						<div class="totalCnt">36</div>
+						<div class="overallPercent">80.09</div>
+					</div>
+					<div class="contentDetail">
+						<div class="detailList">
+							<div class="day">10, Mon</div>
+							<div class="room">101</div>
+							<div class="percent">80.09</div>
+							<div class="evaluator">David John Mcdonald</div>
+						</div>
+						<div class="detailList">
+							<div class="day">11, Tue</div>
+							<div class="room">102</div>
+							<div class="percent">80.09</div>
+							<div class="evaluator">David John Mcdonald</div>
+						</div>
+					</div>
+					<div class="contentList">
+						<div class="month">2015-09</div>
+						<div class="count">21</div>
+						<div class="totalCnt">43</div>
+						<div class="overallPercent">78.10</div>
+					</div>
+				</div>
+				<div id="attendCountGraph">
+					<div class="title">
+						<div class="graphDay">day</div>
+						<div class="graphCnt">count</div>
+					</div>
+				</div>
+				<div id="attendPercentGraph">
+					<div class="title">
+						<div class="graphDay">day</div>
+						<div class="graphPercent">Percentage</div>
+					</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

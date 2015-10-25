@@ -1,0 +1,212 @@
+{% extends "inspection_nav.html" %}
+{% block innerbody %}
+
+<style type="text/css">
+/*
+	wrap 에 100% 가 적용되지 않아 추가
+*/
+html, body{
+	height:100%;
+}
+#wrap{
+	width: 100%;
+	height: 584.3px;
+	position: absolute;
+	background-color: #f1f1f1;
+	font-size:8.5px;
+}
+#manage{
+	width: 92%;
+	height: 578.2px;
+	margin-top: 7.1px;
+	margin-left:4%;
+}
+
+/* staff add menu */
+.headMenu{
+	width: 100%;
+	height: 36.3px;
+	border-radius:7px;
+	background-color: #ffffff;
+}
+#startDate, #endDate, .inputDiv, .headMenuButton{
+	position:relative;
+	float:left;
+}
+#startDate{
+	width:19.9px;
+	height:10px;
+	margin-top:13.2px;
+	margin-left:56.1px;
+}
+#endDate{
+	width:9.2px;
+	height:10px;
+	margin-top:13.2px;
+	margin-left:24.2px;
+}
+.inputDiv{
+	width:107.6px;
+	height: 21.3px;
+	margin:7.5px 0px;
+	margin-left:7.1px;
+	background-color: #f0f0f0;
+	border-radius:7px;
+}
+.headMenuText{
+	width:74.6px;
+	margin:4px 0px 5.7px 9px;
+	border: none;
+	border-color: transparent;
+	background-color: #f0f0f0;
+	font-size:10px;
+	color:#d0d0d0;
+}
+.headMenuButton{
+	width:107.6px;
+	height: 21.3px;
+	margin:7.5px 0px;
+	margin-left:37.1px;
+	background-color: #19a1d1;
+	border-radius:7px;
+	font-size:8.5px;
+	line-height:21px;
+	text-align:center;
+	color:#ffffff;
+}
+.headMenuButton:hover{
+	cursor:default;
+}
+#dateSearch{
+	width:59px;
+	margin-left:7.1px;
+}
+#assignInspectRoom{
+	float:right;
+	margin-right:63px;
+	width:117.6px;
+}
+.calender{
+	height:13px;
+	width:13px;
+	position:absolute;
+	float:right;
+	margin-top:4.3px;
+	margin-right:6.8px;
+	background-color:blue;
+}
+
+/* main content */
+#main{
+	width: 100%;
+	height: 534.5px;
+	margin-top: 7.1px;
+}
+#mainLeft, #mainContent, .title, .subMenu, .contentList, .cleanerName, .position, .recentInspectDate, .loginDate{
+	position: relative;
+	float:left;
+}
+#mainLeft, #mainContent{
+	height:100%;
+	border-radius:7px;
+	border-bottom-left-radius:0px;
+	border-bottom-right-radius:0px;
+}
+#mainLeft{
+	width: 19%;
+	height: 534.5px;
+	background-color: #ffffff;
+}
+#leftTitle, .subMenu{
+	text-indent:10.7px;
+}
+#mainContent{
+	width: 80%;
+	height: 534.5px;
+	margin-left:1%;
+	background-color: #ffffff;
+}
+.cleanerName{
+	width:177.1px;
+	text-indent:28.8px;
+}
+.position{
+	width:110.9px;
+}
+.recentInspectDate{
+	width:120.2px;
+}
+.loginDate{
+	width:200px;
+}
+.title{
+	width: 100%;
+	height: 35.6px;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:46.8px;
+	color: #19a1d1;
+}
+.subMenu, .contentList{
+	width: 100%;
+	height:33.4px;
+	border-bottom:0.7px solid #eeecec;
+	line-height:33.4px;
+	font-size:10px;
+}
+.subMenu:last-child, .staff_list:last-child{
+	border-bottom:none;
+}
+</style>
+<body>
+<div id="wrap">
+	<div id="manage">
+		<div class="headMenu">
+			<div id="startDate">From</div>				
+			<div class="inputDiv"><input type="text" id="startDateInput" class="headMenuText" name="startDate"><img id="startDateCalender" class="calender"></div>
+			<div id="endDate">To</div>				
+			<div class="inputDiv"><input type="text" id="endDateInput" class="headMenuText" name="endDate"><img id="endDateCalender" class="calender"></div>
+			<div id="dateSearch" class="headMenuButton" >search</div>
+			<div id="assignInspectRoom" class="headMenuButton">assign inspection room</div>
+		</div>
+		<div id="main">
+			<div id="mainLeft">
+				<div id="leftTitle" class="title">
+					<span>list</span>
+				</div>
+				<div class="subMenu">
+				not inspected room
+				</div>
+				<div class="subMenu">
+				not inspected cleaner
+				</div>
+			</div>
+			<div id="mainContent">
+				<div id="mainTitle" class="title">
+					<div class="cleanerName">cleaner name</div>
+					<div class="position">position</div>
+					<div class="recentInspectDate">recent inspection date</div>
+					<div class="loginDate">log in</div>
+				</div>
+				<div class="contentList">
+					<div class="cleanerName">Stacy Ann Ferguson</div>
+					<div class="position">Housekeeper</div>
+					<div class="recentInspectDate">2015-09-01</div>
+					<div class="loginDate">2015-09-01, 12:00am</div>
+				</div>
+				<div class="contentList">
+					<div class="cleanerName">Stacy Ann Ferguson</div>
+					<div class="position">Housekeeper</div>
+					<div class="recentInspectDate">2015-09-01</div>
+					<div class="loginDate">2015-09-01, 12:00am</div>
+				</div>
+				<div class="contentList">
+					<div class="cleanerName">Stacy Ann Ferguson</div>
+					<div class="position">Housekeeper</div>
+					<div class="recentInspectDate">2015-09-01</div>
+					<div class="loginDate">2015-09-01, 12:00am</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% end%}

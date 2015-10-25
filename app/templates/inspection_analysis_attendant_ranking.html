@@ -1,0 +1,59 @@
+{% extends "inspection_nav.html" %}
+{% block innerbody %}
+
+<div id="wrap">
+	<div id="manage">
+		<div class="headMenu">
+			<div id="formType">Form</div>
+			<div class="inputDiv"><input type="text" id="formTypeInput" class="headMenuText" name="formType"></div>
+			<div id="roomId">Room</div>
+			<div class="inputDiv"><input type="text" id="roomIdInput" class="headMenuText" name="roomId"></div>
+			<div id="formSearch" class="headMenuButton" >search</div>
+		</div>
+		<div id="main">
+			<div id="mainLeft">
+				<div id="leftTitle" class="title">
+					<span>list</span>
+				</div>
+				<div id="formDataMenu" class="subMenu">
+				Form data
+				</div>
+				<div id="evalCheckMenu" class="subMenu">
+				Evaluator analysis
+				</div>
+				<div id="attendCheckMenu" class="subMenu">
+				Attendant analysis
+				</div>
+				<div id="attendRankMenu" class="subMenu active">
+				Attendant Ranking
+				</div>
+				<div id="evalRankMenu" class="subMenu">
+				Evaluator Ranking
+				</div>
+			</div>
+			<div id="attend_rank_content">
+				<div id="mainTitle" class="title">
+					<div class="item_attend_name">attendant name</div>
+					<div class="item_position">position</div>
+					<div class="item_avg_score">average score</div>
+					<div class="item_room_num">number of rooms</div>
+				</div>
+				<ul id="rank_list">
+				{% for employee_id,each_rank in attend_rank.iteritems() %}
+					<li class="contentList" data-form-id="{{employee_id}}">
+						<div class="item_attend_name">{{employee_id}}</div>
+						<div class="item_position">{{each_rank.position}}</div>
+						<div class="item_avg_score">{{"%0.2f" % ((each_rank.get_point / each_rank.total_point)*100)}}</div>
+						<div class="item_room_num">{{each_rank.room_num}}</div>
+					</li>
+					
+
+				{% endfor %}
+					
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

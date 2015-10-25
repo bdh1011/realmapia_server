@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<title>HIMS</title>
+	<meta charset ='utf-8'>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+	<link rel='stylesheet' type='text/css'  href='{{url_for("static",filename="css/top.css")}}'>
+
+	<link rel="stylesheet" href="{{url_for('static',filename='css/jquery.datetimepicker.css')}}">
+  	<script src="{{url_for('static',filename='js/jquery-1.9.1.min.js')}}"></script>
+  	<script src="{{url_for('static',filename='js/jquery.datetimepicker.full.js')}}"></script>
+
+	<!--<script src='{{url_for("static",filename="js/jquery-1.9.1.min.js")}}'></script>-->
+	<script type="text/javascript"></script>
+</head>
+<body>
+	<header class="header_wrapper">
+		<nav id="navbar">
+			<a href="/main">
+				<div class="nav_icon">HIMS</div>
+			</a>
+			
+			<ul class="menu">
+				<li><a href="/manage/main">room manage</a></li>
+				<li><a href="/manage/employee_manage">employee manage</a></li>
+				<li><a href="/manage/inspection">inspection</a></li>
+				<li class="profile">
+
+					<div class="profile_image">
+					</div>
+					<div class="profile_name">
+						<!--이름 불러와야해-->
+						<span>{{username}}</span>
+					</div>
+					<div class="arrow_down">
+					</div>
+					
+				</li>
+			
+			</ul>
+		</nav>
+	</header>
+	{% block body %}{% endblock %}
+</body>
+</html>

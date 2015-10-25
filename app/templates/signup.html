@@ -1,0 +1,318 @@
+<html>
+
+<head>
+   <title>HIMS</title>
+    <link href="../static/css/style.css" rel="stylesheet">
+    <script src='../static/js/jquery-1.9.1.min.js'></script>
+</head>
+
+<body class="intro">
+    <div id="contents">
+
+        <div class="movable first" style="position:absolute; width:100%">
+            <div class="table_center">
+                <div class="ham_box" style="margin-bottom:12px;">
+                    
+                    <div class="content_ham">
+                    <div class="register-title">Register</div>
+                        <form accept-charset="UTF-8" action="signup" class="new_user" id="new_user" method="post">
+                            <div style="margin:0;padding:0;display:inline">
+                                <input name="utf8" type="hidden" value="✓">
+                                <input name="authenticity_token" type="hidden" value="hpc+dwXVo03pQp2ExhESO91DyqcLQxQFC25G7PmY6j8=">
+                            </div>
+                            <input id="user_password_initialized" name="user[password_initialized]" type="hidden" value="true">
+                            <input id="continue" name="continue" type="hidden">
+                            <div class="input_form">
+                                <div class="box_wrapper first">
+                                    <input autocapitalize="off" autocomplete="off" autocorrect="off" autofocus="autofocus" class="joinbox email" id="id" name="id" placeholder="ID" size="30" type="text">
+                                    <!-- <label for="email">이메일 주소</label> -->
+
+                                    <div class="validation_check"></div>
+                                </div>
+                                <div class="box_wrapper last">
+                                    <input autocapitalize="off" autocomplete="off" autocorrect="off" class="joinbox password" id="user_password" name="password" placeholder="Password" size="30" type="password">
+                                    <!-- <label for="password">비밀번호 (6자 이상)</label> -->
+                                    <div class="validation_check"></div>
+                                </div>
+                                <div class="box_wrapper name">
+                                    <input autocapitalize="off" autocomplete="off" autocorrect="off" autofocus="autofocus" class="joinbox name" id="name" name="name" placeholder="Name" size="30" type="text">
+                                    <!-- <label for="email">이메일 주소</label> -->
+
+                                    <div class="validation_check"></div>
+                                </div>
+                                <div class="box_wrapper team_select">
+                                    <select id="positions" name="position">
+                                        <option selected disabled>Position</option>
+
+                                    </select>
+                                    <div class="validation_check"></div>
+
+                                </div>
+                                <div class="box_wrapper team_select">
+                                    <select id="teams" name="team">
+                                        <option selected disabled>Team</option>
+                                        {% for each_team in team_list %}
+                                        <option value="{{each_team.name}}">{{each_team.name}}</option>
+                                        {% endfor %}
+
+                                    </select>
+                                    <div class="validation_check"></div>
+
+                                </div>
+                                <div class="box_wrapper gender">
+                                    <!-- <span class="radio_title">성별</span> -->
+                                    <div>
+  <input type="radio" id="radio01" name="gender" value="male" />
+  <label for="radio01" id="male"><span style="color:#0D7FFB">Male</span></label>
+</div>
+
+<div>
+ <input type="radio" id="radio02" name="gender" value="female"/>
+ <label for="radio02" id="female"><span style="color:#F71131">Female</span></label>
+</div>
+                                    <div class="validation_check"></div>
+                                </div>
+
+                                <div class="box_wrapper birthday_select">
+                                    <select id="years" name="year">
+                                        <option selected disabled>Year</option>
+                                    </select>
+                                    <select id="months" name="month">
+                                        <option selected disabled>Month</option>
+                                    </select>
+                                    <select id="days" name="day">
+                                        <option selected disabled>Day</option>
+                                    </select>
+                                    
+                                    
+                                    
+
+                                    <div class="validation_check"></div>
+                                </div>
+
+                            </div>
+
+                            <input type="submit" id="submit_join" class="btn_join" value="Register">
+                                
+                            </input>
+                            <!--<div class="comment_top">
+                                <a href="/login">로그인</a> / <a href="/about/agreement" target="_blank">약관 보기</a>
+                            </div>-->
+                        </form>
+                    </div>
+                </div>
+
+                </div>
+
+        <script>
+            var timeoutID;
+
+            function clearNDelayAjax(i) {
+                window.clearTimeout(timeoutID);
+                timeoutID = window.setTimeout(function() {
+                    checkEmail(i)
+                }, 1000);
+            }
+
+            // $('.joinbox.email, .joinbox.name, .joinbox.password').placeholder();
+
+            $(document).on("keyup", ".joinbox.email", function() {
+                clearNDelayAjax($(this));
+            });
+
+            function checkEmail(i) {
+                var isValid = false;
+                if (validateEmail(i.val())) {
+                    $.ajax({
+                        url: "/user/check_email/",
+                        data: {
+                            email: i.val()
+                        },
+                        success: function(ret) {
+                            if (ret == "suc") {
+                                isValid = true;
+                                if ($(".input_field_errors").size() != 0) {
+                                    $(".input_field_errors").remove();
+                                }
+                            } else if (ret == "fail") {
+                                if ($(".input_field_errors").size() == 0) {
+                                    $(".input_form").after("<div class=\"input_field_errors join\">이미 존재하는 이메일입니다.</div>");
+                                }
+                            }
+                            changeValidIcon(i, isValid);
+                        }
+                    });
+                }
+            }
+
+            $(document).ready(function() {
+
+                for (i = new Date().getFullYear(); i > 1900; i--){
+                    $('#years').append('<option value='+i+'>'+i+'</option>');
+
+                }
+                for (i = 1; i < 13; i++){
+                    $('#months').append('<option value='+i+'>'+i+'</option>');
+                }
+                updateNumberOfDays(); 
+               $('#years, #months').change(function(){
+                    updateNumberOfDays(); 
+                });
+
+                //update team list
+                var positions = ['security','cleaner','manager']
+                for (i = 0; i < positions.length; i++){
+                    $('#positions').append('<option value='+positions[i]+'>'+positions[i]+'</option>');
+
+                }
+            });
+
+            function updateNumberOfDays(){
+                $('#days').html('');
+                month=$('#months').val();
+                year=$('#years').val();
+                days=daysInMonth(month, year);
+                $('#days').append('<option selected disabled>Day</option>');
+                for(i=1; i < days+1 ; i++){
+                        $('#days').append('<option value='+i+'>'+i+'</option>');
+                }
+            }
+            function daysInMonth(month, year) {
+               return new Date(year, month, 0).getDate();
+            }
+
+            // label
+            $(document).ready(function() {
+                setTimeout(function() {
+                    $(".joinbox").each(function() {
+                        checkVal($(this));
+                        checkJoinValidation($(this));
+                    });
+                }, 100);
+
+
+            });
+            $(document).on("keyup blur", ".joinbox", function() {
+                checkVal($(this));
+                checkJoinValidation($(this));
+            });
+            $(document).on("keydown", ".joinbox", function() {
+                checkVal($(this));
+            });
+            // validation
+            function validateEmail($email) {
+                var emailReg = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}?$/;
+                return emailReg.test($email);
+            }
+
+            function changeValidIcon($this, isValid) {
+                if (isValid) {
+                    $this.parent().find(".validation_check").toggleClass("valid", true);
+                } else {
+                    $this.parent().find(".validation_check").toggleClass("valid", false);
+                }
+
+                var s = $(".btn_join");
+                if ($(".box_wrapper .valid").length > 2) {
+                    s.toggleClass("disable", false).toggleClass("enabled", true).removeAttr("disabled");
+                } //else {
+                //     s.toggleClass("disable", true).toggleClass("enabled", false).attr("disabled", "disabled");;
+                // }
+            }
+
+            function checkJoinValidation(i) {
+                var isValid = undefined;
+                if (i.hasClass("name")) {
+                    isValid = $.trim(i.val()).length >= 2 && $.trim(i.val()).length <= 20;
+                    isValid = isValid && (checkHangulNum(i.val()) || checkEngNum(i.val()))
+                } else if (i.hasClass("password")) {
+                    isValid = i.val().length >= 6 && i.val().length <= 20;
+                }
+
+                if (isValid == true || isValid == false) {
+                    changeValidIcon(i, isValid);
+                }
+            }
+
+            function checkVal(a) {
+                if (a.val().length > 0)
+                    a.parent().addClass("val")
+                else
+                    a.parent().removeClass("val")
+            }
+
+            function checkHangulNum(str) {
+                for (var j = 0; j < str.length; j++) {
+                    var chr = str.substr(j, 1);
+                    chr = escape(chr);
+                    if (j == 0 && !isNaN(chr)) {
+                        return false;
+                    } else {
+                        if (chr.charAt(1) == "u") {
+                            chr = chr.substr(2, (chr.length - 1));
+                            if ((chr < "AC00") || (chr > "D7A3"))
+                                return false;
+                        } else if (isNaN(chr)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            function checkEngNum(str) {
+                    if (str.match(/[^a-z\ A-Z0-9]/) != null) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                /*
+                 $(".btn_facebook_join").click(function() {
+                 snsconnect('facebook', '/join');
+                 return false;
+                 });
+                 */
+        </script>
+        <script>
+            $(document).on("keydown", ".input_form", function(e) {
+                var code
+                if (e.keyCode) {
+                    code = e.keyCode
+                } else {
+                    code = e.which
+                }
+                if (code == 13) {
+                    $('#submit_join[disabled!="enabled"]').trigger('click')
+                }
+            });
+        </script>
+
+    </div>
+    <script type="text/javascript">
+        adroll_adv_id = "TQL7PFOBG5ES5EZEXO4NRM";
+        adroll_pix_id = "GZKZVF5HHBDGHN5OY6OVXG";
+        (function() {
+            var oldonload = window.onload;
+            window.onload = function() {
+                __adroll_loaded = true;
+                var scr = document.createElement("script");
+                var host = (("https:" == document.location.protocol) ? "https://s.adroll.com" : "http://a.adroll.com");
+                scr.setAttribute('async', 'true');
+                scr.type = "text/javascript";
+                scr.src = host + "/j/roundtrip.js";
+                ((document.getElementsByTagName('head') || [null])[0] ||
+                    document.getElementsByTagName('script')[0].parentNode).appendChild(scr);
+                if (oldonload) {
+                    oldonload()
+                }
+            };
+        }());
+    </script>
+
+
+
+   
+</body>
+
+</html>

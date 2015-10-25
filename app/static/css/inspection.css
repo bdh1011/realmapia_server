@@ -1,0 +1,534 @@
+@charset "utf-8";
+@font-face{ 
+	font-family: 'font';
+	/*src:url("../font/210 콤퓨타세탁R.ttf")format('truetype');*/
+	src:url('../font/yoon320.ttf');
+}
+body{
+	font-family: 'font';
+}
+
+
+
+.main_top > .inspection_header_wrapper{
+		width:956px;
+		margin:0 auto;
+}
+.main_top > .inspection_header_wrapper > .inspection_type_wrapper{
+	margin-left:10px;
+	margin-top:12px;
+	float:left;
+}
+.main_top > .inspection_header_wrapper > .inspection_type_wrapper .assign_inspection_span{
+	width:140px;
+	height:24px;
+	color:#000;
+	text-align:center;
+	font-size:13px;
+	line-height:24px;
+	float:left;
+	cursor:pointer;
+
+}
+
+.main_top > .inspection_header_wrapper > .inspection_type_wrapper .inspection_analysis_span{
+	width:140px;
+	height:24px;
+	color:#000;
+	text-align:center;
+	font-size:13px;
+	line-height:24px;
+	margin-left:8px;
+	float:left;
+	cursor:pointer;
+}
+
+
+.form_data_edit_btn{
+	float:right;
+	width:10px;
+	height:10px;
+	margin-top:11px;
+	margin-right:11px;
+	cursor:pointer;
+}
+.form_data_delete_btn{
+	float:right;
+	width:10px;
+	height:10px;
+	margin-top:11px;
+	margin-right:14px;
+	cursor:pointer;
+}
+
+
+#wrap{
+	width: 100%;
+	position: absolute;
+	background-color: #f1f1f1;
+	font-size:8.5px;
+}
+#wrap> #manage{
+	width: 995px;
+	margin-top: 7.1px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+/* staff add menu */
+#wrap> #manage> .headMenu{
+	width: 100%;
+	height: 36.3px;
+	border-radius:7px;
+	background-color: #ffffff;
+}
+#wrap> #manage> .headMenu> #formType{
+	width:19.9px;
+	height:10px;
+	position:relative;
+	float:left;
+	margin-top:13.2px;
+	margin-left:56.1px;
+}
+#wrap> #manage> .headMenu> #roomId{
+	width:19.9px;
+	height:10px;
+	position:relative;
+	float:left;
+	margin-top:13.2px;
+	margin-left:36.9px;
+}
+#wrap> #manage> .headMenu> .inputDiv{
+	width:107.6px;
+	height: 21.3px;
+	position:relative;
+	float:left;
+	margin:7.5px 0px;
+	margin-left:7.1px;
+	background-color: #f0f0f0;
+	border-radius:7px;
+}
+#wrap> #manage> .headMenu> .inputDiv> .headMenuText{
+	width:87.6px;
+	margin:4px 0px 5.7px 9px;
+	border: none;
+	border-color: transparent;
+	background-color: #f0f0f0;
+	font-size:10px;
+	color:#d0d0d0;
+}
+#wrap> #manage> .headMenu> .headMenuButton{
+	width:107.6px;
+	height: 21.3px;
+	position:relative;
+	float:left;
+	margin:7.5px 0px;
+	margin-left:37.1px;
+	background-color: #19a1d1;
+	border-radius:7px;
+	font-size:8.5px;
+	line-height:21px;
+	text-align:center;
+	color:#ffffff;
+}
+#wrap> #manage> .headMenu> .headMenuButton:hover{
+	cursor:default;
+}
+#wrap> #manage> .headMenu> #formSearch{
+	width:59px;
+	margin-left:42.3px;
+}
+
+/* main content */
+#wrap> #manage> #main{
+	width: 100%;
+	height: 534.5px;
+	margin-top: 7.1px;
+}
+#wrap> #manage> #main> #mainLeft{
+	height:100%;
+	width: 19%;
+	position: relative;
+	float:left;
+	border-radius:7px;
+	border-bottom-left-radius:0px;
+	border-bottom-right-radius:0px;
+	background-color: #ffffff;
+}
+#wrap> #manage> #main> #mainLeft> #leftTitle{
+	font-size:14px;
+}
+#wrap> #manage> #main> #mainLeft> .subMenu{
+	position: relative;
+	float:left;
+	width: 100%;
+	height:40px;
+	border-bottom:0.7px solid #eeecec;
+	line-height:40px;
+	text-indent:10.7px;
+	font-size:14px;
+	cursor:pointer;
+}
+#wrap> #manage> #main> #mainLeft> .subMenu:last-child{
+	border-bottom:none;
+}
+#wrap> #manage> #main> #mainLeft> .title{
+	position: relative;
+	float:left;
+	width: 100%;
+	height: 40px;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:40px;
+	color: #19a1d1;
+}
+#wrap> #manage> #main> #mainLeft> .active{
+		background-color:#d3eff9;
+}
+#wrap> #manage> #main> #form_data_content{
+	width: 80%;
+	height:100%;
+	margin-left:1%;
+	position: relative;
+	float:left;
+	border-radius:7px;
+	border-bottom-left-radius:0px;
+	border-bottom-right-radius:0px;
+	background-color: #ffffff;
+}
+#wrap> #manage> #main> #form_data_content> .title{
+	position: relative;
+	float:left;
+	width: 100%;
+	height: 40px;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:40px;
+	color: #19a1d1;
+	font-size:14px;
+}
+#wrap> #manage> #main> #form_data_content> .title> .item_num{
+	width:68.2px;
+	text-indent:21.2px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content> .title> .item_form{
+	width:60px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content> .title> .item_description{
+	width:380px;
+	position: relative;
+	overflow-x:auto;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content> .title> .item_avg_point{
+	width:55px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content> .title> .item_total_point{
+	width:62px;
+	position: relative;
+	margin-left:10px;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content> .title> .item_percent{
+	width:44px;
+	margin-left:40px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+
+#wrap> #manage> #main> #form_data_content .title #add_form{
+	width:15px;
+	height:15px;
+	background-image:url('../img/ic_add.png');
+	background-size:cover;
+	position:absolute;
+	bottom:10px;
+	right:10px;
+	cursor:pointer;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList{
+	position: relative;
+	float:left;
+	width: 100%;
+	height:33.4px;
+	border-bottom:0.7px solid #eeecec;
+	line-height:33.4px;
+	font-size:13px;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList > div{
+	height:100%;
+}
+#wrap> #manage> #main> #form_data_content > #form_list > .contentList:last-child{
+	border-bottom:none;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList> .item_num{
+	width:68.2px;
+	text-indent:21.2px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList> .item_form{
+	width:60px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList> .item_description{
+	width:380px;
+	overflow-x:auto;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content> #form_list >  .contentList> .item_description> .delete{
+	width:10px;
+	height:10px;
+	float:right;
+	margin-top:13px;
+	margin-right:135px;
+	background-color:yellow;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList> .item_description> .edit{
+	width:10px;
+	height:10px;
+	float:right;
+	margin-top:13px;
+	margin-right:10px;
+	background-color:red;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList> .item_avg_point{
+	width:50px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList> .item_total_point{
+	width:45px;
+	margin-left:32px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content> #form_list > .contentList> .item_percent{
+	width:44px;
+	margin-left:40px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail{
+	width:100%;
+	position: relative;
+	display:none;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailTitle{
+	width: 100%;
+	height: 28.1px;
+	position: relative;
+	float:left;
+	border-bottom:0.7px solid #eeecec;
+	font-size:13px;
+	line-height:28.1px;
+	color: #19a1d1;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailTitle> .detailRoomNum{
+	width:65px;
+	margin-left:47.9px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailTitle> .detailEval{
+	width:65px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailTitle> .detailAttend{
+	width:65px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailTitle> .detailPoint{
+	width:60px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailTitle> .detailDate{
+	width:68px;
+	margin-left:25.2px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailTitle> .comment{
+	width:300px;
+	margin-left:40.6px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailList{
+	width: 100%;
+	height: 28.1px;
+	position: relative;
+	float:left;
+	line-height:28.1px;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailList> .detailRoomNum{
+	width:65px;
+	margin-left:47.9px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailList> .detailEval{
+	width:65px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailList> .detailAttend{
+	width:65px;
+	position: relative;
+	float:left;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailList> .detailPoint{
+	width:60px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailList> .detailDate{
+	width:68px;
+	margin-left:25.2px;
+	position: relative;
+	float:left;
+	text-align:center;
+}
+#wrap> #manage> #main> #form_data_content .itemDetail> .itemDetailList> .comment{
+	width:300px;
+	margin-left:40.6px;
+	position: relative;
+	float:left;
+}
+
+
+
+
+#wrap> #manage> #main> #attend_rank_content{
+	width: 80%;
+	height:100%;
+	margin-left:1%;
+	position: relative;
+	float:left;
+	border-radius:7px;
+	border-bottom-left-radius:0px;
+	border-bottom-right-radius:0px;
+	background-color: #ffffff;
+}
+#wrap> #manage> #main> #attend_rank_content> .title{
+	position: relative;
+	float:left;
+	width: 100%;
+	height: 40px;
+	border-bottom:2.1px solid #dbd9d9;
+	line-height:40px;
+	color: #19a1d1;
+	font-size:14px;
+}
+
+#wrap> #manage> #main> #attend_rank_content .item_num{
+	width:65px;
+	position: relative;
+	float: left;
+	margin-left:30px;
+}
+
+#wrap> #manage> #main> #attend_rank_content .item_attend_name{
+	width:205px;
+	position: relative;
+	float: left;
+	margin-left:30px;
+}
+#wrap> #manage> #main> #attend_rank_content .item_position{
+	width:105px;
+	position: relative;
+	float: left;
+}
+
+
+#wrap> #manage> #main> #attend_rank_content .item_avg_score{
+	width:105px;
+	position: relative;
+	float: left;
+}
+#wrap> #manage> #main> #attend_rank_content .item_room_num{
+	width:105px;
+	position: relative;
+	float: left;
+}
+#wrap> #manage> #main> #attend_rank_content #rank_list{
+	line-height:15px;
+	color: #000;
+	font-size:14px;
+}
+
+input.item_description{
+	width:134.7px;
+	text-indent:5.5px;
+	outline: -webkit-focus-ring-color auto 0px;
+	border: 0px;
+	border-radius: 7px;
+	height: 21px;
+    background-color: #f0f0f0;
+    padding: 5px;
+    font-size: 12px;
+    color: #000;
+}
+
+input.item_total_point{
+	width:53px!important;
+	text-align:center;
+	outline: -webkit-focus-ring-color auto 0px;
+	border: 0px;
+	border-radius: 7px;
+	height: 21px;
+    background-color: #f0f0f0;
+    padding: 1px;
+    font-size: 10px;
+    color: #000;
+}
+select.item_form{
+	outline: -webkit-focus-ring-color auto 0px;
+    border: 0px;
+    border-radius: 7px;
+    width: 50.6px;
+    margin-left:-10px;
+    height: 21px;
+    background-color: #f0f0f0;
+    padding: 5px;
+    margin-right:5px;
+    font-size: 12px;
+    color: #aaa;
+    position: relative;
+    float: left;
+}
+#add_form_submit{
+	font-size: 10px;
+	height:21px!important;
+    margin-left: 20px;
+    width: 40px;
+    background-color: #19a1d1;
+    color: #ffffff;
+    border-radius:5px;
+    line-height: 21px;
+    vertical-align:middle;
+    text-align: center;
+    text-indent:0;
+    position:relative;
+    float:left;
+    cursor:pointer;
+	
+}

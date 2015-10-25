@@ -1,0 +1,203 @@
+{% extends "header.html" %}
+{% block body %}
+<script src="{{url_for('static',filename='js/main.js')}}"></script>
+
+	<div class="add_room_overlay">
+		<div class='popup'>
+			<div class='popup_x_btn'></div>
+		     <div class='add_room_title'  style="color:#19a1d1">Add Room</div>
+
+		     <div class="room_numbers">Room number</div>
+		     <ul class='add_room_list'>
+		     </ul>
+		     <h3 style="text-align:center;font-size:15px">Enter number or bound (ex : 101-110 )</h3>
+		     <div class='add_room_row'>
+		     	<input type='text' class='add_room_form'></input>
+		     	<input type='button' class='add_room_btn' value='ADD'></input>
+		     </div>
+		     <div class='add_room_submit'>
+		 		<div>Submit</div>
+		 	</div>
+		</div>
+	</div>
+
+	<div class="delete_room_overlay">
+		<div class='popup'>
+			<div class='popup_x_btn'></div>
+		     <div class='delete_room_title'  style="color:#19a1d1">Delete Room</div>
+		      <div class="room_numbers">Room number</div>
+		     <ul class='delete_room_list'>
+		     </ul>
+		     <h3 style="text-align:center;font-size:15px">Enter number or bound (ex : 101-110 )</h3>
+		     <div class='delete_room_row'>
+		     	<input type='text' class='delete_room_form'></input>
+		     	<input type='button' class='delete_room_btn' value='ADD'></input>
+		     </div>
+		    
+		     <div class='delete_room_submit'>
+		 		<div>Submit</div>
+		 	</div>
+		</div>
+	</div>
+
+	<div class="room_info_overlay">
+		<div class="popup">
+
+		</div>
+	</div>
+	<div class="main_wrapper">
+		<div class="main_top">
+			<div class="assign_wrapper">
+				<div id="assign_room">assign room</div>
+				<div id="assign_inspection_room">assign inspection room</div>
+			</div>
+			<div class="right_wrapper">
+				<div class="room_show_setting">
+					<div id="show_limit">
+						<span>all</span>
+						<div class="arrow_down"></div>
+					</div>
+					<div id="show_type">
+						<span>card</span>
+						<div class="arrow_down"></div>
+					</div>
+				</div>
+				<div class="search_wrapper">
+					<form>
+					<input id="search" name="search" type="search" placeholder="room number">
+
+						<i class="search_icon"></i>
+					</form>
+				</div>
+				<div class="room_inc_dec_wrapper">
+
+					<div class="room_delete_btn" id="delete_room"></div>	
+					<div class="room_add_btn" id="add_room"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+
+		<div class="room_wrapper">
+		
+		{% for floor, each_floor in room_floor_list.iteritems()%}
+		<div class="cards">
+			<div class="floor_info_wrapper">
+				<div class="floor_info_title">{{floor}}F, {{each_floor.floor_room_len}} Rooms</div>
+				<div class="floor_info_bold">assigned : </div>
+				<div class="floor_info_value">{{each_floor.floor_assigned_len}} Rooms</div>
+
+				<div class="floor_info_bold">cleaned : </div>
+				<div class="floor_info_value">{{each_floor.floor_cleaned_len}} Rooms</div>
+
+				<div class="floor_info_bold">inspected : </div>
+				<div class="floor_info_value">{{each_floor.floor_inspected_len}} Rooms</div>
+			</div>
+			<div class="room_list">
+			{% for each_room in each_floor.room_list %}
+				
+				<div class="card" data-room-num="{{each_room.number}}" data-arrival-date="{{each_room.arrival_date}}" data-departure-date="{{each_room.departure_date}}" date-time-arr="{{each_room.time_arr}}" date-time-dep="{{each_room.time_dep}}" date-customer-name="{{each_room.customer_name}}" date-room-state="{{each_room.state}}">
+					<div class="{{each_room.assign_class}} {{each_room.inspect_class}}"><div class="assign_check"></div></div>
+					<div class="card_body" style="text-align:center">
+						<div class="card_room_num {{each_room.state}}">{{each_room.number}}</div>
+						<div class="card_room_info">
+							<h4>{{each_room.employee_name}}</h4>
+							{% if each_room.assign_class != 'assigned_room_overlay'%}
+								<h4 style="color:#19a1d1;font-size:14px">{{each_room.assign_employee_name}}</h4>
+							{% else %}
+								<h4>-</h4>
+							{% endif %}
+
+							
+								<h4><div class="date_icon"></div>{{each_room.arrival_date}}</h4>
+								<h4><div class="date_icon"></div>{{each_room.departure_date}}</h4>
+
+								{% if each_room.is_cleaned == True %}
+									<h4 sylte="color:#19a1d1">Cleaned</h4>
+								{% else %}
+									<h4>-</h4>
+								{% endif %}
+								{% if each_room.is_checkin == True%}
+									{% if each_room.is_checkout == True %}
+										<h4 style="color:red">Checked out</h4>
+									{% else %}
+										<h4>-</h4>
+									{% endif %}
+								{% else %}
+									<h4>-</h4>
+								{% endif %}
+							
+
+						</div>
+					</div>
+							<span>{{each_room.joined_len}}</span>
+					
+				</div>
+			{% endfor %}	
+			</div>
+		</div>
+		{% endfor %}
+		
+
+	</div>
+
+
+	<div id="assign_room_box">
+
+		<div id="assign_room_box_header">
+			<ul>
+				<li style="width:10%">Team List</li>
+				<li style="width:10%">Name</li>
+				<li style="width:10%">Assign</li>
+				<li style="width:30%">Room</li>
+			</ul>
+			<div class='assign_box_x_btn'></div>
+		</div>
+		<div id="team_list">
+			<ul>
+			</ul>
+		</div>
+		<div id="employee_list">
+			<ul>
+
+			</ul>
+		</div>
+		<div id="employee_info">
+			<table id="employee_info_table" data-employee-id=''>
+				<tr>
+					<td>name</td>
+					<td id='employee_info_name'></td>
+				</tr>
+				<tr>
+					<td>position</td>
+					<td id='employee_info_position'></td>
+				</tr>
+				<tr>
+					<td>inspection</td>
+					<td id='employee_info_inspection'></td>
+				</tr>
+				<tr>
+					<td>inspection date</td>
+					<td id='employee_info_inspection_date'></td>
+				</tr>
+				<tr>
+					<td>assigned</td>
+					<td id='employee_info_assigned'></td>
+				</tr>
+				<tr>
+					<td>rooms</td>
+					<td id='employee_info_rooms'><textarea cols='40' rows='2' style='border:0'></textarea></td>
+				</tr>
+				<tr>
+				 	<td colspan="2"><div id="assign_send_btn">Send</div></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+<script>
+
+					  	
+</script>
+{% endblock %}

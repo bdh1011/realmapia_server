@@ -1,0 +1,4092 @@
+<!DOCTYPE HTML>
+<HTML>
+<HEAD>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="jquery-ui.min.js"></script>
+	<script type="text/javascript" src="first.js"></script>
+
+</HEAD>
+<BODY>
+	<? 
+		$mysql_host = 'localhost';
+		$mysql_user = 'root';
+		$mysql_password = 'dotdodot';
+		$mysql_db = 'dodotdo';
+
+		$conn = mysql_connect($mysql_host, $mysql_user, $mysql_password);
+		$dbconn = mysql_select_db($mysql_db, $conn);
+
+		mysql_query("set names utf8");
+
+		$query = "select room_num from assign order by room_num";
+					$result = mysql_query($query, $conn);
+
+					$return_array = array();
+					$k ="";
+
+					while ($row = mysql_fetch_array($result))
+					{
+							$a = $row['room_num'];
+							array_push($return_array,$a);
+					}
+
+
+		$query2 = "select room_num from room";
+					$result2 = mysql_query($query2, $conn);
+
+					$count_array = array();
+
+					while ($row2 = mysql_fetch_array($result2))
+					{
+							$b = $row2['room_num'];
+							array_push($count_array,$b);
+					}
+
+		$query3 = "select * from employee order by team";
+					$result3 = mysql_query($query3, $conn);
+
+					$employee_array = array();
+
+					while($row3 = mysql_fetch_array($result3))
+					{
+						$row_array['team'] = $row3['team'];
+						$row_array['name'] = $row3['name'];
+						$row_array['age'] = $row3['age'];
+						$row_array['position'] = $row3['position'];
+						$row_array['registration'] = $row3['registration'];
+						array_push($employee_array,$row_array);
+					}
+
+		$query4 = "select * from team2 order by team";
+					$result4 = mysql_query($query4, $conn);
+
+					$team_array = array();
+
+					while($row4 = mysql_fetch_array($result4))
+					{
+						$row_array['team'] = $row4['team'];
+						array_push($team_array,$row_array);
+					}			
+												
+	 ?>
+
+	 <script>
+	 	var js_assign = <?php echo json_encode($return_array)?>; 
+	 	var js_count = <?php echo json_encode($count_array)?>;
+	 	var js_employee = <?php echo json_encode($employee_array)?>;
+	 	var js_team_list = <?php echo json_encode($team_array)?>;
+	 </script>
+	<script>
+		var request_state = 0;
+		var request_state2 =0;
+		var teamSend_state = 0;
+		var request_number = 0;
+		var request_text ="";
+		var notice_text = "";
+		var assign_able = 0;
+		var re=0;
+		var temp_state = 0;
+		var assign_room_array = new Array();
+		var	ass_team = "A";
+
+		var js_array = new Array();
+		var arr = new Array();
+		var js_team = new Array();
+
+
+		var employee_list = new Array();
+		var employee_delete_list = new Array();
+
+		var xmlhttp = new XMLHttpRequest();
+		var test3=1;
+
+		
+		var adding_team_array = new Array();
+		var temp_click_team;
+	</script>
+
+	<div class="background" id="background" onclick="request_back()">
+	<div class="background2" id="background2" style ="position:absolute; width:100%; height:100%; display:none" onclick="cancle_check()"></div>
+
+	<div class="subbackground_employee">
+		<div class="employee_employee" style="top:12%; left:8%; position:absolute; font-size:25px; font-weight:bold" onclick = "click_employee_employee()">Employee</div>
+		<div class="team_employee" style="top:12%; left:25%; position:absolute; font-size:25px" onclick = "click_team_employee()">Team</div>
+		<div class="add_employee" style="top:67%; left:8%; position:absolute; font-size:20px" onclick = "click_add_employee()">add</div>
+		<div class="team_add_employee" style="top:67%; left:8%; position:absolute; font-size:20px; display:none" onclick = "click_team_add_employee()">team add</div>
+		<div class="team_delete_employee" style="top:67%; left:20%; position:absolute; font-size:20px; display:none" onclick = "click_team_delete_employee()">team delete</div>
+		<div class="team_change_employee" style="top:67%; left:32%; position:absolute; font-size:20px; display:none" onclick = "click_team_change_employee()">team change</div>
+		<div class="delete_employee" style="top:67%; left:15%; position:absolute; font-size:20px" onclick="click_delete_employee()">delete</div>
+	</div>
+
+
+
+	<script>
+		function click_team_change_employee(){
+			if(member_list.length == 0)
+			{
+				alert("Please, check at least one person!")
+			}else{
+
+			var back2 = document.getElementById('background');
+
+			var newDiv = document.createElement('div');
+			newDiv.className = "pop_team_change";
+			newDiv.style.position ="absolute";
+			newDiv.style.top = "30%";
+			newDiv.style.left="35%";
+			newDiv.style.fontSize="22px";
+			newDiv.style.backgroundImage = "url('./image/popup.png')"
+			newDiv.style.width = "680px"
+			newDiv.style.height = "468px";
+			newDiv.style.backgroundColor = "#fff";
+			back2.appendChild(newDiv);
+
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.position = "absolute";
+			newDiv2.style.top = "6%";
+			newDiv2.style.left = "37%";
+			newDiv2.style.fontSize = "36px";
+			newDiv2.innerHTML = "team change";
+
+			newDiv.appendChild(newDiv2);
+
+			var newDiv3 = document.createElement('div');
+			newDiv3.style.position = "absolute";
+			newDiv3.style.top = "31%";
+			newDiv3.style.left = "10%";
+			newDiv3.style.fontSize = "20px";
+
+			var text ="";
+
+			for(i=0;i<member_list.length; i++)
+			{
+				text = text + member_list[i];
+				if(i != member_list.length-1)
+				{
+					text = text + " ,";
+				}
+			}
+			newDiv3.innerHTML = text;
+			newDiv.appendChild(newDiv3);
+
+			var newDiv4 = document.createElement('div');
+			newDiv4.style.position = "absolute";
+			newDiv4.style.top = "50%";
+			newDiv4.style.left = "10%";
+			newDiv4.style.fontSize = "25px";
+			newDiv4.innerHTML = "team";
+
+			newDiv.appendChild(newDiv4);
+
+			var newSelect = document.createElement('select');
+			newSelect.className = "select_team_change";
+			newDiv.appendChild(newSelect);
+
+			for(o=0; o<js_team_list.length;o++)
+			{
+				var newOption = document.createElement('option');
+				newOption.setAttribute('value',js_team_list[o].team);
+				var t = document.createTextNode(js_team_list[o].team+' team');
+				newOption.appendChild(t);
+				newSelect.appendChild(newOption);
+			}
+
+			var newDiv6 = document.createElement('div');
+			newDiv6.style.top = "83%";
+			newDiv6.style.left="5%";
+			newDiv6.style.backgroundImage = "url('./image/close.png')";
+			newDiv6.style.width ="127px";
+			newDiv6.style.height = "60px";
+			newDiv6.style.position = "absolute";
+			newDiv6.setAttribute('onclick','click_close_team_change()');
+			newDiv.appendChild(newDiv6);
+
+			var newDiv7 = document.createElement('div');
+			newDiv7.style.top = "83%";
+			newDiv7.style.left="75%";
+			newDiv7.style.backgroundImage = "url('./image/save.png')";
+			newDiv7.style.width ="125px";
+			newDiv7.style.height = "60px";
+			newDiv7.style.position = "absolute";
+			newDiv7.setAttribute('onclick','click_save_team_change()');
+			newDiv.appendChild(newDiv7);
+			}
+		}
+
+		function click_close_team_change(){
+			$('.pop_team_change').remove();
+		}
+
+		function click_save_team_change(){
+			
+			var changed_team = $('.select_team_change').val();
+			
+			for(i=0;i<member_list.length;i++)
+			{
+				var xmlhttp = new XMLHttpRequest();
+										xmlhttp.open("GET", "http://52.8.57.228/team_change.php?name="+member_list[i]+"&team="+changed_team+"",true);   // 1. request 설정    
+										xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+								  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+												  
+								   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+								   		 		{
+								   		 			
+								   		 			js_employee = JSON.parse(xmlhttp.responseText);
+								   		 			
+								   		 			
+
+								   		 			$('.individual_member').remove();
+
+								   		 			if(temp_click_team != 'all_team')
+								   		 			{
+									   		 			var back4 = document.getElementById('employee_list_employee');
+								   		 				var t=9;
+								   		 				var k=1;
+								   		 				for(i=0; i<js_employee.length;i++)
+								   		 				{
+								   		 					if(js_employee[i].team == temp_click_team)
+								   		 					{
+								   		 					var newDiv = document.createElement('div');
+								   		 					newDiv.className = "individual_member";
+								   		 					newDiv.id = js_employee[i].name;
+								   		 					newDiv.setAttribute('onclick','click_member('+i+')');
+								   		 					newDiv.style.position = "absolute";
+								   		 					newDiv.style.top = t+"%";
+								   		 					newDiv.style.left = "0%";
+								   		 					newDiv.style.width = "1051px";
+								   		 					newDiv.style.height = "50px";
+								   		 					t = t+7;
+
+								   		 					var semiDiv = document.createElement('div');
+								   		 					semiDiv.style.position ="absolute";
+								   		 					semiDiv.style.top = "26%";
+								   		 					semiDiv.style.left = "5%";
+								   		 					semiDiv.style.fontSize = "20px";
+								   		 					semiDiv.innerHTML = k;
+								   		 					newDiv.appendChild(semiDiv);
+
+								   		 					var semiDiv2 = document.createElement('div');
+								   		 					semiDiv2.style.position ="absolute";
+								   		 					semiDiv2.style.top = "26%";
+								   		 					semiDiv2.style.left = "15%";
+								   		 					semiDiv2.style.fontSize = "20px";
+								   		 					semiDiv2.innerHTML = js_employee[i].name;
+								   		 					newDiv.appendChild(semiDiv2);
+
+								   		 					var semiDiv3 = document.createElement('div');
+								   		 					semiDiv3.style.position ="absolute";
+								   		 					semiDiv3.style.top = "26%";
+								   		 					semiDiv3.style.left = "45%";
+								   		 					semiDiv3.style.fontSize = "20px";
+								   		 					semiDiv3.innerHTML = js_employee[i].age;
+								   		 					newDiv.appendChild(semiDiv3);
+
+								   		 					back4.appendChild(newDiv);
+								   		 					k++;
+								   		 					}
+								   		 				}
+								   		 			}else{
+								   		 				var back4 = document.getElementById('employee_list_employee');
+								   		 				var t=9;
+								   		 				var k=1;
+								   		 				for(i=0; i<js_employee.length;i++)
+								   		 				{
+								   		 					
+								   		 					var newDiv = document.createElement('div');
+								   		 					newDiv.className = "individual_member";
+								   		 					newDiv.id = js_employee[i].name;
+								   		 					newDiv.setAttribute('onclick','click_member('+i+')');
+								   		 					newDiv.style.position = "absolute";
+								   		 					newDiv.style.top = t+"%";
+								   		 					newDiv.style.left = "0%";
+								   		 					newDiv.style.width = "1051px";
+								   		 					newDiv.style.height = "50px";
+								   		 					t = t+7;
+
+								   		 					var semiDiv = document.createElement('div');
+								   		 					semiDiv.style.position ="absolute";
+								   		 					semiDiv.style.top = "26%";
+								   		 					semiDiv.style.left = "5%";
+								   		 					semiDiv.style.fontSize = "20px";
+								   		 					semiDiv.innerHTML = k;
+								   		 					newDiv.appendChild(semiDiv);
+
+								   		 					var semiDiv2 = document.createElement('div');
+								   		 					semiDiv2.style.position ="absolute";
+								   		 					semiDiv2.style.top = "26%";
+								   		 					semiDiv2.style.left = "15%";
+								   		 					semiDiv2.style.fontSize = "20px";
+								   		 					semiDiv2.innerHTML = js_employee[i].name;
+								   		 					newDiv.appendChild(semiDiv2);
+
+								   		 					var semiDiv3 = document.createElement('div');
+								   		 					semiDiv3.style.position ="absolute";
+								   		 					semiDiv3.style.top = "26%";
+								   		 					semiDiv3.style.left = "45%";
+								   		 					semiDiv3.style.fontSize = "20px";
+								   		 					semiDiv3.innerHTML = js_employee[i].age;
+								   		 					newDiv.appendChild(semiDiv3);
+
+								   		 					back4.appendChild(newDiv);
+								   		 					k++;
+								   		 					
+								   		 				}
+
+								   		 			}
+
+								   		 		}
+								   		 	}
+							   			}
+							 		
+								 	xmlhttp.send(null)
+			}
+
+
+
+			member_list.splice(0,member_list.length);
+			$('.pop_team_change').remove();
+		}
+
+			function click_employee_employee(){
+			$('.team_add_employee').hide();
+			$('.team_delete_employee').hide();
+			$('.team_change_employee').hide();
+			$('.employee_info_background').show();
+			$('.add_employee').show();
+			$('.delete_employee').show();
+			$('.team_info_background').hide();
+			$('.employee_employee').css('font-weight','bold');
+			$('.team_employee').css('font-weight','normal');
+			var tttt=1;
+			var xmlhttp = new XMLHttpRequest();
+										xmlhttp.open("GET", "http://52.8.57.228/team_delete.php?test="+tttt+"",true);   // 1. request 설정    
+										xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+								  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+												  
+								   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+								   		 		{
+
+								   		 			var pe = xmlhttp.responseText.split("|||");
+								   		 			
+								   		 			js_team_list = JSON.parse(pe[0]);
+								   		 			js_employee = JSON.parse(pe[1]);
+								   		 		}
+								   		 	}
+							   			}
+							 		
+								 	xmlhttp.send(null)
+
+
+
+								 	$('.individual_employee').remove();
+
+								 	var back2 = document.getElementById('employee_info_background');
+		var tt = 9;
+		for(i=0;i<js_employee.length;i++)
+		{
+			
+
+			var newDiv = document.createElement('div');
+			newDiv.style.position = "absolute";
+			newDiv.style.top = tt + "%";
+			newDiv.style.fontSize="22px";
+			newDiv.className="individual_employee";
+			newDiv.id="employee"+i;
+			newDiv.setAttribute( 'onclick', 'click_employee('+i+')');
+			newDiv.setAttribute('ondblclick','dblclick_employee('+i+')');
+			newDiv.style.width = "1361px"
+			newDiv.style.height = "60px";
+			back2.appendChild(newDiv);
+			employee_list.push(js_employee[i].name);
+			tt = tt + 8;
+
+
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.position = "absolute";
+			newDiv2.style.top = "20%";
+			newDiv2.style.left = "9%";
+			newDiv2.style.fontSize = "22px";
+			newDiv2.innerHTML = js_employee[i].team+"&nbsp team";
+
+			newDiv.appendChild(newDiv2);
+
+			var newDiv3 = document.createElement('div');
+			newDiv3.style.position = "absolute";
+			newDiv3.style.top = "20%";
+			newDiv3.style.left = "25%";
+			newDiv3.style.fontSize="22px";
+			newDiv3.innerHTML = js_employee[i].name;
+
+			newDiv.appendChild(newDiv3);
+
+
+			var newDiv4 = document.createElement('div');
+			newDiv4.style.position = "absolute";
+			newDiv4.style.top = "20%";
+			newDiv4.style.left = "45%";
+			newDiv4.style.fontSize = "22px";
+			newDiv4.innerHTML = js_employee[i].age;
+			newDiv.appendChild(newDiv4);
+
+			var newDiv5 = document.createElement('div');
+			newDiv5.style.position = "absolute";
+			newDiv5.style.top = "20%";
+			newDiv5.style.left = "3%";
+			newDiv5.style.fontSize = "22px";
+			newDiv5.innerHTML = i+1;
+
+			newDiv.appendChild(newDiv5);
+		}
+		}
+
+		var member_list = new Array();
+
+		function click_member(a){
+			var newemployee = document.getElementById(js_employee[a].name);
+
+			if(newemployee.style.backgroundColor == 'rgb(212, 238, 249)')
+			{
+				newemployee.style.backgroundColor = "white";
+				for(i=0;i<member_list.length;i++)
+				{
+					if(member_list[i]==js_employee[a].name)
+					{
+						member_list.splice(i,1);
+					}
+				}
+			}else{
+				newemployee.style.backgroundColor = "#d4eef9";
+				member_list.push(js_employee[a].name);
+			}
+
+		}
+
+		function cancle_check(){
+			$('.individual_member').css('background-color','white');
+			$('.individual_employee').css('background-color','white');
+
+			employee_delete_list.splice(0,employee_delete_list.length);
+			member_list.splice(0,member_list.length);
+		}
+
+		function click_team_employee(){
+			$('.team_add_employee').show();
+			$('.team_delete_employee').show();
+			$('.team_change_employee').show();
+			$('.employee_info_background').hide();
+			$('.add_employee').hide();
+			$('.delete_employee').hide();
+			$('.team_info_background').show();
+			$('.employee_employee').css('font-weight','normal');
+			$('.team_employee').css('font-weight','bold');
+			
+			$('.individual_member').remove();
+
+			for(i=0;i<js_team_list.length;i++)
+			{
+				$('.'+js_team_list[i].team+'team').css('backgroundColor','white');
+			}	
+
+			$('.all_team').css('backgroundColor','#d4eef9');
+
+			var xmlhttp = new XMLHttpRequest();
+				var tttt = 1;
+									xmlhttp.open("GET", "http://52.8.57.228/employee_save.php?test="+tttt+"",true);   // 1. request 설정    
+									xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+							  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+											  
+							   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+							   		 		{
+							   		 				js_employee = JSON.parse(xmlhttp.responseText);
+							   		 				var back4 = document.getElementById('employee_list_employee');
+							   		 				var t=9;
+							   		 				for(i=0; i<js_employee.length;i++)
+							   		 				{
+							   		 					var newDiv = document.createElement('div');
+							   		 					newDiv.className = "individual_member";
+							   		 					newDiv.id = js_employee[i].name;
+							   		 					newDiv.setAttribute('onclick','click_member('+i+')');
+							   		 					newDiv.style.position = "absolute";
+							   		 					newDiv.style.top = t+"%";
+							   		 					newDiv.style.left = "0%";
+							   		 					newDiv.style.width = "1051px";
+							   		 					newDiv.style.height = "50px";
+							   		 					t = t+7;
+
+							   		 					var semiDiv = document.createElement('div');
+							   		 					semiDiv.style.position ="absolute";
+							   		 					semiDiv.style.top = "26%";
+							   		 					semiDiv.style.left = "5%";
+							   		 					semiDiv.style.fontSize = "20px";
+							   		 					semiDiv.innerHTML = i + 1;
+							   		 					newDiv.appendChild(semiDiv);
+
+							   		 					var semiDiv2 = document.createElement('div');
+							   		 					semiDiv2.style.position ="absolute";
+							   		 					semiDiv2.style.top = "26%";
+							   		 					semiDiv2.style.left = "15%";
+							   		 					semiDiv2.style.fontSize = "20px";
+							   		 					semiDiv2.innerHTML = js_employee[i].name;
+							   		 					newDiv.appendChild(semiDiv2);
+
+							   		 					var semiDiv3 = document.createElement('div');
+							   		 					semiDiv3.style.position ="absolute";
+							   		 					semiDiv3.style.top = "26%";
+							   		 					semiDiv3.style.left = "45%";
+							   		 					semiDiv3.style.fontSize = "20px";
+							   		 					semiDiv3.innerHTML = js_employee[i].age;
+							   		 					newDiv.appendChild(semiDiv3);
+
+							   		 					back4.appendChild(newDiv);
+							   		 				}
+							   		 		}
+							   		 		}
+							   			}
+							 		
+								 	xmlhttp.send(null)
+		}
+
+		
+		function click_team_delete_employee(){
+			var tttt = 0;
+			for(i=0;i<js_team_list.length;i++)
+			{
+				clicked_team = document.getElementById(js_team_list[i].team+'team');
+				
+				if(clicked_team.style.backgroundColor == 'rgb(212, 238, 249)')
+				{
+					tttt = 1;
+				}
+			}
+
+			if(tttt == 0)
+			{
+				alert("you should not delete all team!");
+			}else{
+
+			var back2 = document.getElementById('background');
+
+			var newDi = document.createElement('div');
+			newDi.className = "pop_team_delete";
+			newDi.style.position ="absolute";
+			newDi.style.top = "30%";
+			newDi.style.left="35%";
+			newDi.style.fontSize="22px";
+			newDi.style.backgroundImage = "url('./image/popup2.png')"
+			newDi.style.width = "628px"
+			newDi.style.height = "304px";
+			newDi.style.backgroundColor = "#fff";
+			back2.appendChild(newDi);
+
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.position = "absolute";
+			newDiv2.style.top = "6%";
+			newDiv2.style.left = "37%";
+			newDiv2.style.fontSize = "36px";
+			newDiv2.innerHTML = "team delete";
+
+			newDi.appendChild(newDiv2);
+
+			var newDi2 = document.createElement('div');
+			newDi2.style.position = "absolute";
+			newDi2.style.top = "47%";
+			newDi2.style.left = "20%";
+			newDi2.style.fontSize = "25px";
+			newDi2.innerHTML = "Are you sure to delete team?";
+			newDi.appendChild(newDi2);
+
+			var newDi6 = document.createElement('div');
+			newDi6.style.top = "77%";
+			newDi6.style.left="5%";
+			newDi6.style.backgroundImage = "url('./image/close.png')";
+			newDi6.style.width ="127px";
+			newDi6.style.height = "60px";
+			newDi6.style.position = "absolute";
+			newDi6.setAttribute('onclick','click_cancle_delete()');
+			newDi.appendChild(newDi6);
+
+			var newDi7 = document.createElement('div');
+			newDi7.style.top = "77%";
+			newDi7.style.left="75%";
+			newDi7.style.backgroundImage = "url('./image/delete2.png')";
+			newDi7.style.width ="125px";
+			newDi7.style.height = "60px";
+			newDi7.style.position = "absolute";
+			newDi7.setAttribute('onclick','click_save_delete()');
+			newDi.appendChild(newDi7);
+			}
+
+		}
+
+		function click_cancle_delete()
+		{
+			$('.pop_team_delete').remove();
+		}
+
+		function click_save_delete(){
+
+			var clicked_team;
+
+			for(i=0;i<js_team_list.length;i++)
+			{
+				clicked_team = document.getElementById(js_team_list[i].team+'team');
+				
+				if(clicked_team.style.backgroundColor == 'rgb(212, 238, 249)')
+				{
+					var xmlhttp = new XMLHttpRequest();
+										xmlhttp.open("GET", "http://52.8.57.228/team_delete.php?delete_name="+js_team_list[i].team+"",true);   // 1. request 설정    
+										xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+								  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+												  
+								   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+								   		 		{
+
+								   		 			for(i=0;i<js_team_list.length;i++)
+													{
+														$('.'+js_team_list[i].team+'team').remove();
+													}
+													$('.all_team').remove();
+								   		 			var pe = xmlhttp.responseText.split("|||");
+								   		 			
+								   		 			js_team_list = JSON.parse(pe[0]);
+								   		 			js_employee = JSON.parse(pe[1]);
+
+								   		 			var back3 = document.getElementById('team_list_employee');
+
+													var newDiv = document.createElement('div');
+													newDiv.className = "all_team";
+													newDiv.setAttribute('onclick','click_all_team()');
+													newDiv.style.position = "absolute";
+													newDiv.style.width = "303px";
+													newDiv.style.height = "50px";
+													newDiv.style.top = "9%";
+													newDiv.style.left = "0%";
+													
+
+													var semiDiv = document.createElement('div');
+													semiDiv.style.position = "absolute";
+													semiDiv.style.fontSize ="20px";
+													semiDiv.style.top = "26%";
+													semiDiv.style.left = "14%";
+													semiDiv.innerHTML = "All team";
+
+													newDiv.appendChild(semiDiv);
+
+													var t = 16;
+													for(i=0;i<js_team_list.length;i++)
+													{
+														var newDiv2 = document.createElement('div');
+														newDiv2.style.position = "absolute";
+														newDiv2.className = js_team_list[i].team + "team";
+														newDiv2.id = js_team_list[i].team + "team";
+														newDiv2.setAttribute('onclick','click_team_team('+i+')');
+														newDiv2.style.width = "303px";
+														newDiv2.style.height = "50px";
+														newDiv2.style.top = t+"%";
+														newDiv2.style.left = "0%";
+														
+														t = t+7;
+
+
+														var semiDiv2 = document.createElement('div');
+														semiDiv2.style.position = "absolute";
+														semiDiv2.style.fontSize ="20px";
+														semiDiv2.style.top = "26%";
+														semiDiv2.style.left = "14%";
+														semiDiv2.innerHTML = js_team_list[i].team + " team";
+
+														newDiv2.appendChild(semiDiv2);
+
+														back3.appendChild(newDiv2);
+													}
+													back3.appendChild(newDiv);
+
+													$('.all_team').css('backgroundColor','#d4eef9');
+
+													$('.individual_member').remove();
+
+													var back4 = document.getElementById('employee_list_employee');
+							   		 				var t=9;
+							   		 				for(i=0; i<js_employee.length;i++)
+							   		 				{
+							   		 					var newDiv = document.createElement('div');
+							   		 					newDiv.className = "individual_member";
+							   		 					newDiv.id = js_employee[i].name;
+							   		 					newDiv.setAttribute('onclick','click_member('+i+')');
+							   		 					newDiv.style.position = "absolute";
+							   		 					newDiv.style.top = t+"%";
+							   		 					newDiv.style.left = "0%";
+							   		 					newDiv.style.width = "1051px";
+							   		 					newDiv.style.height = "50px";
+							   		 					t = t+7;
+
+							   		 					var semiDiv = document.createElement('div');
+							   		 					semiDiv.style.position ="absolute";
+							   		 					semiDiv.style.top = "26%";
+							   		 					semiDiv.style.left = "5%";
+							   		 					semiDiv.style.fontSize = "20px";
+							   		 					semiDiv.innerHTML = i + 1;
+							   		 					newDiv.appendChild(semiDiv);
+
+							   		 					var semiDiv2 = document.createElement('div');
+							   		 					semiDiv2.style.position ="absolute";
+							   		 					semiDiv2.style.top = "26%";
+							   		 					semiDiv2.style.left = "15%";
+							   		 					semiDiv2.style.fontSize = "20px";
+							   		 					semiDiv2.innerHTML = js_employee[i].name;
+							   		 					newDiv.appendChild(semiDiv2);
+
+							   		 					var semiDiv3 = document.createElement('div');
+							   		 					semiDiv3.style.position ="absolute";
+							   		 					semiDiv3.style.top = "26%";
+							   		 					semiDiv3.style.left = "45%";
+							   		 					semiDiv3.style.fontSize = "20px";
+							   		 					semiDiv3.innerHTML = js_employee[i].age;
+							   		 					newDiv.appendChild(semiDiv3);
+
+							   		 					back4.appendChild(newDiv);
+							   		 				}
+								    			}
+								   			}
+								 		}
+									 	xmlhttp.send(null);
+				}
+			}
+
+			$('.pop_team_delete').remove();
+		}
+
+		function click_team_add_employee(){
+			var back2 = document.getElementById('background');
+
+			var newDiv = document.createElement('div');
+			newDiv.className = "pop_team_add";
+			newDiv.style.position ="absolute";
+			newDiv.style.top = "30%";
+			newDiv.style.left="35%";
+			newDiv.style.fontSize="22px";
+			newDiv.style.backgroundImage = "url('./image/popup.png')"
+			newDiv.style.width = "680px"
+			newDiv.style.height = "468px";
+			newDiv.style.backgroundColor = "#fff";
+			back2.appendChild(newDiv);
+
+			var ap = "this.value=''";
+			newDiv.innerHTML = '<input class="team_name_employee" type="text" value="NAME" onfocus="'+ap+'"style="background-color:#dddbdd; font-size:40px; top:48%; position:absolute; left:10%; border:none; outline:0px none black">';
+
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.position = "absolute";
+			newDiv2.style.top = "6%";
+			newDiv2.style.left = "37%";
+			newDiv2.style.fontSize = "36px";
+			newDiv2.innerHTML = "team add";
+
+			newDiv.appendChild(newDiv2);
+
+			var newDiv3 = document.createElement('div');
+			newDiv3.style.position = "absolute";
+			newDiv3.style.top = "31%";
+			newDiv3.style.left = "10%";
+			newDiv3.style.fontSize = "20px";
+			newDiv3.style.fontWeight = "bold";
+			newDiv3.innerHTML = "Team name";
+
+			newDiv.appendChild(newDiv3);
+
+			var newDiv4 = document.createElement('div');
+			newDiv4.style.position ="absolute";
+			newDiv4.style.top = "48%";
+			newDiv4.style.left = "87%";
+			newDiv4.style.width = "41px";
+			newDiv4.style.height = "40px";
+			newDiv4.style.backgroundImage = "url('./image/plus2.png')";
+			newDiv4.setAttribute('onclick','click_team_add()');
+
+			newDiv.appendChild(newDiv4);
+
+			var newDiv5 = document.createElement('div');
+			newDiv5.style.position = "absolute";
+			newDiv5.style.top = "39%";
+			newDiv5.style.left = "10%";
+			newDiv5.style.fontSize = "20px";
+			newDiv5.id = "adding_team_name";
+
+			newDiv.appendChild(newDiv5);
+
+			var newDiv6 = document.createElement('div');
+			newDiv6.style.top = "83%";
+			newDiv6.style.left="5%";
+			newDiv6.style.backgroundImage = "url('./image/close.png')";
+			newDiv6.style.width ="127px";
+			newDiv6.style.height = "60px";
+			newDiv6.style.position = "absolute";
+			newDiv6.setAttribute('onclick','click_close_team_add()');
+			newDiv.appendChild(newDiv6);
+
+			var newDiv7 = document.createElement('div');
+			newDiv7.style.top = "83%";
+			newDiv7.style.left="75%";
+			newDiv7.style.backgroundImage = "url('./image/save.png')";
+			newDiv7.style.width ="125px";
+			newDiv7.style.height = "60px";
+			newDiv7.style.position = "absolute";
+			newDiv7.setAttribute('onclick','click_save_team_add()');
+			newDiv.appendChild(newDiv7);
+
+
+		}
+
+		function click_close_team_add(){
+			$('.pop_team_add').remove();
+		}
+
+		function click_save_team_add(){
+			$('.pop_team_add').remove();
+
+			for(i=0;i<adding_team_array.length;i++)
+			{
+				var xmlhttp = new XMLHttpRequest();
+										xmlhttp.open("GET", "http://52.8.57.228/team_save.php?team_name="+adding_team_array[i]+"",true);   // 1. request 설정    
+										xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+								  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+												  
+								   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+								   		 		{
+
+								   		 			for(i=0;i<js_team_list.length;i++)
+													{
+														$('.'+js_team_list[i].team+'team').remove();
+													}
+													$('.all_team').remove();
+								   		 			js_team_list = JSON.parse(xmlhttp.responseText);
+
+								   		 			var back3 = document.getElementById('team_list_employee');
+
+													var newDiv = document.createElement('div');
+													newDiv.className = "all_team";
+													newDiv.setAttribute('onclick','click_all_team()');
+													newDiv.style.position = "absolute";
+													newDiv.style.width = "303px";
+													newDiv.style.height = "50px";
+													newDiv.style.top = "9%";
+													newDiv.style.left = "0%";
+													
+
+													var semiDiv = document.createElement('div');
+													semiDiv.style.position = "absolute";
+													semiDiv.style.fontSize ="20px";
+													semiDiv.style.top = "26%";
+													semiDiv.style.left = "14%";
+													semiDiv.innerHTML = "All team";
+
+													newDiv.appendChild(semiDiv);
+
+													var t = 16;
+													for(i=0;i<js_team_list.length;i++)
+													{
+														var newDiv2 = document.createElement('div');
+														newDiv2.style.position = "absolute";
+														newDiv2.className = js_team_list[i].team + "team";
+														newDiv2.id = js_team_list[i].team + "team";
+														newDiv2.setAttribute('onclick','click_team_team('+i+')');
+														newDiv2.style.width = "303px";
+														newDiv2.style.height = "50px";
+														newDiv2.style.top = t+"%";
+														newDiv2.style.left = "0%";
+														
+														t = t+7;
+
+
+														var semiDiv2 = document.createElement('div');
+														semiDiv2.style.position = "absolute";
+														semiDiv2.style.fontSize ="20px";
+														semiDiv2.style.top = "26%";
+														semiDiv2.style.left = "14%";
+														semiDiv2.innerHTML = js_team_list[i].team + " team";
+
+														newDiv2.appendChild(semiDiv2);
+
+														back3.appendChild(newDiv2);
+													}
+													back3.appendChild(newDiv);
+
+													$('.all_team').css('backgroundColor','#d4eef9');
+
+													$('.individual_member').remove();
+
+													var back4 = document.getElementById('employee_list_employee');
+							   		 				var t=9;
+							   		 				for(i=0; i<js_employee.length;i++)
+							   		 				{
+							   		 					var newDiv = document.createElement('div');
+							   		 					newDiv.className = "individual_member";
+							   		 					newDiv.id = js_employee[i].name;
+							   		 					newDiv.setAttribute('onclick','click_member('+i+')');
+							   		 					newDiv.style.position = "absolute";
+							   		 					newDiv.style.top = t+"%";
+							   		 					newDiv.style.left = "0%";
+							   		 					newDiv.style.width = "1051px";
+							   		 					newDiv.style.height = "50px";
+							   		 					t = t+7;
+
+							   		 					var semiDiv = document.createElement('div');
+							   		 					semiDiv.style.position ="absolute";
+							   		 					semiDiv.style.top = "26%";
+							   		 					semiDiv.style.left = "5%";
+							   		 					semiDiv.style.fontSize = "20px";
+							   		 					semiDiv.innerHTML = i + 1;
+							   		 					newDiv.appendChild(semiDiv);
+
+							   		 					var semiDiv2 = document.createElement('div');
+							   		 					semiDiv2.style.position ="absolute";
+							   		 					semiDiv2.style.top = "26%";
+							   		 					semiDiv2.style.left = "15%";
+							   		 					semiDiv2.style.fontSize = "20px";
+							   		 					semiDiv2.innerHTML = js_employee[i].name;
+							   		 					newDiv.appendChild(semiDiv2);
+
+							   		 					var semiDiv3 = document.createElement('div');
+							   		 					semiDiv3.style.position ="absolute";
+							   		 					semiDiv3.style.top = "26%";
+							   		 					semiDiv3.style.left = "45%";
+							   		 					semiDiv3.style.fontSize = "20px";
+							   		 					semiDiv3.innerHTML = js_employee[i].age;
+							   		 					newDiv.appendChild(semiDiv3);
+
+							   		 					back4.appendChild(newDiv);
+							   		 				}
+								    			}
+								   			}
+								 		}
+									 	xmlhttp.send(null);
+			}
+		}
+
+		function click_team_add(){
+			var add_team_name = $('.team_name_employee').val();
+			adding_team_array.push(add_team_name);
+
+			var newDiv = document.getElementById('adding_team_name');
+
+			var text="";
+			for(i=0;i<adding_team_array.length; i++)
+			{	
+				text = text + adding_team_array[i];
+				
+				if(i!=adding_team_array.length-1)
+				{
+					text = text + ", ";
+				}
+			}
+		
+			newDiv.innerHTML = text;
+		}
+
+
+
+		function click_add_employee(){
+			var back2 = document.getElementById('background');
+
+			var newDiv = document.createElement('div');
+			newDiv.className = "pop_add";
+			
+			newDiv.style.top = "30%";
+			newDiv.style.left="35%";
+			newDiv.style.fontSize="22px";
+			newDiv.style.backgroundImage = "url('./image/popup.png')"
+			newDiv.style.width = "680px"
+			newDiv.style.height = "468px";
+			newDiv.style.backgroundColor = "#fff";
+			back2.appendChild(newDiv);
+			var ap = "this.value=''";
+			newDiv.innerHTML = '<input class="employee_name" type="text" value="NAME" onfocus="'+ap+'"style="font-size:40px; top:6%; position:absolute; left:5%; border:none; outline:0px none black">';
+
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.top = "30%";
+			newDiv2.style.left="5%";
+			newDiv2.style.fontSize="25px";
+			newDiv2.innerHTML = "team";
+			newDiv2.style.position = "absolute";
+			newDiv.appendChild(newDiv2);
+
+			var newDiv3 = document.createElement('div');
+			newDiv3.style.top = "43%";
+			newDiv3.style.left="5%";
+			newDiv3.style.fontSize="25px";
+			newDiv3.innerHTML = "Age";
+			newDiv3.style.position = "absolute";
+			newDiv.appendChild(newDiv3);
+
+			var newDiv4 = document.createElement('div');
+			newDiv4.style.top = "56%";
+			newDiv4.style.left="5%";
+			newDiv4.style.fontSize="25px";
+			newDiv4.innerHTML = "position";
+			newDiv4.style.position = "absolute";
+			newDiv.appendChild(newDiv4);
+
+			var newDiv5 = document.createElement('div');
+			newDiv5.style.top = "69%";
+			newDiv5.style.left="5%";
+			newDiv5.style.fontSize="25px";
+			newDiv5.innerHTML = "registration";
+			newDiv5.style.position = "absolute";
+			newDiv.appendChild(newDiv5);
+
+			var newSelect = document.createElement('select');
+			newSelect.className = "select_team";
+			newDiv.appendChild(newSelect);
+
+			for(o=0; o<js_team_list.length;o++)
+			{
+				var newOption = document.createElement('option');
+				newOption.setAttribute('value',js_team_list[o].team);
+				var t = document.createTextNode(js_team_list[o].team+' team');
+				newOption.appendChild(t);
+				newSelect.appendChild(newOption);
+			}
+
+
+			var newSelect2 = document.createElement('select');
+			newSelect2.className= "select_age";
+			newDiv.appendChild(newSelect2);
+
+			for(u=20;u<50;u++)
+			{
+				var newOption = document.createElement('option');
+				newOption.setAttribute('value',u);
+				var t = document.createTextNode(u);
+				newOption.appendChild(t);
+				newSelect2.appendChild(newOption);
+			}
+
+			var newSelect3 = document.createElement('select');
+			newSelect3.className= "select_position";
+			newDiv.appendChild(newSelect3);
+
+			var newOption1 = document.createElement('option');
+			newOption1.setAttribute('value','cleaner');
+			var t1 = document.createTextNode('cleaner');
+			newOption1.appendChild(t1);
+			newSelect3.appendChild(newOption1);
+
+			var newOption2 = document.createElement('option');
+			newOption2.setAttribute('value','security');
+			var t2 = document.createTextNode('security');
+			newOption2.appendChild(t2);
+			newSelect3.appendChild(newOption2);
+
+			var newSelect4 = document.createElement('select');
+			newSelect4.className= "select_registration";
+			newDiv.appendChild(newSelect4);
+
+			for(y=1;y<13;y++)
+			{
+				for(u=1;u<32;u++)
+				{
+					var newOption = document.createElement('option');
+					newOption.setAttribute('value','2015-'+y+'-'+u);
+					var t = document.createTextNode('2015-'+y+'-'+u);
+					newOption.appendChild(t);
+					newSelect4.appendChild(newOption);
+				}
+			}
+
+			var newDiv6 = document.createElement('div');
+			newDiv6.style.top = "83%";
+			newDiv6.style.left="5%";
+			newDiv6.style.backgroundImage = "url('./image/close.png')";
+			newDiv6.style.width ="127px";
+			newDiv6.style.height = "60px";
+			newDiv6.style.position = "absolute";
+			newDiv6.setAttribute('onclick','click_close_employee_add()');
+			newDiv.appendChild(newDiv6);
+
+			var newDiv7 = document.createElement('div');
+			newDiv7.style.top = "83%";
+			newDiv7.style.left="75%";
+			newDiv7.style.backgroundImage = "url('./image/save.png')";
+			newDiv7.style.width ="125px";
+			newDiv7.style.height = "60px";
+			newDiv7.style.position = "absolute";
+			newDiv7.setAttribute('onclick','click_save_employee_add()');
+			newDiv.appendChild(newDiv7);
+		}
+
+		function click_close_employee_add(){
+			$('.pop_add').remove();
+		}
+
+		function click_save_employee_add(){
+
+			var name_save =$('.employee_name').val();
+			var team_save = $('.select_team').val();
+			var age_save = $('.select_age').val();
+			var position_save = $('.select_position').val();
+			var registration_save = $('.select_registration').val();
+
+							var xmlhttp = new XMLHttpRequest();
+									xmlhttp.open("GET", "http://52.8.57.228/employee_save.php?name="+name_save+"&team="+team_save+"&age="+age_save+"&position="+position_save+"&registration="+registration_save+"",true);   // 1. request 설정    
+									xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+							  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+											  
+							   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+							   		 		{
+							   		 				$('.individual_employee').remove();
+							   		 				js_employee = JSON.parse(xmlhttp.responseText);
+
+							   		 			  	employee_list.splice(0,employee_list.length);
+							   		 			  	employee_delete_list.splice(0,employee_delete_list.length);
+
+							   		 			  	var back2 = document.getElementById('employee_info_background');
+													var tt = 9;
+													for(i=0;i<js_employee.length;i++)
+													{
+														
+
+														var newDiv = document.createElement('div');
+														newDiv.style.position = "absolute";
+														newDiv.style.top = tt + "%";
+														newDiv.style.fontSize="22px";
+														newDiv.className="individual_employee";
+														newDiv.id="employee"+i;
+														newDiv.setAttribute( 'onclick', 'click_employee('+i+')');
+														newDiv.setAttribute('ondblclick','dblclick_employee('+i+')');
+														newDiv.style.width = "1361px"
+														newDiv.style.height = "60px";
+														back2.appendChild(newDiv);
+														employee_list.push(js_employee[i].name);
+														tt = tt + 8;
+
+
+														var newDiv2 = document.createElement('div');
+														newDiv2.style.position = "absolute";
+														newDiv2.style.top = "20%";
+														newDiv2.style.left = "9%";
+														newDiv2.style.fontSize = "22px";
+														newDiv2.innerHTML = js_employee[i].team+"&nbsp team";
+
+														newDiv.appendChild(newDiv2);
+
+														var newDiv3 = document.createElement('div');
+														newDiv3.style.position = "absolute";
+														newDiv3.style.top = "20%";
+														newDiv3.style.left = "25%";
+														newDiv3.style.fontSize="22px";
+														newDiv3.innerHTML = js_employee[i].name;
+
+														newDiv.appendChild(newDiv3);
+
+
+														var newDiv4 = document.createElement('div');
+														newDiv4.style.position = "absolute";
+														newDiv4.style.top = "20%";
+														newDiv4.style.left = "45%";
+														newDiv4.style.fontSize = "22px";
+														newDiv4.innerHTML = js_employee[i].age;
+														newDiv.appendChild(newDiv4);
+
+														var newDiv5 = document.createElement('div');
+														newDiv5.style.position = "absolute";
+														newDiv5.style.top = "20%";
+														newDiv5.style.left = "3%";
+														newDiv5.style.fontSize = "22px";
+														newDiv5.innerHTML = i+1;
+
+														newDiv.appendChild(newDiv5);
+													}
+													for(j=0;j<employee_list.length;j++)
+													{
+														var clicked_employee = document.getElementById('employee'+a);
+														clicked_employee.style.backgroundColor = "#fff";
+													}
+							    			}
+							   			}
+							 		}
+								 	xmlhttp.send(null)
+
+			 	$('.pop_add').remove();		
+
+
+
+
+		}
+
+
+
+		function click_delete_employee(){
+			if(employee_delete_list.length == 0)
+			{
+				alert("you should check at least one person");
+			}else{
+			var back2 = document.getElementById('background');
+
+			var newDi = document.createElement('div');
+			newDi.className = "pop_delete";
+			newDi.style.position ="absolute";
+			newDi.style.top = "30%";
+			newDi.style.left="35%";
+			newDi.style.fontSize="22px";
+			newDi.style.backgroundImage = "url('./image/popup2.png')"
+			newDi.style.width = "628px"
+			newDi.style.height = "304px";
+			newDi.style.backgroundColor = "#fff";
+			back2.appendChild(newDi);
+
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.position = "absolute";
+			newDiv2.style.top = "6%";
+			newDiv2.style.left = "25%";
+			newDiv2.style.fontSize = "36px";
+			newDiv2.innerHTML = "employee delete";
+
+			newDi.appendChild(newDiv2);
+
+			var newDi2 = document.createElement('div');
+			newDi2.style.position = "absolute";
+			newDi2.style.top = "47%";
+			newDi2.style.left = "20%";
+			newDi2.style.fontSize = "25px";
+			newDi2.innerHTML = "Are you sure to delete employee?";
+			newDi.appendChild(newDi2);
+
+			var newDi6 = document.createElement('div');
+			newDi6.style.top = "77%";
+			newDi6.style.left="5%";
+			newDi6.style.backgroundImage = "url('./image/close.png')";
+			newDi6.style.width ="127px";
+			newDi6.style.height = "60px";
+			newDi6.style.position = "absolute";
+			newDi6.setAttribute('onclick','click_close_employee_delete()');
+			newDi.appendChild(newDi6);
+
+			var newDi7 = document.createElement('div');
+			newDi7.style.top = "77%";
+			newDi7.style.left="75%";
+			newDi7.style.backgroundImage = "url('./image/delete2.png')";
+			newDi7.style.width ="125px";
+			newDi7.style.height = "60px";
+			newDi7.style.position = "absolute";
+			newDi7.setAttribute('onclick','click_save_employee_delete()');
+			newDi.appendChild(newDi7);
+			}			
+
+		}
+
+		function click_close_employee_delete(){
+			$('.pop_delete').remove();
+		}
+
+		function click_save_employee_delete(){
+			for(i=0; i<employee_delete_list.length;i++)
+			{
+				
+				var xmlhttp = new XMLHttpRequest();
+									xmlhttp.open("GET", "http://52.8.57.228/delete_employee.php?name="+employee_list[employee_delete_list[i]]+"",true);   // 1. request 설정    
+									xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+							  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+											  
+							   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+							   		 		{
+							   		 			          $('.individual_employee').remove();
+							   		 				js_employee = JSON.parse(xmlhttp.responseText);
+
+							   		 			  	employee_list.splice(0,employee_list.length);
+							   		 			  	employee_delete_list.splice(0,employee_delete_list.length);
+
+							   		 			  	var back2 = document.getElementById('employee_info_background');
+													var tt = 9;
+													for(i=0;i<js_employee.length;i++)
+													{
+														
+
+														var newDiv = document.createElement('div');
+														newDiv.style.position = "absolute";
+														newDiv.style.top = tt + "%";
+														newDiv.style.fontSize="22px";
+														newDiv.className="individual_employee";
+														newDiv.id="employee"+i;
+														newDiv.setAttribute( 'onclick', 'click_employee('+i+')');
+														newDiv.setAttribute('ondblclick','dblclick_employee('+i+')');
+														newDiv.style.width = "1361px"
+														newDiv.style.height = "60px";
+														back2.appendChild(newDiv);
+														employee_list.push(js_employee[i].name);
+														tt = tt + 8;
+
+
+														var newDiv2 = document.createElement('div');
+														newDiv2.style.position = "absolute";
+														newDiv2.style.top = "20%";
+														newDiv2.style.left = "9%";
+														newDiv2.style.fontSize = "22px";
+														newDiv2.innerHTML = js_employee[i].team+"&nbsp team";
+
+														newDiv.appendChild(newDiv2);
+
+														var newDiv3 = document.createElement('div');
+														newDiv3.style.position = "absolute";
+														newDiv3.style.top = "20%";
+														newDiv3.style.left = "25%";
+														newDiv3.style.fontSize="22px";
+														newDiv3.innerHTML = js_employee[i].name;
+
+														newDiv.appendChild(newDiv3);
+
+
+														var newDiv4 = document.createElement('div');
+														newDiv4.style.position = "absolute";
+														newDiv4.style.top = "20%";
+														newDiv4.style.left = "45%";
+														newDiv4.style.fontSize = "22px";
+														newDiv4.innerHTML = js_employee[i].age;
+														newDiv.appendChild(newDiv4);
+
+														var newDiv5 = document.createElement('div');
+														newDiv5.style.position = "absolute";
+														newDiv5.style.top = "20%";
+														newDiv5.style.left = "3%";
+														newDiv5.style.fontSize = "22px";
+														newDiv5.innerHTML = i+1;
+
+														newDiv.appendChild(newDiv5);
+													}
+													for(j=0;j<employee_list.length;j++)
+													{
+														var clicked_employee = document.getElementById('employee'+a);
+														clicked_employee.style.backgroundColor = "#fff";
+													}
+							    			}
+							   			}
+							 		}
+								 	xmlhttp.send(null);
+				
+
+				
+			}
+			$('.pop_delete').remove();
+		}
+
+	</script>
+	<div class="employee_info_background" id="employee_info_background">
+		<div style="top:2.5%; left:10%; position:absolute; font-size:22px; font-weight:bold">Team</div>
+		<div style="top:2.5%; left:25%; position:absolute; font-size:22px; font-weight:bold">Name</div>
+		<div style="top:2.5%; left:45%; position:absolute; font-size:22px; font-weight:bold">Age</div>
+	</div>
+
+	<div class = "team_info_background" id="team_info_background">
+		<div class = "team_list_employee" id = "team_list_employee" style = "width:303px; height:733px; position:absolute">
+			<div style = "font-weight:bold; font-size:20px; position:absolute; top:3%; left:10%">Team list</div>
+		</div>
+		<div class = "employee_list_employee" id = "employee_list_employee" style = "width:1051px; height:733px; position:absolute; left:23%; top:0%">
+			<div style = "font-size:20px; font-weight:bold; position:absolute; top:3%; left:15%">name</div>
+			<div style = "font-size:20px; font-weight:bold; position:absolute; top:3%; left:45%">age</div>
+		</div> 
+	</div>
+
+	<script>
+		var back3 = document.getElementById('team_list_employee');
+
+		var newDiv = document.createElement('div');
+		newDiv.className = "all_team";
+		newDiv.setAttribute('onclick','click_all_team()');
+		newDiv.style.position = "absolute";
+		newDiv.style.width = "303px";
+		newDiv.style.height = "50px";
+		newDiv.style.top = "9%";
+		newDiv.style.left = "0%";
+		
+
+		var semiDiv = document.createElement('div');
+		semiDiv.style.position = "absolute";
+		semiDiv.style.fontSize ="20px";
+		semiDiv.style.top = "26%";
+		semiDiv.style.left = "14%";
+		semiDiv.innerHTML = "All team";
+
+		newDiv.appendChild(semiDiv);
+
+		var t = 16;
+		for(i=0;i<js_team_list.length;i++)
+		{
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.position = "absolute";
+			newDiv2.className = js_team_list[i].team + "team";
+			newDiv2.id = js_team_list[i].team + "team";
+			newDiv2.setAttribute('onclick','click_team_team('+i+')');
+			newDiv2.style.width = "303px";
+			newDiv2.style.height = "50px";
+			newDiv2.style.top = t+"%";
+			newDiv2.style.left = "0%";
+			
+			t = t+7;
+
+
+			var semiDiv2 = document.createElement('div');
+			semiDiv2.style.position = "absolute";
+			semiDiv2.style.fontSize ="20px";
+			semiDiv2.style.top = "26%";
+			semiDiv2.style.left = "14%";
+			semiDiv2.innerHTML = js_team_list[i].team + " team";
+
+			newDiv2.appendChild(semiDiv2);
+
+			back3.appendChild(newDiv2);
+		}
+		back3.appendChild(newDiv);
+
+		$('.all_team').css('backgroundColor','#d4eef9');
+		
+		function click_all_team(){
+			$('.individual_member').remove();
+			temp_click_team = "all_team";
+			for(i=0;i<js_team_list.length;i++)
+			{
+				$('.'+js_team_list[i].team+'team').css('backgroundColor','white');
+			}	
+
+			$('.all_team').css('backgroundColor','#d4eef9');
+			
+			var back4 = document.getElementById('employee_list_employee');
+							   		 				var t=9;
+							   		 				for(i=0; i<js_employee.length;i++)
+							   		 				{
+							   		 					var newDiv = document.createElement('div');
+							   		 					newDiv.className = "individual_member";
+							   		 					newDiv.id = js_employee[i].name;
+							   		 					newDiv.setAttribute('onclick','click_member('+i+')');
+							   		 					newDiv.style.position = "absolute";
+							   		 					newDiv.style.top = t+"%";
+							   		 					newDiv.style.left = "0%";
+							   		 					newDiv.style.width = "1051px";
+							   		 					newDiv.style.height = "50px";
+							   		 					t = t+7;
+
+							   		 					var semiDiv = document.createElement('div');
+							   		 					semiDiv.style.position ="absolute";
+							   		 					semiDiv.style.top = "26%";
+							   		 					semiDiv.style.left = "5%";
+							   		 					semiDiv.style.fontSize = "20px";
+							   		 					semiDiv.innerHTML = i + 1;
+							   		 					newDiv.appendChild(semiDiv);
+
+							   		 					var semiDiv2 = document.createElement('div');
+							   		 					semiDiv2.style.position ="absolute";
+							   		 					semiDiv2.style.top = "26%";
+							   		 					semiDiv2.style.left = "15%";
+							   		 					semiDiv2.style.fontSize = "20px";
+							   		 					semiDiv2.innerHTML = js_employee[i].name;
+							   		 					newDiv.appendChild(semiDiv2);
+
+							   		 					var semiDiv3 = document.createElement('div');
+							   		 					semiDiv3.style.position ="absolute";
+							   		 					semiDiv3.style.top = "26%";
+							   		 					semiDiv3.style.left = "45%";
+							   		 					semiDiv3.style.fontSize = "20px";
+							   		 					semiDiv3.innerHTML = js_employee[i].age;
+							   		 					newDiv.appendChild(semiDiv3);
+
+							   		 					back4.appendChild(newDiv);
+							   		 				}
+		}
+
+		function click_team_team(a){
+			$('.individual_member').remove();
+			$('.all_team').css('backgroundColor','white');
+			for(i=0;i<js_team_list.length;i++)
+			{
+				$('.'+js_team_list[i].team+'team').css('backgroundColor','white');
+			}	
+
+			temp_click_team = js_team_list[a].team;
+
+			$('.'+js_team_list[a].team+'team').css('backgroundColor','#d4eef9');
+
+			var back4 = document.getElementById('employee_list_employee');
+							   		 				var t=9;
+							   		 				var k=1;
+							   		 				for(i=0; i<js_employee.length;i++)
+							   		 				{
+							   		 					if(js_employee[i].team == js_team_list[a].team)
+							   		 					{
+							   		 					var newDiv = document.createElement('div');
+							   		 					newDiv.className = "individual_member";
+							   		 					newDiv.id = js_employee[i].name;
+							   		 					newDiv.setAttribute('onclick','click_member('+i+')');
+							   		 					newDiv.style.position = "absolute";
+							   		 					newDiv.style.top = t+"%";
+							   		 					newDiv.style.left = "0%";
+							   		 					newDiv.style.width = "1051px";
+							   		 					newDiv.style.height = "50px";
+							   		 					t = t+7;
+
+							   		 					var semiDiv = document.createElement('div');
+							   		 					semiDiv.style.position ="absolute";
+							   		 					semiDiv.style.top = "26%";
+							   		 					semiDiv.style.left = "5%";
+							   		 					semiDiv.style.fontSize = "20px";
+							   		 					semiDiv.innerHTML = k;
+							   		 					newDiv.appendChild(semiDiv);
+
+							   		 					var semiDiv2 = document.createElement('div');
+							   		 					semiDiv2.style.position ="absolute";
+							   		 					semiDiv2.style.top = "26%";
+							   		 					semiDiv2.style.left = "15%";
+							   		 					semiDiv2.style.fontSize = "20px";
+							   		 					semiDiv2.innerHTML = js_employee[i].name;
+							   		 					newDiv.appendChild(semiDiv2);
+
+							   		 					var semiDiv3 = document.createElement('div');
+							   		 					semiDiv3.style.position ="absolute";
+							   		 					semiDiv3.style.top = "26%";
+							   		 					semiDiv3.style.left = "45%";
+							   		 					semiDiv3.style.fontSize = "20px";
+							   		 					semiDiv3.innerHTML = js_employee[i].age;
+							   		 					newDiv.appendChild(semiDiv3);
+
+							   		 					back4.appendChild(newDiv);
+							   		 					k++;
+							   		 					}
+							   		 				}
+		}
+	</script>
+
+	<script>
+		var back2 = document.getElementById('employee_info_background');
+		var tt = 9;
+		for(i=0;i<js_employee.length;i++)
+		{
+			
+
+			var newDiv = document.createElement('div');
+			newDiv.style.position = "absolute";
+			newDiv.style.top = tt + "%";
+			newDiv.style.fontSize="22px";
+			newDiv.className="individual_employee";
+			newDiv.id="employee"+i;
+			newDiv.setAttribute( 'onclick', 'click_employee('+i+')');
+			newDiv.setAttribute('ondblclick','dblclick_employee('+i+')');
+			newDiv.style.width = "1361px"
+			newDiv.style.height = "60px";
+			back2.appendChild(newDiv);
+			employee_list.push(js_employee[i].name);
+			tt = tt + 8;
+
+
+			var newDiv2 = document.createElement('div');
+			newDiv2.style.position = "absolute";
+			newDiv2.style.top = "20%";
+			newDiv2.style.left = "9%";
+			newDiv2.style.fontSize = "22px";
+			newDiv2.innerHTML = js_employee[i].team+"&nbsp team";
+
+			newDiv.appendChild(newDiv2);
+
+			var newDiv3 = document.createElement('div');
+			newDiv3.style.position = "absolute";
+			newDiv3.style.top = "20%";
+			newDiv3.style.left = "25%";
+			newDiv3.style.fontSize="22px";
+			newDiv3.innerHTML = js_employee[i].name;
+
+			newDiv.appendChild(newDiv3);
+
+
+			var newDiv4 = document.createElement('div');
+			newDiv4.style.position = "absolute";
+			newDiv4.style.top = "20%";
+			newDiv4.style.left = "45%";
+			newDiv4.style.fontSize = "22px";
+			newDiv4.innerHTML = js_employee[i].age;
+			newDiv.appendChild(newDiv4);
+
+			var newDiv5 = document.createElement('div');
+			newDiv5.style.position = "absolute";
+			newDiv5.style.top = "20%";
+			newDiv5.style.left = "3%";
+			newDiv5.style.fontSize = "22px";
+			newDiv5.innerHTML = i+1;
+
+			newDiv.appendChild(newDiv5);
+		}
+
+		function click_employee(a){
+			if(employee_delete_list.indexOf(a) == -1)
+			{
+				var clicked_employee = document.getElementById('employee'+a);
+				clicked_employee.style.backgroundColor = "#d4eef9";
+				employee_delete_list.push(a);
+			}else{
+				
+				for(i=0;i<employee_delete_list.length;i++)
+				{
+					if(a == employee_delete_list[i])
+					{
+						employee_delete_list.splice(i,1);
+						break;
+					}
+				}
+				var clicked_employee = document.getElementById('employee'+a);
+				clicked_employee.style.backgroundColor = "#fff";
+			}	
+		}
+
+		var temp_name;
+
+		function dblclick_employee(clicked_employee){
+				temp_name = employee_list[clicked_employee];
+
+
+				var xmlhttp = new XMLHttpRequest();
+				var tttt = 1;
+									xmlhttp.open("GET", "http://52.8.57.228/employee_save.php?test="+tttt+"",true);   // 1. request 설정    
+									xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+							  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+											  
+							   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+							   		 		{
+							   		 				var js_employee = JSON.parse(xmlhttp.responseText);
+							   		 				for(i=0;i<js_employee.length;i++)
+							   		 				{
+							   		 					if(employee_list[clicked_employee]==js_employee[i].name)
+							   		 					{
+							   		 						var back2 = document.getElementById('background');
+
+															var newDiv = document.createElement('div');
+															newDiv.className = "pop_add";
+															
+															newDiv.style.top = "30%";
+															newDiv.style.left="35%";
+															newDiv.style.fontSize="22px";
+															newDiv.style.backgroundImage = "url('./image/popup.png')"
+															newDiv.style.width = "680px"
+															newDiv.style.height = "468px";
+															newDiv.style.backgroundColor = "#fff";
+															back2.appendChild(newDiv);
+															var ap = "this.value=''";
+															newDiv.innerHTML = '<input class="employee_name" type="text" value="'+js_employee[i].name+'" onfocus="'+ap+'"style="font-size:40px; top:6%; position:absolute; left:5%; border:none; outline:0px none black">';
+
+															var newDiv2 = document.createElement('div');
+															newDiv2.style.top = "30%";
+															newDiv2.style.left="5%";
+															newDiv2.style.fontSize="25px";
+															newDiv2.innerHTML = "team";
+															newDiv2.style.position = "absolute";
+															newDiv.appendChild(newDiv2);
+
+															var newDiv3 = document.createElement('div');
+															newDiv3.style.top = "43%";
+															newDiv3.style.left="5%";
+															newDiv3.style.fontSize="25px";
+															newDiv3.innerHTML = "Age";
+															newDiv3.style.position = "absolute";
+															newDiv.appendChild(newDiv3);
+
+															var newDiv4 = document.createElement('div');
+															newDiv4.style.top = "56%";
+															newDiv4.style.left="5%";
+															newDiv4.style.fontSize="25px";
+															newDiv4.innerHTML = "position";
+															newDiv4.style.position = "absolute";
+															newDiv.appendChild(newDiv4);
+
+															var newDiv5 = document.createElement('div');
+															newDiv5.style.top = "69%";
+															newDiv5.style.left="5%";
+															newDiv5.style.fontSize="25px";
+															newDiv5.innerHTML = "registration";
+															newDiv5.style.position = "absolute";
+															newDiv.appendChild(newDiv5);
+
+															var newSelect = document.createElement('select');
+															newSelect.className = "select_team";
+															newDiv.appendChild(newSelect);
+
+															for(o=0; o<js_team_list.length;o++)
+															{
+																var newOption = document.createElement('option');
+																newOption.setAttribute('value',js_team_list[o].team);
+																var t = document.createTextNode(js_team_list[o].team+' team');
+																newOption.appendChild(t);
+																newSelect.appendChild(newOption);
+															}															
+
+															for(o=0; o<js_team_list.length;o++)
+															{
+																if(js_team_list[o].team == js_employee[i].team)
+																{
+																	newSelect[o].selected = true;
+																}
+															}
+
+															var newSelect2 = document.createElement('select');
+															newSelect2.className= "select_age";
+															newDiv.appendChild(newSelect2);
+
+															for(u=20;u<50;u++)
+															{
+																var newOption = document.createElement('option');
+																newOption.setAttribute('value',u);
+																var t = document.createTextNode(u);
+																newOption.appendChild(t);
+																newSelect2.appendChild(newOption);
+															}
+
+															var uu = 0;
+															for(u=20;u<50;u++)
+															{
+																if(u == js_employee[i].age)
+																{
+																	newSelect2[uu].selected = true;
+																}
+																uu++;
+															}
+
+															var newSelect3 = document.createElement('select');
+															newSelect3.className= "select_position";
+															newDiv.appendChild(newSelect3);
+
+															var newOption1 = document.createElement('option');
+															newOption1.setAttribute('value','cleaner');
+															var t1 = document.createTextNode('cleaner');
+															newOption1.appendChild(t1);
+															newSelect3.appendChild(newOption1);
+
+															var newOption2 = document.createElement('option');
+															newOption2.setAttribute('value','security');
+															var t2 = document.createTextNode('security');
+															newOption2.appendChild(t2);
+															newSelect3.appendChild(newOption2);
+
+															var selectIndex;
+															if(js_employee[i].position =='cleaner')
+															{
+																selectIndex = 0;
+															}else if(js_employee[i].position == 'security')
+															{
+																selectIndex = 1;
+															}
+
+															newSelect3[selectIndex].selected = true;
+
+															var newSelect4 = document.createElement('select');
+															newSelect4.className= "select_registration";
+															newDiv.appendChild(newSelect4);
+
+															for(y=1;y<13;y++)
+															{
+																for(u=1;u<32;u++)
+																{
+																	var newOption = document.createElement('option');
+																	newOption.setAttribute('value','2015-'+y+'-'+u);
+																	var t = document.createTextNode('2015-'+y+'-'+u);
+																	newOption.appendChild(t);
+																	newSelect4.appendChild(newOption);
+																}
+															}
+
+															var uuu = 0;
+															for(y=1;y<13;y++)
+															{
+																for(u=1;u<32;u++)
+																{
+																	var uuuu = '2015-'+y+'-'+u;
+																	if(uuuu==js_employee[i].registration)
+																	{
+																		newSelect4[uuu].selected = true;
+																	}
+																	uuu++;
+																}
+															}
+
+															var newDiv6 = document.createElement('div');
+															newDiv6.style.top = "83%";
+															newDiv6.style.left="5%";
+															newDiv6.style.backgroundImage = "url('./image/close.png')";
+															newDiv6.style.width ="127px";
+															newDiv6.style.height = "60px";
+															newDiv6.style.position = "absolute";
+															newDiv6.setAttribute('onclick','click_close_employee_add()');
+															newDiv.appendChild(newDiv6);
+
+															var newDiv7 = document.createElement('div');
+															newDiv7.style.top = "83%";
+															newDiv7.style.left="75%";
+															newDiv7.style.backgroundImage = "url('./image/save.png')";
+															newDiv7.style.width ="125px";
+															newDiv7.style.height = "60px";
+															newDiv7.style.position = "absolute";
+															newDiv7.setAttribute('onclick','click_save_employee_update()');
+															newDiv.appendChild(newDiv7);
+							   		 					}
+							   		 				}
+							   		 		}
+							   			}
+							 		}
+								 	xmlhttp.send(null);
+		}
+
+		 $(document).ready(function(){
+ 
+        $('.background').on("selectstart", function(event){ return false; });
+        $('.background').on("dragstart", function(event){ return false; });
+ 
+            //init(); //handler
+        });
+
+		function click_save_employee_update(){
+
+			var name_save =$('.employee_name').val();
+			var team_save = $('.select_team').val();
+			var age_save = $('.select_age').val();
+			var position_save = $('.select_position').val();
+			var registration_save = $('.select_registration').val();
+
+							var xmlhttp = new XMLHttpRequest();
+									xmlhttp.open("GET", "http://52.8.57.228/employee_update.php?name="+name_save+"&team="+team_save+"&age="+age_save+"&position="+position_save+"&registration="+registration_save+"&temp_name="+temp_name+"",true);   // 1. request 설정    
+									xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+							  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+											  
+							   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+							   		 		{
+							   		 			
+							   		 				$('.individual_employee').remove();
+							   		 				var js_employee = JSON.parse(xmlhttp.responseText);
+
+							   		 			  	employee_list.splice(0,employee_list.length);
+							   		 			  	employee_delete_list.splice(0,employee_delete_list.length);
+
+							   		 			  	var back2 = document.getElementById('employee_info_background');
+													var tt = 9;
+													for(i=0;i<js_employee.length;i++)
+													{
+														
+
+														var newDiv = document.createElement('div');
+														newDiv.style.position = "absolute";
+														newDiv.style.top = tt + "%";
+														newDiv.style.fontSize="22px";
+														newDiv.className="individual_employee";
+														newDiv.id="employee"+i;
+														newDiv.setAttribute( 'onclick', 'click_employee('+i+')');
+														newDiv.setAttribute('ondblclick','dblclick_employee('+i+')');
+														newDiv.style.width = "1361px"
+														newDiv.style.height = "60px";
+														back2.appendChild(newDiv);
+														employee_list.push(js_employee[i].name);
+														tt = tt + 8;
+
+
+														var newDiv2 = document.createElement('div');
+														newDiv2.style.position = "absolute";
+														newDiv2.style.top = "20%";
+														newDiv2.style.left = "9%";
+														newDiv2.style.fontSize = "22px";
+														newDiv2.innerHTML = js_employee[i].team+"&nbsp team";
+
+														newDiv.appendChild(newDiv2);
+
+														var newDiv3 = document.createElement('div');
+														newDiv3.style.position = "absolute";
+														newDiv3.style.top = "20%";
+														newDiv3.style.left = "25%";
+														newDiv3.style.fontSize="22px";
+														newDiv3.innerHTML = js_employee[i].name;
+
+														newDiv.appendChild(newDiv3);
+
+
+														var newDiv4 = document.createElement('div');
+														newDiv4.style.position = "absolute";
+														newDiv4.style.top = "20%";
+														newDiv4.style.left = "45%";
+														newDiv4.style.fontSize = "22px";
+														newDiv4.innerHTML = js_employee[i].age;
+														newDiv.appendChild(newDiv4);
+
+														var newDiv5 = document.createElement('div');
+														newDiv5.style.position = "absolute";
+														newDiv5.style.top = "20%";
+														newDiv5.style.left = "3%";
+														newDiv5.style.fontSize = "22px";
+														newDiv5.innerHTML = i+1;
+
+														newDiv.appendChild(newDiv5);
+													}
+													for(j=0;j<employee_list.length;j++)
+													{
+														var clicked_employee = document.getElementById('employee'+a);
+														clicked_employee.style.backgroundColor = "#fff";
+													}
+							    			}
+							   			}
+							 		}
+								 	xmlhttp.send(null)
+
+			 	$('.pop_add').remove();		
+
+			
+		}
+
+	</script>
+	
+	<div class="subbackground">
+		<div class="room_manage" onclick = "click_room_manage()">Room manage</div>
+		<div class="employee_manage" onclick = "click_employee_manage()">Employee manage</div>
+		<div class="inspection" onclick = "click_inspection()">Inspection</div>
+		<div class="present">present time</div>
+		<div class="present_time"></div>
+		<div class="upd">update time</div>
+		<div class="upd_time" style="width:80px; height:50px; font-size:18px; top:52%; left:72%; z-index:2; position:absolute; font-weight:bold;"></div>
+		<div class="update" onclick = "click_update()"></div>
+	</div>
+
+	<div class="count" style = "width:80px; height:50px; font-size:20px; top:30%; left:60%; z-index:3; position:absolute;display:none"></div>
+
+	<script>
+		function click_update(){
+			location.reload();
+		}
+	</script>
+	<script>
+		setInterval("dpTime()",1000);
+
+		var now = new Date();
+		$('.upd_time').html(now.getHours()+":"+now.getMinutes());
+
+		function dpTime(){
+			
+			$('.present_time').html(now.getHours()+":"+now.getMinutes());
+		}
+	</script>
+
+	<script>
+		function click_room_manage(){
+			$('.subbackground2').show();
+			$('.room_info_background').show();
+			$('.subbackground_employee').hide();
+			$('.background2').hide();
+		}
+
+		function click_employee_manage(){
+			$('.background2').show();
+			$('.subbackground_employee').show();
+			$('.subbackground2').hide();
+			$('.room_info_background').hide();
+		}
+	</script>
+	<div class="subbackground2">
+		<div class="assign_room" onclick = "click_assign()"></div>
+
+		<script>
+		
+
+			function click_assign(){
+
+				js_team.splice(0,js_team.length);
+				
+
+				if(assign_able == 0)
+				{
+					$('.count').show();
+					$('.count').html("0 / " + js_count.length);
+					assign_able=1;
+					$('.send').show();
+					selectEvent();
+					
+				}else{
+					$('.count').hide();
+					assign_able=0;
+					selectEvent();
+					$('.send').hide();
+					assign_room_array.splice(0,assign_room_array.length);
+				}
+			}
+		</script>
+		<div class="total">Total</div>
+		<div class="empty" >Empty</div>
+		<div class="prepare">Prepare</div>
+		<div class="cleaning">Cleaning</div>
+		<div class="complete">Complete</div>
+		
+		<select class="select_floor" onChange="selectEvent(this)">
+			<option value="all">All</option>
+		</select>
+
+		<select class="select_view" onChange="selectEvent2(this)">
+			<option value="box">BOX</option>
+			<option value="list">LIST</option>
+		</select>
+		
+
+		<div class="explain"></div>
+		<div class="plus" onclick = "click_plus()"></div>
+
+		<script>
+			function click_plus(){
+				window.open("plus_pop.html","Plus Room","width=700, height=300 , toolbar=no, location=no, directories=no, status=no, menubar = no, scrollbars = no, resizable=no, left = 300, top=150" );
+			}
+
+			function click_delete(){
+				window.open("delete_pop.html","Plus Room","width=700, height=300 , toolbar=no, location=no, directories=no, status=no, menubar = no, scrollbars = no, resizable=no, left = 300, top=150" );
+
+			}
+		</script>
+
+		<div class="delete" onclick = "click_delete()"></div>
+	</div>
+
+	<div class="room_info_background" id = "room_info_background"></div>
+	
+		<script>
+		
+		function room_test()
+		{
+			var room_num;
+			var room_req;
+			var floor;
+			var room_state;
+			var room_reservation;
+			var noti;
+		}
+
+		
+		var back =  document.getElementById('room_info_background');
+
+				var xmlhttp = new XMLHttpRequest();					
+				var test2 = 1;
+					xmlhttp.open("GET", "http://52.8.57.228/readroom.php?test="+test2+"",true);   // 1. request 설정    
+					xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+							if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+											  
+				  	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+				   		 		{
+				   	 				var k = xmlhttp.responseText.split(",|");
+				   	 				for(i=0;i<(k.length-1)/6;i++)
+									{
+										if(arr.indexOf(k[i*6+3]) == -1) 
+										{
+											arr.push(k[i*6+3]);
+										}
+										var ppp = new room_test();
+										ppp.room_num = k[i*6+1];
+										ppp.room_req = k[i*6+2];
+										ppp.floor = k[i*6+3];
+										ppp.room_state = k[i*6+4];
+										ppp.room_reservation = k[i*6+5];
+										ppp.noti = k[i*6+6];
+
+										js_array.push(ppp);
+
+									}
+
+			for(i=0;i<arr.length;i++)
+			{
+				$('.select_floor').append("<option value='"+arr[i]+"'>"+arr[i]+"F"+"</option>");
+			}
+				
+			
+
+			
+				var j=5;
+
+				for(i=0;i<arr.length;i++)
+				{
+					var newDiv = document.createElement('div');
+				
+					newDiv.id = arr[i]+"f"
+					newDiv.className = "floor_box";
+					newDiv.style.width="1500px";
+					newDiv.style.height="270px"
+					
+					
+
+					var newDiv2 =document.createElement('div');
+					newDiv2.style.width = "1262px";
+					newDiv2.style.height = "40px";
+					newDiv2.style.position = "absolute";
+					newDiv2.innerHTML=arr[i]+"F";
+					newDiv2.style.backgroundImage = "url('./image/floor_box.png')";				
+					newDiv.appendChild(newDiv2);
+
+					if(assign_able==1)
+									{
+										var specialDiv =document.createElement('div');
+										specialDiv.style.width = "28px";
+										specialDiv.style.height = "28px"
+										specialDiv.style.position = "absolute";
+										specialDiv.id=arr[i];
+										specialDiv.setAttribute( 'onclick', 'click_floor('+arr[i]+')');
+										specialDiv.style.backgroundImage = "url('./image/check_box1.png')";
+										specialDiv.style.top = "-5%";
+										specialDiv.style.left = "3%";
+										newDiv2.appendChild(specialDiv);
+									}
+
+
+					var a=20;
+					var left=2;
+					var count=0;
+					var p=0;
+					for(k=0;k<js_array.length;k++)
+					{
+						if(js_array[k].floor == arr[i])
+						{
+							var newDiv3 = document.createElement('div');
+							newDiv3.style.width = "113px";
+							newDiv3.style.height= "122px";
+							newDiv3.style.textAlign = "center";
+							newDiv3.id = js_array[k].room_num;
+							newDiv3.className = "individual_room";
+							newDiv3.setAttribute( 'onclick', 'click_room('+js_array[k].room_num+','+js_array[k].room_state+','+js_array[k].room_reservation+')');
+							newDiv3.innerHTML = ""+js_array[k].room_num;
+
+							if(js_array[k].room_reservation == 1)
+							{
+								var newDi = document.createElement('div');
+								newDi.style.position = "absolute";
+								newDi.style.width = "13px";
+								newDi.style.height = "13px";
+								newDi.style.top = "5%";
+								newDi.style.left = "81%";
+								newDi.style.backgroundImage = "url('./image/reservation.png')"
+								newDiv3.appendChild(newDi);
+							}
+
+
+							if(count == 10)
+											{
+												a = a + 50;
+												left = 2;
+												count = 0;
+												p++;
+
+											}
+											count++;
+							newDiv3.style.top = a+"%";
+							newDiv3.style.left = left+"%";
+
+							var newDiv10 = document.createElement('div');
+							newDiv10.style.width="106px";
+							newDiv10.style.height = "80px";
+							newDiv10.style.top="25%";
+							newDiv10.style.left="5%";
+							newDiv10.style.position = "absolute";
+							newDiv10.id = "inner_" + js_array[k].room_num;
+							newDiv10.innerHTML = js_array[k].noti;
+							newDiv3.appendChild(newDiv10);
+
+							if(js_array[k].room_reservation == 1)
+							{
+								var newDi = document.createElement('div');
+								newDi.style.position = "absolute";
+								newDi.style.width = "13px";
+								newDi.style.height = "13px";
+								newDi.style.top = "5%";
+								newDi.style.left = "81%";
+								newDi.style.backgroundImage = "url('./image/reservation.png')"
+								newDiv3.appendChild(newDi);
+							}
+
+
+							if(assign_able == 0)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/redroom.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purpleroom.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/greenroom.png)";
+								}
+							}
+
+							if(assign_able ==1)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/red_room_blur.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purple_room_blur.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/green_room_blur.png)";
+								}
+
+								for(y=0;y<assign_room_array.length;y++)
+								{
+									if(js_array[k].room_num == assign_room_array[y])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_room_blur_check.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_room_blur_check.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_room_blur_check.png)";
+										}
+										break;
+									}
+								}
+
+								for(l=0;l<js_assign.length;l++)
+								{
+									if(js_array[k].room_num == js_assign[l])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_assign.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_assign.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_assign.png)";
+										}
+										break;
+									}
+								}
+							}
+
+							newDiv3.style.position = "absolute";
+							newDiv.appendChild(newDiv3);
+							left = left + 8;
+						}
+					}
+
+					newDiv.style.top = j+"%";
+					j = j + p*20;
+					newDiv.style.left="3%";
+					newDiv.style.zIndex =2;
+					newDiv.style.position = "absolute";
+					back.appendChild(newDiv);
+					j = j + 30;
+				}
+					}
+					   		}
+					 	}
+				 	xmlhttp.send(null) 
+		</script>
+		<script>
+			function selectEvent(selectObj){
+
+				var select_text;
+				var select_view;
+				select_text = $('.select_floor').val();
+				select_view = $('.select_view').val();
+				if(select_text != "all")
+				{
+					if(select_view == "box")
+						{
+							$('.floor_box').remove();
+							$('.selected_floor_box').remove();
+							for(i=0;i<arr.length;i++)
+								{
+
+								if(arr[i]==select_text)
+								{
+									var newDiv = document.createElement('div');
+					
+									newDiv.id = arr[i]+"f"
+									newDiv.className = "selected_floor_box";
+									newDiv.style.width="1500px";
+									newDiv.style.height="270px"
+						
+									var newDiv2 =document.createElement('div');
+									newDiv2.style.width = "1262px";
+									newDiv2.style.height = "40px";
+									newDiv2.style.position = "absolute";
+									newDiv2.innerHTML=arr[i]+"F";
+									newDiv2.style.backgroundImage = "url('./image/floor_box.png')";				
+									newDiv.appendChild(newDiv2);
+
+									if(assign_able==1)
+									{
+										var specialDiv =document.createElement('div');
+										specialDiv.style.width = "28px";
+										specialDiv.style.height = "28px";
+										specialDiv.id=arr[i];
+										specialDiv.setAttribute( 'onclick', 'click_floor('+arr[i]+')');
+										specialDiv.style.position = "absolute";
+										specialDiv.style.backgroundImage = "url('./image/check_box1.png')";
+										specialDiv.style.top = "-5%";
+										specialDiv.style.left = "3%";
+										newDiv2.appendChild(specialDiv);
+									}
+
+									var a=20;
+									var left=2;
+									var count=0;
+									var p=0;
+									for(k=0;k<js_array.length;k++)
+									{
+										if(js_array[k].floor == arr[i])
+										{
+											var newDiv3 = document.createElement('div');
+											newDiv3.style.width = "113px";
+											newDiv3.style.height= "122px";
+											newDiv3.id = js_array[k].room_num;
+											newDiv3.className = "individual_room";
+											newDiv3.setAttribute( 'onclick', 'click_room('+js_array[k].room_num+','+js_array[k].room_state+','+js_array[k].room_reservation+')');
+											newDiv3.style.textAlign = "center";
+											newDiv3.innerHTML = ""+js_array[k].room_num;
+
+							if(js_array[k].room_reservation == 1)
+							{
+								var newDi = document.createElement('div');
+								newDi.style.position = "absolute";
+								newDi.style.width = "13px";
+								newDi.style.height = "13px";
+								newDi.style.top = "5%";
+								newDi.style.left = "81%";
+								newDi.style.backgroundImage = "url('./image/reservation.png')"
+								newDiv3.appendChild(newDi);
+							}
+
+
+
+							var newDiv10 = document.createElement('div');
+							newDiv10.style.width="106px";
+							newDiv10.style.height = "80px";
+							newDiv10.style.top="25%";
+							newDiv10.style.left="5%";
+							newDiv10.style.position = "absolute";
+							newDiv10.innerHTML = js_array[k].noti;
+							newDiv10.id = "inner_" + js_array[k].room_num;
+							newDiv3.appendChild(newDiv10);
+
+											if(count == 10)
+											{
+												a = a + 50;
+												left = 2;
+												count = 0;
+												p++;
+											}
+											count++;
+											newDiv3.style.top = a+"%";
+											newDiv3.style.left = left+"%";
+							if(assign_able == 0)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/redroom.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purpleroom.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/greenroom.png)";
+								}
+							}
+
+							if(assign_able ==1)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/red_room_blur.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purple_room_blur.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/green_room_blur.png)";
+								}
+
+								for(y=0;y<assign_room_array.length;y++)
+								{
+									if(js_array[k].room_num == assign_room_array[y])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_room_blur_check.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_room_blur_check.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_room_blur_check.png)";
+										}
+										break;
+									}
+								}
+
+								for(l=0;l<js_assign.length;l++)
+								{
+									if(js_array[k].room_num == js_assign[l])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_assign.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_assign.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_assign.png)";
+										}
+										break;
+									}
+								}
+							}
+											newDiv3.style.position = "absolute";
+											newDiv.appendChild(newDiv3);
+											left = left + 8;
+										}
+									}	
+						
+									newDiv.style.top = "5%";
+									newDiv.style.left="3%";
+									newDiv.style.zIndex =2;
+									newDiv.style.position = "absolute";
+									back.appendChild(newDiv);	
+								}
+							}
+
+						}
+
+						if(select_view == "list")
+						{
+							$('.floor_box').remove();
+							$('.selected_floor_box').remove();
+							$('.floor_list_title').show();
+							$('.floor_list').remove();
+							$('.list_color').remove();
+							$('.selected_floor_list').remove();
+							$('.selected_list_color').remove();
+
+							for(i=0;i<arr.length;i++)
+							{
+								if(select_text == arr[i])
+								{
+									var p = 10;
+									for(k=0;k<js_array.length;k++)
+									{
+										if(select_text == js_array[k].floor)
+										{
+										var newDiv3 = document.createElement('div');
+										newDiv3.style.top = p + "%";
+										newDiv3.style.position = "absolute";
+										newDiv3.style.width="1600px";
+										newDiv3.style.height="20px";
+										newDiv3.style.fontSize = "20px";
+										newDiv3.style.textAlign = "center";
+										newDiv3.className = "selected_floor_list"
+										newDiv3.innerHTML = js_array[k].room_num + "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+										
+
+										newDiv4 = document.createElement('div');
+										newDiv4.className = "selected_list_color";
+										newDiv4.style.width = "200px";
+										newDiv4.style.height = "50px";
+										newDiv4.style.left = "32%"
+										newDiv4.style.top = p+"%";
+										newDiv4.style.position = "absolute";
+
+										newDiv5 = document.createElement('div');
+										newDiv5.style.width = "13px"
+										newDiv5.style.height = "40px"
+										if(js_array[k].room_state==1)
+											{
+												newDiv5.style.backgroundImage = "url(./image/3P_yet_bar.png)";
+											}else if(js_array[k].room_state==2)
+											{
+												newDiv5.style.backgroundImage = "url(./image/3P_complete_bar.png)";
+											}else if(js_array[k].room_state==3)
+											{
+												newDiv5.style.backgroundImage = "url(./image/3P_cleaning.png)";
+											}
+											
+										newDiv6 = document.createElement('div');
+										newDiv6.style.width = "120px";
+										newDiv6.style.height = "20px";
+										newDiv6.style.fontSize = "20px";
+										newDiv6.style.top = "5%";
+										newDiv6.style.left = "20%";
+										newDiv6.style.position = "absolute";
+										if(js_array[k].room_state==1)
+											{
+												newDiv6.innerHTML = "yet"
+											}else if(js_array[k].room_state==2)
+											{
+												newDiv6.innerHTML = "complete"
+											}else if(js_array[k].room_state==3)
+											{
+												newDiv6.innerHTML = "cleaning"
+											}	
+
+										newDiv4.appendChild(newDiv5);
+										newDiv4.appendChild(newDiv6);
+
+										back.appendChild(newDiv4)
+										back.appendChild(newDiv3);
+
+										p = p + 10;
+
+										}
+									}
+								}
+						}
+					}
+				}
+				if(select_text == "all"){
+						if(select_view == "box")
+						{
+							$('.floor_box').remove();
+
+							var j=5;
+				for(i=0;i<arr.length;i++)
+				{
+					var newDiv = document.createElement('div');
+				
+					newDiv.id = arr[i]+"f"
+					newDiv.className = "floor_box";
+					newDiv.style.width="1500px";
+					newDiv.style.height="270px"
+					
+					
+
+					var newDiv2 =document.createElement('div');
+					newDiv2.style.width = "1262px";
+					newDiv2.style.height = "40px";
+					newDiv2.style.position = "absolute";
+					newDiv2.innerHTML=arr[i]+"F";
+					newDiv2.style.backgroundImage = "url('./image/floor_box.png')";				
+					newDiv.appendChild(newDiv2);
+
+					if(assign_able==1)
+									{
+										var specialDiv =document.createElement('div');
+										specialDiv.style.width = "28px";
+										specialDiv.style.height = "28px"
+										specialDiv.style.position = "absolute";
+										specialDiv.id=arr[i];
+										specialDiv.setAttribute( 'onclick', 'click_floor('+arr[i]+')');
+										specialDiv.style.backgroundImage = "url('./image/check_box1.png')";
+										specialDiv.style.top = "-5%";
+										specialDiv.style.left = "3%";
+										newDiv2.appendChild(specialDiv);
+									}
+
+
+					var a=20;
+					var left=2;
+					var count=0;
+					var p=0;
+					for(k=0;k<js_array.length;k++)
+					{
+						if(js_array[k].floor == arr[i])
+						{
+							var newDiv3 = document.createElement('div');
+							newDiv3.style.width = "113px";
+							newDiv3.style.height= "122px";
+							newDiv3.style.textAlign = "center";
+							newDiv3.id = js_array[k].room_num;
+							newDiv3.className = "individual_room";
+							newDiv3.setAttribute( 'onclick', 'click_room('+js_array[k].room_num+','+js_array[k].room_state+','+js_array[k].room_reservation+')');
+							newDiv3.innerHTML = ""+js_array[k].room_num;
+
+
+							if(js_array[k].room_reservation == 1)
+							{
+								var newDi = document.createElement('div');
+								newDi.style.position = "absolute";
+								newDi.style.width = "13px";
+								newDi.style.height = "13px";
+								newDi.style.top = "5%";
+								newDi.style.left = "81%";
+								newDi.style.backgroundImage = "url('./image/reservation.png')"
+								newDiv3.appendChild(newDi);
+							}
+
+
+							var newDiv10 = document.createElement('div');
+							newDiv10.style.width="106px";
+							newDiv10.style.height = "80px";
+							newDiv10.style.top="25%";
+							newDiv10.style.left="5%";
+							newDiv10.style.position = "absolute";
+							newDiv10.innerHTML = js_array[k].noti;
+							newDiv10.id = "inner_" + js_array[k].room_num;
+							newDiv3.appendChild(newDiv10);
+
+							if(count == 10)
+							{
+								a = a + 50;
+								left = 2;
+								count = 0;
+								p++;
+							}
+							count++;
+							newDiv3.style.top = a+"%";
+							newDiv3.style.left = left+"%";
+							if(assign_able == 0)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/redroom.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purpleroom.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/greenroom.png)";
+								}
+							}
+
+							if(assign_able ==1)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/red_room_blur.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purple_room_blur.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/green_room_blur.png)";
+								}
+
+								for(y=0;y<assign_room_array.length;y++)
+								{
+									if(js_array[k].room_num == assign_room_array[y])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_room_blur_check.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_room_blur_check.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_room_blur_check.png)";
+										}
+										break;
+									}
+								}
+
+								for(l=0;l<js_assign.length;l++)
+								{
+									if(js_array[k].room_num == js_assign[l])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_assign.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_assign.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_assign.png)";
+										}
+										break;
+									}
+								}
+							}
+							newDiv3.style.position = "absolute";
+							newDiv.appendChild(newDiv3);
+							left = left + 8;
+						}
+					}
+
+					newDiv.style.top = j+"%";
+					j = j + p*20;
+					newDiv.style.left="3%";
+					newDiv.style.zIndex =2;
+					newDiv.style.position = "absolute";
+					back.appendChild(newDiv);
+					j = j + 30;
+				}
+
+							$('.selected_floor_box').remove();
+							$('.floor_list_title').remove();
+							$('.floor_list').remove();
+							$('.list_color').remove();
+							$('.selected_floor_list').remove();
+							$('.selected_list_color').remove();
+						}
+						if(select_view == "list")
+						{
+							$('.selected_floor_box').remove();
+							$('.floor_list_title').show();
+							$('.floor_list').show();
+							$('.list_color').show();
+							$('.selected_floor_list').remove();
+							$('.selected_list_color').remove();
+
+							var p = 10;
+							for(k=0;k<js_array.length;k++)
+							{
+								var newDiv3 = document.createElement('div');
+								newDiv3.style.top = p + "%";
+								newDiv3.style.position = "absolute";
+								newDiv3.style.width="1600px";
+								newDiv3.style.height="20px";
+								newDiv3.style.fontSize = "20px";
+								newDiv3.style.textAlign = "center";
+								newDiv3.className = "floor_list"
+								newDiv3.innerHTML = js_array[k].room_num + "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+								
+
+								newDiv4 = document.createElement('div');
+								newDiv4.className = "list_color";
+								newDiv4.style.width = "200px";
+								newDiv4.style.height = "50px";
+								newDiv4.style.left = "32%"
+								newDiv4.style.top = p+"%";
+								newDiv4.style.position = "absolute";
+
+								newDiv5 = document.createElement('div');
+								newDiv5.style.width = "13px"
+								newDiv5.style.height = "40px"
+								if(js_array[k].room_state==1)
+									{
+										newDiv5.style.backgroundImage = "url(./image/3P_yet_bar.png)";
+									}else if(js_array[k].room_state==2)
+									{
+										newDiv5.style.backgroundImage = "url(./image/3P_complete_bar.png)";
+									}else if(js_array[k].room_state==3)
+									{
+										newDiv5.style.backgroundImage = "url(./image/3P_cleaning.png)";
+									}
+									
+								newDiv6 = document.createElement('div');
+								newDiv6.style.width = "120px";
+								newDiv6.style.height = "20px";
+								newDiv6.style.fontSize = "20px";
+								newDiv6.style.top = "5%";
+								newDiv6.style.left = "20%";
+								newDiv6.style.position = "absolute";
+								if(js_array[k].room_state==1)
+									{
+										newDiv6.innerHTML = "yet"
+									}else if(js_array[k].room_state==2)
+									{
+										newDiv6.innerHTML = "complete"
+									}else if(js_array[k].room_state==3)
+									{
+										newDiv6.innerHTML = "cleaning"
+									}	
+
+								newDiv4.appendChild(newDiv5);
+								newDiv4.appendChild(newDiv6);
+
+								back.appendChild(newDiv4)
+								back.appendChild(newDiv3);
+
+								p = p + 10;
+
+							}
+						}
+
+				}
+			}
+		</script>
+		<script>
+			function selectEvent2(selectObj){
+				var select_view;
+				var select_text;
+				select_view = $('.select_view').val();
+				select_text = $('.select_floor').val();
+				if(select_view == "box")
+				{
+					if(select_text == 'all')
+					{	
+						$('.floor_box').remove();
+
+						var j=5;
+				for(i=0;i<arr.length;i++)
+				{
+					var newDiv = document.createElement('div');
+				
+					newDiv.id = arr[i]+"f"
+					newDiv.className = "floor_box";
+					newDiv.style.width="1500px";
+					newDiv.style.height="270px"
+					
+					
+
+					var newDiv2 =document.createElement('div');
+					newDiv2.style.width = "1262px";
+					newDiv2.style.height = "40px";
+					newDiv2.style.position = "absolute";
+					newDiv2.innerHTML=arr[i]+"F";
+					newDiv2.style.backgroundImage = "url('./image/floor_box.png')";				
+					newDiv.appendChild(newDiv2);
+
+if(assign_able==1)
+									{
+										var specialDiv =document.createElement('div');
+										specialDiv.style.width = "28px";
+										specialDiv.style.height = "28px"
+										specialDiv.style.position = "absolute";
+										specialDiv.id=arr[i];
+										specialDiv.setAttribute( 'onclick', 'click_floor('+arr[i]+')');
+										specialDiv.style.backgroundImage = "url('./image/check_box1.png')";
+										specialDiv.style.top = "-5%";
+										specialDiv.style.left = "3%";
+										newDiv2.appendChild(specialDiv);
+									}
+
+
+					var a=20;
+					var left=2;
+					var count=0;
+					var p=0;
+					for(k=0;k<js_array.length;k++)
+					{
+						if(js_array[k].floor == arr[i])
+						{
+							var newDiv3 = document.createElement('div');
+							newDiv3.style.width = "113px";
+							newDiv3.style.height= "122px";
+							newDiv3.style.textAlign = "center";
+							newDiv3.id = js_array[k].room_num;
+							newDiv3.className = "f_room";
+							newDiv3.setAttribute( 'onclick', 'click_room('+js_array[k].room_num+','+js_array[k].room_state+','+js_array[k].room_reservation+')');
+							newDiv3.innerHTML = ""+js_array[k].room_num;
+							
+
+							var newDiv10 = document.createElement('div');
+							newDiv10.style.width="106px";
+							newDiv10.style.height = "80px";
+							newDiv10.style.top="25%";
+							newDiv10.style.left="5%";
+							newDiv10.style.position = "absolute";
+							newDiv10.id = "inner_" + js_array[k].room_num;
+							newDiv3.appendChild(newDiv10);
+							if(count == 10)
+											{
+												a = a + 50;
+												left = 2;
+												count = 0;
+												p++;
+											}
+											count++;
+							newDiv3.style.top = a+"%";
+							newDiv3.style.left = left+"%";
+							if(assign_able == 0)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/redroom.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purpleroom.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/greenroom.png)";
+								}
+							}
+
+							if(assign_able ==1)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/red_room_blur.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purple_room_blur.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/green_room_blur.png)";
+								}
+
+								for(y=0;y<assign_room_array.length;y++)
+								{
+									if(js_array[k].room_num == assign_room_array[y])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_room_blur_check.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_room_blur_check.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_room_blur_check.png)";
+										}
+										break;
+									}
+								}
+
+								for(l=0;l<js_assign.length;l++)
+								{
+									if(js_array[k].room_num == js_assign[l])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_assign.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_assign.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_assign.png)";
+										}
+										break;
+									}
+								}
+							}
+							newDiv3.style.position = "absolute";
+							newDiv.appendChild(newDiv3);
+							left = left + 8;
+						}
+					}
+
+					newDiv.style.top = j+"%";
+					j = j + p*20;
+					newDiv.style.left="3%";
+					newDiv.style.zIndex =2;
+					newDiv.style.position = "absolute";
+					back.appendChild(newDiv);
+					j = j + 30;
+				}
+						
+					}
+					if(select_text != 'all')
+					{
+
+						for(i=0;i<arr.length;i++)
+								{
+								if(arr[i]==select_text)
+								{
+									var newDiv = document.createElement('div');
+					
+									newDiv.id = arr[i]+"f"
+									newDiv.className = "selected_floor_box";
+									newDiv.style.width="1500px";
+									newDiv.style.height="270px"
+						
+									var newDiv2 =document.createElement('div');
+									newDiv2.style.width = "1262px";
+									newDiv2.style.height = "40px";
+									newDiv2.style.position = "absolute";
+									newDiv2.innerHTML=arr[i]+"F";
+									newDiv2.style.backgroundImage = "url('./image/floor_box.png')";				
+									newDiv.appendChild(newDiv2);
+
+									var a=20;
+									var left=2;
+									var count=0;
+									var p=0;
+									for(k=0;k<js_array.length;k++)
+									{
+										if(js_array[k].floor == arr[i])
+										{
+											var newDiv3 = document.createElement('div');
+											newDiv3.style.width = "113px";
+											newDiv3.style.height= "122px";
+											newDiv3.style.textAlign = "center";
+											newDiv3.id = js_array[k].room_num;
+											newDiv3.className = "individual_room";
+											newDiv3.setAttribute( 'onclick', 'click_room('+js_array[k].room_num+','+js_array[k].room_state+','+js_array[k].room_reservation+')');
+											newDiv3.innerHTML = ""+js_array[k].room_num;
+
+							if(js_array[k].room_reservation == 1)
+							{
+								var newDi = document.createElement('div');
+								newDi.style.position = "absolute";
+								newDi.style.width = "13px";
+								newDi.style.height = "13px";
+								newDi.style.top = "5%";
+								newDi.style.left = "81%";
+								newDi.style.backgroundImage = "url('./image/reservation.png')"
+								newDiv3.appendChild(newDi);
+							}
+
+
+											var newDiv10 = document.createElement('div');
+											newDiv10.style.width="100px";
+											newDiv10.style.height = "100px";
+											newDiv10.style.top="10%";
+											newDiv10.style.left="5%";
+											newDiv10.style.position = "absolute";
+											newDiv10.innerHTML = js_array[k].noti;
+											newDiv10.id = "inner_" + js_array[k].room_num;
+											newDiv3.appendChild(newDiv10);
+
+												if(count == 10)
+											{
+												a = a + 50;
+												left = 2;
+												count = 0;
+												p++;
+											}
+											count++;
+											newDiv3.style.top = a+"%";
+											newDiv3.style.left = left+"%";
+							if(assign_able == 0)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/redroom.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purpleroom.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/greenroom.png)";
+								}
+							}
+
+							if(assign_able ==1)
+							{
+								if(js_array[k].room_state==1)
+								{
+									newDiv3.style.backgroundImage = "url(./image/red_room_blur.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv3.style.backgroundImage = "url(./image/purple_room_blur.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv3.style.backgroundImage = "url(./image/green_room_blur.png)";
+								}
+
+								for(y=0;y<assign_room_array.length;y++)
+								{
+									if(js_array[k].room_num == assign_room_array[y])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_room_blur_check.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_room_blur_check.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_room_blur_check.png)";
+										}
+										break;
+									}
+								}
+
+								for(l=0;l<js_assign.length;l++)
+								{
+									if(js_array[k].room_num == js_assign[l])
+									{
+										if(js_array[k].room_state==1)
+										{
+											newDiv3.style.backgroundImage = "url(./image/red_assign.png)";
+										}else if(js_array[k].room_state==2)
+										{
+											newDiv3.style.backgroundImage = "url(./image/purple_assign.png)";
+										}else if(js_array[k].room_state==3)
+										{
+											newDiv3.style.backgroundImage = "url(./image/green_assign.png)";
+										}
+										break;
+									}
+								}
+							}
+											newDiv3.style.position = "absolute";
+											newDiv.appendChild(newDiv3);
+											left = left + 8;
+										}
+									}	
+						
+									newDiv.style.top = "5%";
+									newDiv.style.left="3%";
+									newDiv.style.zIndex =2;
+									newDiv.style.position = "absolute";
+									back.appendChild(newDiv);	
+								}
+							}
+					}
+					$('.floor_list_title').remove();
+					$('.floor_list').remove();
+					$('.list_color').remove();
+					$('.selected_floor_list').remove();
+					$('.selected_list_color').remove();
+				}
+				if(select_view == 'list')
+				{
+						var newDiv = document.createElement('div');
+						newDiv.style.backgroundColor = "#eeeeee";
+						newDiv.style.width = "1600px";
+						newDiv.style.height = "50px";
+						newDiv.style.position = "absolute";
+						newDiv.className = "floor_list_title"
+						
+						var newDiv2 = document.createElement('div');
+						newDiv2.style.top = "20%";
+						newDiv2.style.position = "absolute";
+						newDiv2.style.width="1600px";
+						newDiv2.style.height="20px";
+						newDiv2.style.fontSize = "20px"
+						newDiv2.style.textAlign = "center";
+						newDiv2.innerHTML = "Room &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp State &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp HouseKeeping &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Check-In Time &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Check-out Time &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Attebdant"
+		
+						newDiv.appendChild(newDiv2);
+						back.appendChild(newDiv);
+
+					if(select_text == 'all')
+					{
+						$('.selected_floor_box').hide();
+						$('.floor_box').hide();
+
+						var p = 10;
+						for(k=0;k<js_array.length;k++)
+						{
+							var newDiv3 = document.createElement('div');
+							newDiv3.style.top = p + "%";
+							newDiv3.style.position = "absolute";
+							newDiv3.style.width="1600px";
+							newDiv3.style.height="20px";
+							newDiv3.style.fontSize = "20px";
+							newDiv3.style.textAlign = "center";
+							newDiv3.className = "floor_list"
+							newDiv3.innerHTML = js_array[k].room_num + "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+							
+
+							newDiv4 = document.createElement('div');
+							newDiv4.className = "list_color";
+							newDiv4.style.width = "200px";
+							newDiv4.style.height = "50px";
+							newDiv4.style.left = "32%"
+							newDiv4.style.top = p+"%";
+							newDiv4.style.position = "absolute";
+
+							newDiv5 = document.createElement('div');
+							newDiv5.style.width = "13px"
+							newDiv5.style.height = "40px"
+							if(js_array[k].room_state==1)
+								{
+									newDiv5.style.backgroundImage = "url(./image/3P_yet_bar.png)";
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv5.style.backgroundImage = "url(./image/3P_complete_bar.png)";
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv5.style.backgroundImage = "url(./image/3P_cleaning.png)";
+								}
+								
+							newDiv6 = document.createElement('div');
+							newDiv6.style.width = "120px";
+							newDiv6.style.height = "20px";
+							newDiv6.style.fontSize = "20px";
+							newDiv6.style.top = "5%";
+							newDiv6.style.left = "20%";
+							newDiv6.style.position = "absolute";
+							if(js_array[k].room_state==1)
+								{
+									newDiv6.innerHTML = "yet"
+								}else if(js_array[k].room_state==2)
+								{
+									newDiv6.innerHTML = "complete"
+								}else if(js_array[k].room_state==3)
+								{
+									newDiv6.innerHTML = "cleaning"
+								}	
+
+							newDiv4.appendChild(newDiv5);
+							newDiv4.appendChild(newDiv6);
+
+							back.appendChild(newDiv4)
+							back.appendChild(newDiv3);
+
+							p = p + 10;
+
+						}
+
+					}
+					if(select_text != 'all')
+					{
+							$('.floor_box').remove();
+							$('.selected_floor_box').remove();
+							$('.floor_list_title').show();
+							$('.floor_list').remove();
+							$('.list_color').remove();
+							$('.selected_floor_list').remove();
+							$('.selected_list_color').remove();
+
+							for(i=0;i<arr.length;i++)
+							{
+								if(select_text == arr[i])
+								{
+									var p = 10;
+									for(k=0;k<js_array.length;k++)
+									{
+										if(select_text == js_array[k].floor)
+										{
+										var newDiv3 = document.createElement('div');
+										newDiv3.style.top = p + "%";
+										newDiv3.style.position = "absolute";
+										newDiv3.style.width="1600px";
+										newDiv3.style.height="20px";
+										newDiv3.style.fontSize = "20px";
+										newDiv3.style.textAlign = "center";
+										newDiv3.className = "selected_floor_list"
+										newDiv3.innerHTML = js_array[k].room_num + "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+										
+
+										newDiv4 = document.createElement('div');
+										newDiv4.className = "selected_list_color";
+										newDiv4.style.width = "200px";
+										newDiv4.style.height = "50px";
+										newDiv4.style.left = "32%"
+										newDiv4.style.top = p+"%";
+										newDiv4.style.position = "absolute";
+
+										newDiv5 = document.createElement('div');
+										newDiv5.style.width = "13px"
+										newDiv5.style.height = "40px"
+										if(js_array[k].room_state==1)
+											{
+												newDiv5.style.backgroundImage = "url(./image/3P_yet_bar.png)";
+											}else if(js_array[k].room_state==2)
+											{
+												newDiv5.style.backgroundImage = "url(./image/3P_complete_bar.png)";
+											}else if(js_array[k].room_state==3)
+											{
+												newDiv5.style.backgroundImage = "url(./image/3P_cleaning.png)";
+											}
+											
+										newDiv6 = document.createElement('div');
+										newDiv6.style.width = "120px";
+										newDiv6.style.height = "20px";
+										newDiv6.style.fontSize = "20px";
+										newDiv6.style.top = "5%";
+										newDiv6.style.left = "20%";
+										newDiv6.style.position = "absolute";
+										if(js_array[k].room_state==1)
+											{
+												newDiv6.innerHTML = "yet"
+											}else if(js_array[k].room_state==2)
+											{
+												newDiv6.innerHTML = "complete"
+											}else if(js_array[k].room_state==3)
+											{
+												newDiv6.innerHTML = "cleaning"
+											}	
+
+										newDiv4.appendChild(newDiv5);
+										newDiv4.appendChild(newDiv6);
+
+										back.appendChild(newDiv4)
+										back.appendChild(newDiv3);
+
+										p = p + 10;
+
+										}
+									}
+								}
+						}
+					}
+
+				}
+			}
+		</script>
+	</div>
+
+
+	<script>
+	function click_room(clicked_room,clicked_room_state,clicked_room_reservation){
+		if(assign_able == 0)
+		{
+			if(re==0)
+			{
+				$('.room_req').remove();
+				request_number = clicked_room;
+
+				var temp_text;
+
+				var back =  document.getElementById('background');
+				var newDiv = document.createElement('div');
+				newDiv.className = "room_req";
+				newDiv.style.width="597px";
+				newDiv.style.height="710px";
+				newDiv.style.backgroundImage = "url('./image/room_info.png')";
+				newDiv.style.top = "36.5%";
+				newDiv.style.left = "12%";
+				newDiv.style.zIndex = "5";
+				newDiv.style.position = "absolute";
+				newDiv.setAttribute( 'onclick', 'click_room_req()');	
+				
+				var newDiv2 = document.createElement('div');
+				newDiv2.style.width="601px";
+				newDiv2.style.height="100px";
+				newDiv2.style.zIndex = "5";
+				newDiv2.style.paddingTop = "20px";
+				newDiv2.style.paddingLeft = "40px";
+				newDiv2.innerHTML = "Room&nbsp" + clicked_room;
+				newDiv2.style.fontSize ="30px";
+				newDiv2.style.fontWeight="bold"
+				newDiv2.style.position = "absolute";
+
+				var newDiv3 = document.createElement('div');
+				newDiv3.style.width="631px";
+				newDiv3.style.height="250px";
+				newDiv3.style.top = "55%";
+				newDiv3.style.zIndex = "5";
+				newDiv3.style.position = "absolute";
+
+				var newDiv4 = document.createElement('select');
+				newDiv4.style.position = "absolute";
+				newDiv4.className = "reservation_select";
+				newDiv4.style.backgroundColor = "#eeeeee";
+				newDiv4.style.fontWeight = "bold";
+				newDiv4.style.top ="24%";
+				newDiv4.style.left = "24%";
+				newDiv4.style.width = "430px";
+				newDiv4.style.height = "30px";
+				newDiv4.style.fontSize = "20px";
+				newDiv4.style.borderRadius = "10px";
+				
+				var newOption2 = document.createElement('option');
+				newOption2.setAttribute('value','not reservation');
+				var t = document.createTextNode('not reservation');
+				newOption2.appendChild(t);
+				newDiv4.appendChild(newOption2);
+
+				var newOption = document.createElement('option');
+				newOption.setAttribute('value','reservation');
+				var t = document.createTextNode('reservation');
+				newOption.appendChild(t);
+				newDiv4.appendChild(newOption);
+
+				var selectIndex=clicked_room_reservation;
+				newDiv4[selectIndex].selected = true;
+			
+				newDiv.appendChild(newDiv4);
+
+				var newDiv6 = document.createElement('textarea');
+				newDiv6.className = "room_notice";
+				newDiv6.style.position = "absolute";
+				newDiv6.style.backgroundColor = "#eeeeee";
+				newDiv6.style.top ="33%";
+				newDiv6.style.left = "24%";
+				newDiv6.style.width = "430px";
+				newDiv6.style.height = "122px";
+				newDiv6.style.borderRadius = "10px";
+				newDiv.appendChild(newDiv6);
+
+
+
+
+				var newDiv5 = document.createElement('textarea');
+				newDiv5.className ="request";
+				
+									var xmlhttp = new XMLHttpRequest();
+									xmlhttp.open("GET", "http://52.8.57.228/myreadDB.php?request_number="+request_number+"",true);   // 1. request 설정    
+									xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+							  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+											  
+							   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+							   		 		{
+							   		 			var uis = xmlhttp.responseText.split('.|.');
+							   	 				$('.request').val(uis[0]);
+							   	 				$('.room_notice').val(uis[1]);
+							      				//alert(xmlhttp.responseText);          
+							    			}
+							   			}
+							 		}
+								 	xmlhttp.send(null) 
+
+				
+				var semiDiv = document.createElement('div');
+				semiDiv.style.position = "absolute";
+				semiDiv.style.width = "26px";
+				semiDiv.className = "red";
+				semiDiv.style.height = "25px";
+				semiDiv.style.backgroundImage = "url('./image/no_circle.png')";
+				semiDiv.style.top = "15%";
+				semiDiv.style.left = "24%";
+				semiDiv.style.zIndex = "10";
+				semiDiv.setAttribute('onclick','click_red('+request_number+')');
+				newDiv.appendChild(semiDiv);
+
+				var semiDi = document.createElement('div');
+				semiDi.style.position = "absolute";
+				semiDi.style.width = "50px";
+				semiDi.style.height ="24px";
+				semiDi.style.fontSize="20px";
+				semiDi.style.top="15%";
+				semiDi.style.left="30%";
+				semiDi.style.zIndex="10";
+				semiDi.setAttribute('onclick','click_red('+request_number+')');
+				semiDi.innerHTML = "yet";
+				newDiv.appendChild(semiDi);
+
+				var semiDiv2 = document.createElement('div');
+				semiDiv2.style.position = "absolute";
+				semiDiv2.className="blue";
+				semiDiv2.style.width = "26px";
+				semiDiv2.style.height = "25px";
+				semiDiv2.style.backgroundImage = "url('./image/no_circle.png')";
+				semiDiv2.style.top = "15%";
+				semiDiv2.style.left = "38.5%";
+				semiDiv2.style.zIndex = "10";
+				semiDiv2.setAttribute('onclick','click_blue('+request_number+')');
+				newDiv.appendChild(semiDiv2);
+				
+				var semiDi2 = document.createElement('div');
+				semiDi2.style.position = "absolute";
+				semiDi2.style.width = "110px";
+				semiDi2.style.height ="25px";
+				semiDi2.style.fontSize="20px";
+				semiDi2.style.top="15%";
+				semiDi2.style.left="43.5%";
+				semiDi2.style.zIndex="10";
+				semiDi2.innerHTML = "not decided";
+				semiDi2.setAttribute('onclick','click_blue('+request_number+')');
+				newDiv.appendChild(semiDi2);
+
+				var semiDiv3 = document.createElement('div');
+				semiDiv3.style.position = "absolute";
+				semiDiv3.style.width = "26px";
+				semiDiv3.className="green";
+				semiDiv3.style.height = "25px";
+				semiDiv3.style.backgroundImage = "url('./image/no_circle.png')";
+				semiDiv3.style.top = "15%";
+				semiDiv3.style.left = "65%";
+				semiDiv3.style.zIndex = "10";
+				semiDiv3.setAttribute('onclick','click_green('+request_number+')');
+				newDiv.appendChild(semiDiv3);
+
+				var semiDi3 = document.createElement('div');
+				semiDi3.style.position = "absolute";
+				semiDi3.style.width = "170px";
+				semiDi3.style.height ="25px";
+				semiDi3.style.fontSize="20px";
+				semiDi3.style.top="15%";
+				semiDi3.style.left="70%";
+				semiDi3.style.zIndex="10";
+				semiDi3.setAttribute('onclick','click_green('+request_number+')');
+				semiDi3.innerHTML = "complete cleaning";
+				newDiv.appendChild(semiDi3);
+
+				newDiv3.appendChild(newDiv5);
+
+				newDiv.appendChild(newDiv2);
+				newDiv.appendChild(newDiv3);
+				back.appendChild(newDiv);
+
+
+				if(clicked_room_state==1){
+					$('.red').css("background-image","url('./image/red_circle.png')");
+				}else if(clicked_room_state==2){
+					$('.blue').css("background-image","url('./image/blue_circle.png')");
+				}else if(clicked_room_state==3)
+				{
+					$('.green').css("background-image","url('./image/green_circle.png')");
+				}
+
+				$('.room_req').hide();
+
+				$('.room_req').show( "slide", 
+		                      {direction: "left" }, 500 );
+				request_state = 1;
+				re=1;
+			}else{
+				$(".room_req").hide( "slide", 
+                      {direction: "left" }, 500 );
+
+				var temp_room = document.getElementById('inner_' + request_number);
+                temp_room.innerHTML = $('.room_notice').val();
+
+                notice_text = $('.room_notice').val();
+                
+				send_request(request_number,request_text,notice_text);
+				request_state =0;
+				request_state2 = 0;
+				re=0;
+			}
+
+		}
+
+		if(assign_able == 1)
+		{
+			var checked_room = document.getElementById(clicked_room);
+			var a=checked_room.style.backgroundImage;
+			var chec=0;
+
+			for(i=0;i<assign_room_array.length;i++)
+			{
+				if(assign_room_array[i] == clicked_room)
+				{
+					temp = i;
+					chec=1;
+				}
+			}
+
+			if(chec==1)
+			{
+			assign_room_array.splice(temp,1);
+			}
+
+			if(chec==0)
+			{
+				assign_room_array.push(clicked_room);
+			}
+
+			if(a=='url(http://52.8.57.228/image/red_room_blur.png)')
+			{
+				checked_room.style.backgroundImage = "url(./image/red_room_blur_check.png)";
+			}
+			if(a=='url(http://52.8.57.228/image/green_room_blur.png)')
+			{
+				checked_room.style.backgroundImage = "url(./image/green_room_blur_check.png)";
+			}
+			if(a=='url(http://52.8.57.228/image/purple_room_blur.png)')
+			{
+				checked_room.style.backgroundImage = "url(./image/purple_room_blur_check.png)";
+			}
+
+			if(a=='url(http://52.8.57.228/image/red_room_blur_check.png)')
+			{
+				checked_room.style.backgroundImage = "url(./image/red_room_blur.png)";
+			}
+			if(a=='url(http://52.8.57.228/image/green_room_blur_check.png)')
+			{
+				checked_room.style.backgroundImage = "url(./image/green_room_blur.png)";
+			}
+			if(a=='url(http://52.8.57.228/image/purple_room_blur_check.png)')
+			{
+				checked_room.style.backgroundImage = "url(./image/purple_room_blur.png)";
+			}
+		}
+
+		$('.count').html(assign_room_array.length + " / " + js_count.length);
+	}
+	function click_floor(clicked_floor){
+
+		var b = document.getElementById(clicked_floor);
+		var c = b.style.backgroundImage;
+
+		
+
+		if(c=='url(http://52.8.57.228/image/check_box1.png)')
+		{
+			b.style.backgroundImage = "url('./image/check_box2.png')";
+
+			for(i=0;i<js_array.length;i++)
+			{
+				if(js_array[i].floor == clicked_floor)
+				{
+					var checked_room = document.getElementById(js_array[i].room_num);
+					var a=checked_room.style.backgroundImage;
+					
+					if(a=='url(http://52.8.57.228/image/red_room_blur.png)')
+					{
+						checked_room.style.backgroundImage = "url(./image/red_room_blur_check.png)";
+					}
+					if(a=='url(http://52.8.57.228/image/green_room_blur.png)')
+					{
+						checked_room.style.backgroundImage = "url(./image/green_room_blur_check.png)";
+					}
+					if(a=='url(http://52.8.57.228/image/purple_room_blur.png)')
+					{
+						checked_room.style.backgroundImage = "url(./image/purple_room_blur_check.png)";
+					}
+
+					assign_room_array.push(js_array[i].room_num);
+				}
+			}
+			
+			assign_room_array = arrayCheck(assign_room_array);
+		}
+
+		
+
+		if(c=='url(http://52.8.57.228/image/check_box2.png)')
+		{
+			b.style.backgroundImage = "url('./image/check_box1.png')";
+
+			for(i=0;i<js_array.length;i++)
+			{
+				if(js_array[i].floor == clicked_floor)
+				{
+					var checked_room = document.getElementById(js_array[i].room_num);
+					var a=checked_room.style.backgroundImage;
+					
+					if(a=='url(http://52.8.57.228/image/red_room_blur_check.png)')
+					{
+						checked_room.style.backgroundImage = "url(./image/red_room_blur.png)";
+					}
+					if(a=='url(http://52.8.57.228/image/green_room_blur_check.png)')
+					{
+						checked_room.style.backgroundImage = "url(./image/green_room_blur.png)";
+					}
+					if(a=='url(http://52.8.57.228/image/purple_room_blur_check.png)')
+					{
+						checked_room.style.backgroundImage = "url(./image/purple_room_blur.png)";
+					}
+
+					for(j=0;j<assign_room_array.length;j++)
+					{
+						if(assign_room_array[j] == js_array[i].room_num)
+						{
+							assign_room_array.splice(j,1);
+							j--;
+						}
+					}
+				}
+
+
+			}
+		}
+
+		$('.count').html(assign_room_array.length + " / " + js_count.length);
+	}
+
+	function arrayCheck(aaa) { 
+
+		var b = []; 
+		var j = 0; 
+		aaa.sort(); 
+		while(aaa.length > 0) { 
+
+		var newKey = aaa.shift(); 
+		if(j == 0) { 
+
+		b.push(newKey); 
+		j++; 
+
+		} else if(b[j-1] != newKey) { 
+
+		b.push(newKey); 
+		j++; 
+
+		} 
+
+
+		} 
+
+		return b; 
+
+	} 
+
+	function click_room_req(){
+		request_state2 = 0 ;
+	}
+
+	function request_back(){
+		
+		if(request_state == 1)
+		{
+			if(request_state2 == 1)
+			{
+				$(".room_req").hide( "slide", 
+                      {direction: "left" }, 500 );
+
+                
+
+				request_text = $('.request').val();
+				request_state =0;
+				request_state2 = 0;
+				re=0;
+
+				notice_text = $('.room_notice').val();
+
+				var temp_room = document.getElementById('inner_' + request_number);
+                temp_room.innerHTML = $('.room_notice').val();
+
+				send_request(request_number,request_text,notice_text);
+				return 0;
+			}
+			request_state2=1;
+		}
+
+		if(teamSend_state == 0)
+		{
+				$(".teamSend").hide( "slide", 
+                   		 {direction: "left" }, 500 ); 
+
+				$('.teamInfo').hide( "slide", 
+	                      {direction: "left" }, 500 );
+
+
+				if(assign_able == 1)
+				{
+					$('.send').show();
+				}
+				if(temp_state == 1)
+				{
+					send_assign();
+					click_assign();
+					temp_state = 0;
+
+					setTimeout("restart()",500);
+
+					
+				}
+		}else{
+			teamSend_state = 0;
+		}
+		
+	}
+
+	function restart(){
+		location.href = "<?=$PHP_SELF?>";
+	}
+
+	function send_request(a,b,c){
+		var d = 0;
+		if($('.reservation_select').val()=='reservation')
+		{
+			d = 1;
+		}
+
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET", "http://52.8.57.228/mywriteDB.php?request_number="+a+"&request_text="+b+"&notice_text="+c+"&reservation="+d+"",true);   // 1. request 설정    
+		xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+				  
+   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+   		 		{
+   	 				//$('.request').val(xmlhttp.responseText);
+      					   
+    			}
+   			}
+ 		}
+	 	xmlhttp.send(null)  
+	}
+	</script>
+
+
+	<img class="send" src="./image/send.png" style="height=54px; width=92px; top:91%; left:83%; z-index:5; display:none" onclick="sendClick()">
+
+	<script>
+	
+		function sendClick(){
+
+				$('.send').hide();
+
+				var back = document.getElementById('background');
+
+				var newDiv = document.createElement('div');
+				newDiv.style.position = "fixed";
+				newDiv.style.width = "1074px";
+				newDiv.style.height = "903px";
+				newDiv.style.top = "30%";
+				newDiv.style.left = "30%";
+				newDiv.style.backgroundImage = "url('./image/assign_pop.png')"
+
+				back.appendChild(newDiv);
+		}
+	</script>
+
+	<script>		
+		function click_green(a){
+			var tempt =  document.getElementById(a);
+			tempt.style.backgroundImage = "url(./image/greenroom.png)";
+
+			$('.green').css("background-image","url('./image/green_circle.png')");
+			$('.red').css("background-image","url('./image/no_circle.png')");
+			$('.blue').css("background-image","url('./image/no_circle.png')");
+
+			var sta = 'green';
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", "http://52.8.57.228/state.php?room_num="+a+"&state="+sta+"",true);   // 1. request 설정    
+					xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+			  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+							  
+			   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+			   		 		{
+			   	 				//$('.request').val(xmlhttp.responseText);
+			      				//alert(xmlhttp.responseText);          
+			    			}
+			   			}
+			 		}
+				 	xmlhttp.send(null);  
+		}
+
+		function click_red(a){
+			var tempt =  document.getElementById(a);
+			tempt.style.backgroundImage = "url(./image/redroom.png)";
+
+			$('.green').css("background-image","url('./image/no_circle.png')");
+			$('.red').css("background-image","url('./image/red_circle.png')");
+			$('.blue').css("background-image","url('./image/no_circle.png')");
+
+					var sta = 'red';
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", "http://52.8.57.228/state.php?room_num="+a+"&state="+sta+"",true);   // 1. request 설정    
+					xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+			  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+							  
+			   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+			   		 		{
+			   	 				//$('.request').val(xmlhttp.responseText);
+			      				//alert(xmlhttp.responseText);          
+			    			}
+			   			}
+			 		}
+				 	xmlhttp.send(null)  
+
+		}
+
+		function click_blue(a){
+			var tempt =  document.getElementById(a);
+			tempt.style.backgroundImage = "url(./image/purpleroom.png)";
+
+			$('.green').css("background-image","url('./image/no_circle.png')");
+			$('.red').css("background-image","url('./image/no_circle.png')");
+			$('.blue').css("background-image","url('./image/blue_circle.png')");
+
+			var sta = 'blue';
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", "http://52.8.57.228/state.php?room_num="+a+"&state="+sta+"",true);   // 1. request 설정    
+					xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+			  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+							  
+			   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+			   		 		{
+			   	 				//$('.request').val(xmlhttp.responseText);
+			      				//alert(xmlhttp.responseText);          
+			    			}
+			   			}
+			 		}
+				 	xmlhttp.send(null)  
+		}
+
+		function team_se(){
+				//var js_team = <?php echo json_encode($return_array)?>; 
+
+				$('.teamSend').remove();
+				ass_team ="A";
+
+				temp_state = 1;
+				var back =  document.getElementById('background');
+				var newDiv = document.createElement('div');
+				newDiv.className = "teamSend";
+				newDiv.id="teamSend";
+				newDiv.style.display = "none";
+				newDiv.style.width="631px";
+				newDiv.style.height="738px";
+				newDiv.style.top = "40%";
+				newDiv.style.left = "7%";
+				newDiv.style.backgroundColor = "#fff"
+				newDiv.style.zIndex = "5";
+				newDiv.setAttribute( 'onclick', 'click_teamSend()');
+				newDiv.style.position = "absolute";
+
+
+				var newDiv2 = document.createElement('div');
+				newDiv2.style.width="601px";
+				newDiv2.style.height="70px";
+				newDiv2.style.backgroundColor = "#969696"
+				newDiv2.style.zIndex = "5";
+				newDiv2.style.paddingTop = "20px";
+				newDiv2.style.paddingLeft = "30px";
+				newDiv2.style.fontSize ="50px";
+				newDiv2.style.color = "#fff";
+				newDiv2.style.position = "absolute";
+
+				var newDiv3 = document.createElement('div');
+				newDiv3.style.width="380px";
+				newDiv3.style.height="30px";
+				newDiv3.style.zIndex = "6";
+				newDiv3.style.top = "34%";
+				newDiv3.style.left = "15%";
+				newDiv3.style.backgroundColor = "#fff";
+				newDiv3.style.position = "absolute";
+
+				var newDiv4 = document.createElement('input');
+				newDiv4.style.position = "absolute";
+				newDiv4.style.top="15%";
+				newDiv4.style.left="15%";
+				newDiv4.style.width = "300px";
+				newDiv4.style.zIndex = "7";
+				newDiv4.style.border = "none";
+
+				var newDiv5 = document.createElement('div');
+				newDiv5.style.position = "absolute";
+				newDiv5.style.width = "23px";
+				newDiv5.style.height ="15px";
+				newDiv5.style.top ="17%";
+				newDiv5.style.left = "6%";
+				newDiv5.style.zIndex = "7";
+				newDiv5.style.position = "absolute";
+				newDiv5.style.backgroundImage = "url('./image/search.png')"
+
+				var o = 15;
+				var a="";
+				for(i=0;i<js_team.length;i++)
+				{
+					if(a != js_team[i].team_name)
+					{
+						var newDiv6 = document.createElement('div');
+						newDiv6.style.position = "absolute";
+					
+						newDiv6.style.width = "445px";
+						newDiv6.style.left="25%";
+						newDiv6.style.height = "50px";
+						newDiv6.style.top = o+"%";
+						newDiv6.style.fontSize = "30px";
+						newDiv6.setAttribute('onclick', 'click_mem("'+js_team[i].team_name+'")');
+						newDiv6.innerHTML = "&nbsp&nbsp&nbspTeam&nbsp" + js_team[i].team_name;
+
+						var newDiv7 = document.createElement('div');
+						newDiv7.style.position = "absolute";
+						newDiv7.id = js_team[i].team_name;
+						newDiv7.className = js_team[i].team_name;
+						newDiv7.setAttribute('onclick', 'click_team("'+js_team[i].team_name+'")');
+						newDiv7.style.width = "28px";
+						newDiv7.style.height = "28px";
+						newDiv7.style.zIndex = "8";
+
+						if(ass_team == js_team[i].team_name)
+						{
+							newDiv7.style.backgroundImage = "url('./image/check_box2.png')";
+						}else{
+							newDiv7.style.backgroundImage = "url('./image/check_box1.png')";
+						}
+
+						newDiv7.style.left = "12%";
+						newDiv7.style.top = o+1+"%";
+
+						var newDiv8 = document.createElement('div');
+						newDiv8.style.position = "absolute";
+						newDiv8.style.width = "17px";
+						newDiv8.style.height = "31px";
+						newDiv8.style.backgroundImage = "url('./image/small_left.png')";
+						newDiv8.style.left = "95%";
+						newDiv8.style.top = "20%";
+
+						newDiv6.appendChild(newDiv8);
+						newDiv.appendChild(newDiv7);
+						newDiv.appendChild(newDiv6);
+
+						o = o +8;
+						a = js_team[i].team_name;					
+					}
+				}
+				newDiv3.appendChild(newDiv5);
+				newDiv3.appendChild(newDiv4);
+				newDiv2.appendChild(newDiv3);
+				newDiv.appendChild(newDiv2);
+				back.appendChild(newDiv);
+
+		}
+		
+
+		function click_teamSend(){
+			teamSend_state = 1 ;
+		}
+
+		function click_teamInfo(){
+			teamSend_state = 1 ;
+		}
+
+		function click_team(a){
+			//var js_team = <?php echo json_encode($return_array)?>; 
+		
+			ass_team = a;
+			for(k=0;k<js_team.length;k++)
+			{
+				if(ass_team==js_team[k].team_name)
+				{
+					$('.'+js_team[k].team_name).css('background-image','url("./image/check_box2.png")');
+				}else{
+					$('.'+js_team[k].team_name).css('background-image','url("./image/check_box1.png")');
+				}
+			}
+
+		}
+
+		function click_mem(clickedTeam){
+				$('.teamInfo').remove();
+				//var js_team = <?php echo json_encode($return_array)?>; 
+
+				var bac =  document.getElementById('background');
+				var newDi = document.createElement('div');
+
+				newDi.setAttribute( 'onclick', 'click_teamInfo()');
+				newDi.className = "teamInfo";
+				newDi.style.position = "absolute";
+				newDi.style.width="397px";
+				newDi.style.height ="636px";
+				newDi.style.display = "none";
+				newDi.style.top = "39%";
+				newDi.style.left ="40%";
+				newDi.style.zIndex = "5"
+				newDi.style.backgroundImage="url('./image/team_member.png')";
+
+				var newDi2 = document.createElement('div');
+				newDi2.style.position = "absolute";
+				newDi2.style.fontSize = "30px";
+				newDi2.innerHTML = "Team&nbsp"+clickedTeam;
+				newDi2.style.top = "3%";
+				newDi2.style.left = "34%";
+				newDi2.style.zIndex = "6";
+
+				var o = 15;
+				for(k=0;k<js_team.length;k++)
+				{
+					if(b != js_team[k].team_name)
+					{
+						o = 15;
+					}
+					if(js_team[k].team_name == clickedTeam)
+					{
+						var newDi4 = document.createElement('div');
+						newDi4.style.position = "absolute";
+						var p = o+ 0.5;
+						newDi4.style.top = p+"%";
+						newDi4.style.left = "11%";
+						newDi4.style.width = "28px";
+						newDi4.style.height = "28px";
+						newDi4.id = clickedTeam;
+						newDi4.className = clickedTeam;
+						if(ass_team == js_team[k].team_name)
+						{
+							newDi4.style.backgroundImage = "url('./image/check_box2.png')";
+						}else{
+							newDi4.style.backgroundImage = "url('./image/check_box1.png')";
+						}	
+						var newDi3 = document.createElement('div');
+						newDi3.style.position ="absolute";
+						newDi3.style.fontSize = "25px";
+						newDi3.innerHTML = js_team[k].person_name;
+						newDi3.style.top = o+"%";
+						newDi3.style.left = "28%";
+					
+						newDi.appendChild(newDi4);
+						newDi.appendChild(newDi3);
+					}
+					o = o + 10;
+
+					var b = js_team[k].team_name;
+				}
+
+				newDi.appendChild(newDi2);
+				bac.appendChild(newDi); 
+
+				$('.teamInfo').show( "slide", 
+		                      {direction: "left" }, 500 );
+
+		}
+
+		function send_assign(){
+				for(i=0;i<assign_room_array.length;i++)
+				{
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", "http://52.8.57.228/save_assign_room.php?test=1&num="+assign_room_array[i]+"&t_name="+ass_team+"",true);   // 1. request 설정    
+					xmlhttp.onreadystatechange=function() { // 2. 콜백함수 등록
+			  			if (xmlhttp.readyState==4) {           // 4. 서버와 작용 끝남?
+							  
+			   	 			if(xmlhttp.status == 200)            // 5. 응답이 정상으로 처리? 
+			   		 		{
+			   	 				//$('.request').val(xmlhttp.responseText);
+			      				//alert(xmlhttp.responseText);          
+			    			}
+			   			}
+			 		}
+				 	xmlhttp.send(null)  
+			}
+
+			
+		}
+	</script>
+
+
+
+</BODY>
+</HTML>
