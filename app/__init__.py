@@ -30,7 +30,6 @@ def create_app(config=None):
 
 	r = redis.Redis(host='localhost', port=6379, db=0)
 	app.redis = r
-	print app.celery
 	
 
 	from app.mod_api.controllers import api
@@ -61,6 +60,5 @@ def create_app(config=None):
 
 	app.register_blueprint(api)
 	from app import views
-	from app import tasks
 
 	return app
