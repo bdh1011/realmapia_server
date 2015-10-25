@@ -8,7 +8,6 @@ from flask.ext.httpauth import HTTPBasicAuth
 import os
 import redis
 from app.database import db, bcrypt
-from celery import Celery
 
 
 
@@ -24,13 +23,10 @@ app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379'
 app.secret_key = app.config['SECRET_KEY']
 
 r = redis.Redis(host='localhost', port=6379, db=0)
-celery = Celery(__name__, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
 app.celery = celery
 
 def make_celery():
-	# celery = Celery(__name__, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
 
-	celery.conf.update(app.config)
 
 	TaskBase = celery.Task
 	class ContextTask(TaskBase):
@@ -49,7 +45,6 @@ def create_app(config=None):
 
 	r = redis.Redis(host='localhost', port=6379, db=0)
 	app.redis = r
-	# celery = Celery(__name__, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
 	print app.celery
 	
 
@@ -65,7 +60,6 @@ def create_app(config=None):
 	# Web assets (js, less)
 	assets = Environment(app)
 
-	celery = Celery(__name__, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
 	# js = Bundle('js/main.js',
 	#             filters='jsmin', output='gen/bundle.js')
 	# assets.register('js_all', js)
