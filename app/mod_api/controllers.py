@@ -358,13 +358,36 @@ def post_comment():
 
 
 @token_required
-def get_following():
-    return jsonify({'result':'hi'})
+def get_follow():
+    from_user_id = request.args.get('from_user_id')
+    to_user_id = request.args.get('to_user_id')
+
+    if from_user_id is not None:
+        follow_list = Follow.query.filter_by(from_user_id=from_user_id).all()
+    if to_user_id is not None:
+        follow_list = Follow.query.filter_by(to_user_id=to_user_id).all()
+    return jsonify({'result': [follow.serialize for follow in follow_list]})
+
+@token_required
+def post_follow():
+    to_user_id = request.json.get('to_user_id')
+    if Follow.query.filter_by(from_user_id=session['userid'],to_user_id=to_user_id).first() is not None:
+        return jsonify({'message':'already following'}),400
+    follow = Follow(from_user_id=session['userid'],to_user_id=to_user_id)
+    db.session.add(follow)
+    db.session.commit()
+    return jsonify({'result':'success'})
 
 
 @token_required
-def post_following():
-    return jsonify({'result':'hi'})
+def delete_follow():
+    to_user_id = request.args.get('to_user_id')
+    follow = Follow.query.filter_by(from_user_id=session['userid'],to_user_id=to_user_id).first() 
+    db.session.delete(follow)
+    db.session.commit()
+    return jsonify({'result': 'success'})
+
+
 
 @token_required
 def get_alert():
@@ -372,11 +395,33 @@ def get_alert():
 
 @token_required
 def get_like():
-    return jsonify({'result':'hi'})
+    user_id = request.args.get('user_id')
+    post_id = request.args.get('post_id')
+    if user_id is not None:
+        like_list = Like.query.filter_by(user_id=user_id).all()
+    if post_id is not None:
+        like_list = Like.query.filter_by(post_id=post_id).all()
+
+    return jsonify({'result':[ like.serialize for like in like_list ]})
 
 @token_required
 def post_like():
-    return jsonify({'result':'hi'})
+    post_id = request.json.get('post_id')
+    if Like.query.filter_by(user_id=session['userid'], post_id=post_id).first() is not None:
+        return jsonify({'message':'already like it'})
+    like = Like(user_id=session['userid'], post_id=post_id)
+    db.session.add(like)
+    db.session.commit()
+    return jsonify({'result':'success'})
+
+@token_required
+def delete_like():
+    user_id = request.args.get('user_id')
+    post_id = request.args.get('post_id')
+    like = Like.query.filter_by(user_id=user_id,post_id=post_id).first()
+    db.session.delete(like)
+    db.session.commit()
+    return jsonify({'result':'success'})
 
 
 @token_required
@@ -870,13 +915,15 @@ api.add_url_rule('/posts', 'post posts', post_post, methods=['POST'])
 api.add_url_rule('/comments', 'get comments', get_comments, methods=['GET']) 
 api.add_url_rule('/comments', 'post comments', post_comment, methods=['POST']) 
 
-api.add_url_rule('/following', 'get following', get_following, methods=['GET']) 
-api.add_url_rule('/following', 'post following', post_following, methods=['POST']) 
+api.add_url_rule('/follow', 'get following', get_follow, methods=['GET']) 
+api.add_url_rule('/follow', 'post following', post_follow, methods=['POST']) 
+api.add_url_rule('/follow', 'quit following', delete_follow, methods=['DELETE']) 
 
 api.add_url_rule('/alert', 'get alert', get_alert, methods=['GET']) 
 
 api.add_url_rule('/like', 'get like', get_like, methods=['GET']) 
 api.add_url_rule('/like', 'post like', post_like, methods=['POST']) 
+api.add_url_rule('/like', 'delete like', delete_like, methods=['DELETE']) 
 
 api.add_url_rule('/groups', 'get groups', get_groups, methods=['GET']) 
 api.add_url_rule('/groups/<group_id>', 'get group', get_group, methods=['GET']) 

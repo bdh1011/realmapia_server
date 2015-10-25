@@ -98,7 +98,7 @@ class Follow(db.Model):
 	    return {
 	    	'from_user_id'		: self.from_user_id,
 	    	'to_user_id'		: self.to_user_id,
-	    	'register_timestamp'  : self.register_timestamp
+	    	'register_timestamp'  : dump_datetime(self.register_timestamp)
 	    }
 	
 
@@ -129,7 +129,7 @@ class Like(db.Model):
 	    	'id'		: self.id,
 	    	'user_id'		: self.user_id,
 	    	'post_id'		: self.post_id,
-	    	'register_timestamp'  : self.register_timestamp
+	    	'register_timestamp'  : dump_datetime(self.register_timestamp)
 	    }
 	
 
