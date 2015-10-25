@@ -182,7 +182,33 @@ def get_my_post(post_id):
 
 @token_required
 def get_posts():
-    return jsonify({'result':'hi'})
+    map_type=request.args.get('map_type')
+    group_name=request.args.get('group_name')
+    user_id=request.args.get('user_id')
+    lat=request.args.get('lat')
+    lng=request.args.get('lng')
+    level=request.args.get('level')
+
+    get_posts_query = db.session.query(Post_to,Post).filter(Post_to.post_type==map_type)
+    if map_type=='group':
+        get_posts_query = get_posts_query.filter(Post_to.target_group==group_name)
+    if user_id is not None:
+        get_posts_query = get_posts_query.filter(Post.user_id==user_id)
+    if (lat is not None) and (lng is not None) and (level is not None):
+        pass #level calculate
+
+    posts_list = get_posts_query.all()
+
+    return jsonify({'result':{each_post.Post.id : {
+        'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
+        'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        'content':each_post.Post.content,
+        'lat':each_post.Post.lat,
+        'lng':each_post.Post.lng,
+        'placetag':db.session.query(Placetag, Placetag_to_post ).filter(Placetag_to_post.post_id==each_post.Post.id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0],
+        'hashtag_list':[hashtag.Hashtag.content for hashtag in db.session.query(Hashtag, Hashtag_to_post ).filter(Hashtag_to_post.post_id==each_post.Post.id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()],
+        'usertag_list':[{'userid':user.id,'username':user.name} for user in db.session.query(User, Usertag_to_post ).filter(Usertag_to_post.post_id==each_post.Post.id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
+        } for each_post in posts_list}})
 
 
 @token_required
@@ -280,12 +306,13 @@ def post_post():
             if post_type == 'group':
                 post_to = Post_to(post_type="group", post_id=post.id, target_group=each_post_to.get('target_group'))
                 db.session.add(post_to)
-                db.session.commit()
-                db.session.rollback()
-            else:
+            elif post_type != 'private':
                 post_to = Post_to(post_type=post_type, post_id=post.id)
                 db.session.add(post_to)
-                db.session.commit()
+            if Post_to.query.filter_by(post_type="private",post_id=post.id).first() is None:
+                private_post_to = Post_to(post_type="private", post_id=post.id)
+                db.session.add(private_post_to)
+            db.session.commit()
 
     return jsonify({'result':'success'})
 
@@ -307,14 +334,14 @@ def get_comments():
         get_comments_query.append(User.name.contains(name))
     comments_list = db.session.query(Comment, User).filter(and_(
                     *get_comments_query)).order_by(Comment.id).all()
-    
+
     return jsonify({'result':[{
         'post_id':comment.Comment.post_id,
         'user_id':comment.Comment.user_id,
         'name':comment.User.name,
         'profile_pic':comment.User.profile_pic_filename,
         'content':comment.Comment.content,
-        'timestamp':comment.Comment.register_timestamp} for comment in comments_list]})
+        'timestamp':comment.Comment.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")} for comment in comments_list]})
 
 @token_required
 def post_comment():
