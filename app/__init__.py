@@ -23,22 +23,7 @@ app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379'
 app.secret_key = app.config['SECRET_KEY']
 
 r = redis.Redis(host='localhost', port=6379, db=0)
-app.celery = celery
 
-def make_celery():
-
-
-	TaskBase = celery.Task
-	class ContextTask(TaskBase):
-		abstract = True
-		def __call__(self, *args, **kargs):
-			with app.app_context():
-				print 'call'
-				return TaskBase.__call__(self, *args, **kwargs)
-	celery.Task = ContextTask
-	app.celery = celery
-	print 'make celery'
-	return celery
 
 def create_app(config=None):
 	print 'create app'
