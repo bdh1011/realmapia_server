@@ -15,12 +15,16 @@ from flask.ext.login import LoginManager, login_user, logout_user, current_user,
 import decorator
 from flask_wtf.csrf import CsrfProtect
 import app
+from werkzeug import secure_filename
+
 # from forms import LoginForm
 
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+
+ALLOWED_EXTENSIONS = set(['png','jpg','jpeg','gif'])
 
 api = Blueprint('api', __name__, url_prefix='/api')
 
@@ -50,9 +54,29 @@ def token_required(f):
         #     return jsonify({'message':'unexpected error'})
     return decorated_function
 
+def allowed_file(filename):
+    return '.' in filename and \
+            filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
+
+def post_photo():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLAOD_FOLDER'], filename))
+        return jsonfiy({'result':{'filename':filename}})
+
+from flask import send_from_directory
+def get_photo(filename):
+    return send_from_directory(app.config['UPLAOD_FOLDER'],filename)
 
 
+def post_movie():
+    pass
 
+def get_movie():
+    pass
+
+    
 def login():
     if request.method=='POST':
         login_id = request.json.get('id')
@@ -70,7 +94,7 @@ def login():
             if not user.verify_password(login_pw):
                 raise ValueError('Could not find correct user!')
         except:
-            return jsonify({'message':'id or pw is invalide'}),400
+            return jsonify({'message':'id or pw is invalid'}),400
 
         token = user.generate_auth_token()
 
@@ -108,7 +132,7 @@ def register():
     db.session.commit()
     g.user = user
     token = user.generate_auth_token()
-    return jsonify({ 'result': {'token':token}}), 200
+    return jsonify({ 'result': {'token':token,'name':user.name}}), 200
             # {'Location': url_for('get_user', id=user.username, _external=True)})
 
 
