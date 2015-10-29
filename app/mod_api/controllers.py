@@ -433,13 +433,23 @@ def get_like():
 
 
 @token_required
-def get_hashtag(hashtag):
-    hashtag_list = db.session.query.filter(Hashtag.content.contains(hashtag)).all()
+def get_hashtag(hashtag_query):
+    hashtag_list = db.session.query(Hashtag).filter(Hashtag.content.contains(hashtag_query)).all()
     return jsonify({'result':[ hashtag.serialize for hashtag in hashtag_list ]})
 
 @token_required
-def get_placetag(placetag):
-    placetag_list = db.session.query.filter(Placetag.content.contains(placetag)).all()
+def get_placetag(placetag_query):
+    placetag_list = db.session.query(Placetag).filter(Placetag.content.contains(placetag_query)).all()
+    return jsonify({'result':[ placetag.serialize for placetag in placetag_list ]})
+
+@token_required
+def get_all_hashtag():
+    hashtag_list = db.session.query(Hashtag).all()
+    return jsonify({'result':[ hashtag.serialize for hashtag in hashtag_list ]})
+
+@token_required
+def get_all_placetag():
+    placetag_list = db.session.query(Placetag).all()
     return jsonify({'result':[ placetag.serialize for placetag in placetag_list ]})
 
 @token_required
@@ -1011,8 +1021,10 @@ api.add_url_rule('/movie','get movie', get_movie, methods=['GET'])
 
 
 
-api.add_url_rule('/hashtag/<hashtag>','get hashtag', get_hashtag, methods=['GET'])
-api.add_url_rule('/placetag/<placetag>','get placetag', get_placetag, methods=['GET'])
+api.add_url_rule('/hashtag/<hashtag_query>','get hashtag', get_hashtag, methods=['GET'])
+api.add_url_rule('/placetag/<placetag_query>','get placetag', get_placetag, methods=['GET'])
+api.add_url_rule('/hashtag','get all hashtag', get_all_hashtag, methods=['GET'])
+api.add_url_rule('/placetag','get all placetag', get_all_placetag, methods=['GET'])
 
 
 api.add_url_rule('/comments', 'get comments', get_comments, methods=['GET']) 
