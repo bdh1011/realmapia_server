@@ -76,7 +76,7 @@ def post_movie():
 def get_movie():
     pass
 
-    
+
 def login():
     if request.method=='POST':
         login_id = request.json.get('id')
@@ -223,7 +223,9 @@ def get_posts():
 
     posts_list = get_posts_query.all()
 
-    return jsonify({'result':{each_post.Post.id : {
+    return jsonify({'result':[
+        {
+        'post_id': each_post.Post.id,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
         'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':each_post.Post.content,
@@ -232,7 +234,7 @@ def get_posts():
         'placetag':db.session.query(Placetag, Placetag_to_post ).filter(Placetag_to_post.post_id==each_post.Post.id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0],
         'hashtag_list':[hashtag.Hashtag.content for hashtag in db.session.query(Hashtag, Hashtag_to_post ).filter(Hashtag_to_post.post_id==each_post.Post.id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()],
         'usertag_list':[{'userid':user.id,'username':user.name} for user in db.session.query(User, Usertag_to_post ).filter(Usertag_to_post.post_id==each_post.Post.id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
-        } for each_post in posts_list}})
+        } for each_post in posts_list]})
 
 
 @token_required
