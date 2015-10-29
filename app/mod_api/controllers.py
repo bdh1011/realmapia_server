@@ -343,6 +343,7 @@ def post_post():
     return jsonify({'result':'success'})
 
 
+
 @token_required
 def get_comments():
     print 'get comment'
@@ -429,6 +430,17 @@ def get_like():
         like_list = Like.query.filter_by(post_id=post_id).all()
 
     return jsonify({'result':[ like.serialize for like in like_list ]})
+
+
+@token_required
+def get_hashtag(hashtag):
+    hashtag_list = db.session.query.filter(Hashtag.content.contains(hashtag)).all()
+    return jsonify({'result':[ hashtag.serialize for hashtag in hashtag_list ]})
+
+@token_required
+def get_placetag(placetag):
+    placetag_list = db.session.query.filter(Placetag.content.contains(placetag)).all()
+    return jsonify({'result':[ placetag.serialize for placetag in placetag_list ]})
 
 @token_required
 def post_like():
@@ -991,6 +1003,17 @@ api.add_url_rule('/users/me/posts/<post_id>', 'get my post', get_my_post)
 api.add_url_rule('/posts', 'get posts', get_posts, methods=['GET']) 
 api.add_url_rule('/posts/<post_id>', 'get post', get_post, methods=['GET']) 
 api.add_url_rule('/posts', 'post posts', post_post, methods=['POST']) 
+
+api.add_url_rule('/photo','post photo', post_photo, methods=['POST'])
+api.add_url_rule('/photo','get photo', get_photo, methods=['GET'])
+api.add_url_rule('/movie','post movie', post_movie, methods=['POST'])
+api.add_url_rule('/movie','get movie', get_movie, methods=['GET'])
+
+
+
+api.add_url_rule('/hashtag/<hashtag>','get hashtag', get_hashtag, methods=['GET'])
+api.add_url_rule('/placetag/<placetag>','get placetag', get_placetag, methods=['GET'])
+
 
 api.add_url_rule('/comments', 'get comments', get_comments, methods=['GET']) 
 api.add_url_rule('/comments', 'post comments', post_comment, methods=['POST']) 
