@@ -223,6 +223,15 @@ class Hashtag(db.Model):
 		hashtaged_num = Hashtag_to_post.query.filter_by(hashtag_id=self.id).count()
 		self.hashtaged_num = hashtaged_num
 
+	@property
+	def serialize(self):
+	    return {
+	    	'id'		: self.id,
+	    	'content'		: self.content,
+	    	'hashtaged_num'  : self.hashtaged_num,
+	    	'register_timestamp'	: dump_datetime(self.register_timestamp),
+	    	'recent_login_timestamp': dump_datetime(self.recent_login_timestamp)
+	    }
 
 
 
@@ -236,6 +245,7 @@ class Placetag_to_post(db.Model):
 	
 	def __init__(self, **kwargs):
 		super(Placetag_to_post, self).__init__(**kwargs)
+
 
 
 class Placetag(db.Model):
@@ -252,6 +262,16 @@ class Placetag(db.Model):
 	def update_placetaged_num(self):
 		placetaged_num = Placetag_to_post.query.filter_by(placetag_id=self.id).count()
 		self.placetaged_num = placetaged_num
+
+	@property
+	def serialize(self):
+	    return {
+	    	'id'		: self.id,
+	    	'content'		: self.content,
+	    	'placetaged_num'  : self.placetaged_num,
+	    	'register_timestamp'	: dump_datetime(self.register_timestamp),
+	    	'recent_login_timestamp': dump_datetime(self.recent_login_timestamp)
+	    }
 
 
 
