@@ -131,7 +131,7 @@ def login():
 
 
 def register():
-	db.session.rollback()
+    db.session.rollback()
     register_id = request.json.get('id')
     register_name = request.json.get('name')
     register_pw = request.json.get('pw')
