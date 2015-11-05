@@ -16,7 +16,6 @@ import decorator
 from flask_wtf.csrf import CsrfProtect
 import app
 from werkzeug import secure_filename
-import goslate
 # from forms import LoginForm
 
 import sys
@@ -32,9 +31,6 @@ ALLOWED_MOVIE_EXTENSIONS = set(['avi','mp4','mpec','exo'])
 api = Blueprint('api', __name__, url_prefix='/api')
 gs = goslate.Goslate()
 
-def translate_spanish(query):
-    return gs.translate(query,'sp')
-    
 
 def token_required(f):
     @wraps(f)
@@ -612,5 +608,3 @@ api.add_url_rule('/groups/<group_name>', 'get group', get_group, methods=['GET']
 api.add_url_rule('/groups', 'post groups', post_group, methods=['POST']) 
 api.add_url_rule('/groups/<group_name>/members', 'invite group member', invite_group_member, methods=['POST']) 
 api.add_url_rule('/groups/<group_name>', 'delete group', delete_group, methods=['DELETE']) 
-
-api.add_url_rule('/translate/<query>', 'translate', translate_spanish, methods=['GET']) 
