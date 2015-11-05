@@ -29,7 +29,6 @@ ALLOWED_MOVIE_EXTENSIONS = set(['avi','mp4','mpec','exo'])
 
 
 api = Blueprint('api', __name__, url_prefix='/api')
-gs = goslate.Goslate()
 
 
 def token_required(f):
