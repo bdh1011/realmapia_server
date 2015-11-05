@@ -371,16 +371,16 @@ def get_comments():
         get_comments_query.append(Comment.user_id==user_id)
     if name is not None:
         get_comments_query.append(User.name.contains(name))
-    comments_list = db.session.query(Comment).filter(and_(
+    comments_list = db.session.query(Comment, User).filter(and_(
                     *get_comments_query)).order_by(Comment.id).all()
 
     return jsonify({'result':[{
-        'post_id':comment.post_id,
-        'user_id':comment.user_id,
+        'post_id':comment.Comment.post_id,
+        'user_id':comment.Comment.user_id,
         'name':comment.User.name,
         'profile_pic':comment.User.profile_pic_filename,
-        'content':comment.content,
-        'timestamp':comment.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")} for comment in comments_list]})
+        'content':comment.Comment.content,
+        'timestamp':comment.Comment.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")} for comment in comments_list]})
 
 @token_required
 def post_comment():
