@@ -19,7 +19,7 @@ def dump_datetime(value):
 class User(db.Model):
 	__tablename__ = 'user'
 	id = db.Column(db.String(64), primary_key=True, nullable=False)
-	password_hash = db.Column(db.String(256), nullable=False)
+	password_hash = db.Column(db.String(256), nullable=True)
 	name = db.Column(db.String(64), nullable=False)
 	register_timestamp = db.Column(db.DateTime, server_default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
