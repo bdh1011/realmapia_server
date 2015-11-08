@@ -211,7 +211,7 @@ def get_posts():
     lng=request.args.get('lng')
     level=request.args.get('level')
 
-    get_posts_query = db.session.query(Post_to,Post).filter(Post_to.post_type==map_type)
+    get_posts_query = db.session.query(Post).join(Post_to).filter(Post_to.post_type==map_type)
     if map_type=='group':
         get_posts_query = get_posts_query.filter(Post_to.target_group==group_name)
     if user_id is not None:
@@ -223,18 +223,18 @@ def get_posts():
 
     return jsonify({'result':[
         {
-        'post_id': each_post.Post.id,
-        'profile_pic': User.query.filter_by(id=each_post.Post.user_id).first().profile_pic if (User.query.filter_by(id=each_post.Post.user_id).first() is not None) else None,
-        'photo' : base_url+'photo/'+each_post.Post.photo if (each_post.Post.photo is not None) else None,
-        'video' : base_url+'video/'+each_post.Post.video if (each_post.Post.video is not None) else None,
-        'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
-        'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-        'content':each_post.Post.content,
-        'lat':each_post.Post.lat,
-        'lng':each_post.Post.lng,
-        'placetag':db.session.query(Placetag, Placetag_to_post ).filter(Placetag_to_post.post_id==each_post.Post.id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0],
-        'hashtag_list':[hashtag.Hashtag.content for hashtag in db.session.query(Hashtag, Hashtag_to_post ).filter(Hashtag_to_post.post_id==each_post.Post.id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()],
-        'usertag_list':[{'userid':user.id,'username':user.name} for user in db.session.query(User, Usertag_to_post ).filter(Usertag_to_post.post_id==each_post.Post.id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
+        'post_id': each_post.id,
+        'profile_pic': User.query.filter_by(id=each_post.user_id).first().profile_pic if (User.query.filter_by(id=each_post.user_id).first() is not None) else None,
+        'photo' : base_url+'photo/'+each_post.photo if (each_post.photo is not None) else None,
+        'video' : base_url+'video/'+each_post.video if (each_post.video is not None) else None,
+        'username':User.query.filter_by(id=each_post.user_id).first().name,
+        'timestamp':each_post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        'content':each_post.content,
+        'lat':each_post.lat,
+        'lng':each_post.lng,
+        'placetag':db.session.query(Placetag, Placetag_to_post ).filter(Placetag_to_post.post_id==each_post.id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0],
+        'hashtag_list':[hashtag.Hashtag.content for hashtag in db.session.query(Hashtag, Hashtag_to_post ).filter(Hashtag_to_post.post_id==each_post.id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()],
+        'usertag_list':[{'userid':user.id,'username':user.name} for user in db.session.query(User, Usertag_to_post ).filter(Usertag_to_post.post_id==each_post.id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
         } for each_post in posts_list]})
 
 
@@ -256,6 +256,7 @@ def get_post(post_id):
 		'userid':post.user_id,
 		'photo':photo,
 		'video':video,
+		'post_to': [{'post_type':post_to.post_type,'target_group':post_to.target_group} for post_to in Post_to.query.filter_by(post_id=post.id).all()],
 		'timestamp':post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
 		'content':post.content,
 		'lat':post.lat,
