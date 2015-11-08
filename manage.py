@@ -6,7 +6,6 @@ from flask.ext.migrate import Migrate, MigrateCommand
 from app.database import db
 from app import models
 from app import create_app
-from app import r
 from flask_s3 import FlaskS3
 import flask_s3
 import logging, logging.config, yaml
