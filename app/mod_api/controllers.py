@@ -11,7 +11,7 @@ import time as ptime
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from sqlalchemy import or_, and_, desc, asc
 from ..models import User, Follow, User_alert, Like, Comment, Post, Hashtag_to_post, Hashtag,\
- Placetag_to_post, Placetag, Usertag_to_post, Post_to, Group, Group_member
+ Placetag_to_post, Placetag, Usertag_to_post, Group, Group_member
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 import decorator
 from flask_wtf.csrf import CsrfProtect
@@ -211,9 +211,9 @@ def get_posts():
     lng=request.args.get('lng')
     level=request.args.get('level')
 
-    get_posts_query = db.session.query(Post).join(Post_to).filter(Post_to.post_type==map_type)
+    get_posts_query = db.session.query(Post).filter(Post.map_type==map_type)
     if map_type=='group':
-        get_posts_query = get_posts_query.filter(Post_to.target_group==group_name)
+        get_posts_query = get_posts_query.filter(Post.target_group==group_name)
     if user_id is not None:
         get_posts_query = get_posts_query.filter(Post.user_id==user_id)
     if (lat is not None) and (lng is not None) and (level is not None):
@@ -256,7 +256,8 @@ def get_post(post_id):
 		'userid':post.user_id,
 		'photo':photo,
 		'video':video,
-		'post_to': [{'post_type':post_to.post_type,'target_group':post_to.target_group} for post_to in Post_to.query.filter_by(post_id=post.id).all()],
+		'map_type': post.map_type,
+		'target_group':post.target_group,
 		'timestamp':post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
 		'content':post.content,
 		'lat':post.lat,
@@ -276,9 +277,10 @@ def post_post():
 	usertag_list = request.json.get("usertag")
 	photo = request.json.get("photo")
 	ext = request.json.get("ext")
+	map_type = request.json.get("map_type")
 
 	video = request.json.get("video")
-	post_to = request.json.get("post_to")
+	#post_to = request.json.get("post_to")
 
 	post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content)
 	db.session.add(post)
@@ -365,7 +367,7 @@ def post_post():
 			usertag_to_post = Usertag_to_post(post_id=post.id,user_id=user.id)
 			db.session.add(usertag_to_post)
 			db.session.commit()            #too many commit, how can I shrink it?
-
+	'''
 	#set target to post
 	if post_to is not None:
 		print 'post_to',post_to
@@ -381,7 +383,7 @@ def post_post():
 			if Post_to.query.filter_by(post_type="private",post_id=post.id).first() is None:
 				private_post_to = Post_to(post_type="private", post_id=post.id)
 				db.session.add(private_post_to)
-			db.session.commit()
+			db.session.commit()'''
 
 	return jsonify({'result':{'post_id':post.id}})
 

@@ -73,6 +73,9 @@ class User(db.Model):
 			return None    # invalid token
 		user = User.query.get(data['id'])
 		return user
+	@property
+	def profile_pic_url(self):
+		return 'http://52.192.0.214/api/profile_pic/'+self.profile_pic if self.profile_pic is not None else None
 
 	@property
 	def serialize(self):
@@ -159,6 +162,9 @@ class Post(db.Model):
 	photo = db.Column(db.String(64), nullable=True)
 	video = db.Column(db.String(64), nullable=True)
 	content = db.Column(db.Text)
+	map_type = db.Column(db.String(64), nullable=True)
+	target_group = db.Column(db.String(64), db.ForeignKey('group.id'))
+
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 	
@@ -270,17 +276,6 @@ class Usertag_to_post(db.Model):
 
 
 
-class Post_to(db.Model):
-	__tablename__ = 'post_to'
-	id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
-	post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-	post_type = db.Column(db.String(64), nullable=False)
-	target_group = db.Column(db.String(64), db.ForeignKey('group.name'), nullable=True)
-	
-	def __init__(self, **kwargs):
-		super(Post_to, self).__init__(**kwargs)
-
-
 class Group(db.Model):
 	__tablename__ = 'group'
 	name = db.Column(db.String(64), nullable=False, primary_key=True)
@@ -292,9 +287,7 @@ class Group(db.Model):
 	def __init__(self, **kwargs):
 		super(Group, self).__init__(**kwargs)
 
-
-
-
+	post = db.relationship('post', backref='Post.id', lazy='dynamic')
 
 class Group_member(db.Model):
 	__tablename__ = 'group_member'
