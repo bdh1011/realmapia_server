@@ -295,7 +295,7 @@ class Group_member(db.Model):
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True)
-	group_name = db.Column(db.String(64), db.ForeignKey('group.name'), nullable=False, primary_key=True)
+	group_id = db.Column(db.String(64), db.ForeignKey('group.id'), nullable=False, primary_key=True)
 
 
 	def __init__(self, **kwargs):
