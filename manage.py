@@ -10,7 +10,6 @@ from app import r
 from flask_s3 import FlaskS3
 import flask_s3
 import logging, logging.config, yaml
-import config
 import os
 
 app = create_app()
@@ -79,7 +78,7 @@ def testall():
 
 
 if __name__ == "__main__":
-	
+
 	app.config['S3_BUCKET_NAME'] = 'mapia'
 	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/mapia.db'
 	app.config['ONLINE_LAST_MINUTES'] = 5
@@ -102,4 +101,5 @@ if __name__ == "__main__":
 	logconsole = logging.getLogger('console')
 	logfile.debug("Debug FILE")
 	logconsole.debug("Debug CONSOLE")
+
 	manager.run()
