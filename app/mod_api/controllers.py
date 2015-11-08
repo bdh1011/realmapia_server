@@ -224,7 +224,7 @@ def get_posts():
     return jsonify({'result':[
         {
         'post_id': each_post.Post.id,
-        'profile_pic': User.query.filter_by(id=each_post.Post.user_id).first().profile_pic_url if (User.query.filter_by(id=each_post.Post.user_id).first() is not None) else None,
+        'profile_pic': User.query.filter_by(id=each_post.Post.user_id).first().profile_pic if (User.query.filter_by(id=each_post.Post.user_id).first() is not None) else None,
         'photo' : base_url+'photo/'+each_post.Post.photo if (each_post.Post.photo is not None) else None,
         'video' : base_url+'video/'+each_post.Post.video if (each_post.Post.video is not None) else None,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
