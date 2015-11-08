@@ -98,7 +98,7 @@ def login():
         print 'app.r', ast.literal_eval(app.r.get(token))['id']
         #redis.flushdb() 
 
-        return jsonify({'result':{'token':token,'name':user.name,'profile_pic_filename':user.profile_pic_filename}})
+        return jsonify({'result':{'token':token,'name':user.name,'profile_pic':user.profile_pic}})
 
 
 def register():
@@ -356,7 +356,7 @@ def get_comments():
         'post_id':comment.Comment.post_id,
         'user_id':comment.Comment.user_id,
         'name':comment.User.name,
-        'profile_pic':comment.User.profile_pic_filename,
+        'profile_pic':comment.User.profile_pic,
         'content':comment.Comment.content,
         'timestamp':comment.Comment.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")} for comment in comments_list]})
 
