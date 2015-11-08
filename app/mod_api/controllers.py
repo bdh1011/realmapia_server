@@ -60,20 +60,26 @@ def token_required(f):
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
 	user = User.filter_by(id=session['userid']).first()
-	user.profile_pic = profile_pic
+	data = base64.b64decode(photo)
+	filepath = "./app/static/profile_pic/"+str(user.id)+"."+ext
+	#not exist
+	if not os.path.exists(filepath):
+		with open(filepath,"w") as photo_file:
+			photo_file.write(data)
+	user.profile_pic = filepath
 	db.session.commit()
-	return jsonify({'result':'success'})
+	#test
+	return jsonify({'result':{'profile_pic_path':url_for('static',filename='/profile_pic/'+filepath)}})
 
 def login():
     if request.method=='POST':
         login_id = request.json.get('id')
         login_pw = request.json.get('pw')
 
-        user = User.query.filter_by(id=login_id)
+        user = User.query.filter_by(id=login_id).first()
         if user is None:
             return jsonify({'message':'user not exist'}),400
         else:
-            user = user.first()
             print user.serialize
         user.recent_login_timestamp = datetime.now()
         db.session.commit()
@@ -215,7 +221,8 @@ def get_posts():
     return jsonify({'result':[
         {
         'post_id': each_post.Post.id,
-        'photo' : each_post.Post.photo,
+        'photo' : open(each_post.Post.photo,"r").read() if (each_post.Post.photo is not None) else None,
+        'video' : open(each_post.Post.video,"r").read() if (each_post.Post.video is not None) else None,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
         'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':each_post.Post.content,
@@ -229,109 +236,145 @@ def get_posts():
 
 @token_required
 def get_post(post_id):
-    post = Post.query.filter_by(id=post_id).first()
-    placetag = db.session.query(Placetag).filter(Placetag_to_post.post_id==post_id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0]
-    hashtag_list = [hashtag.Hashtag.content for hashtag in db.session.query(Hashtag).filter(Hashtag_to_post.post_id==post_id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()]
-    usertag_list = [{'userid':user.id,'username':user.name} for user in db.session.query(User).filter(Usertag_to_post.post_id==post_id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
-    return jsonify({'result':{
-        'userid':post.user_id,
-        'photo':post.photo,
-        'timestamp':post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-        'content':post.content,
-        'lat':post.lat,
-        'lng':post.lng,
-        'placetag':placetag,
-        'hashtag_list':hashtag_list,
-        'usertag_list':usertag_list}})
+	post = Post.query.filter_by(id=post_id).first()
+	placetag = db.session.query(Placetag).filter(Placetag_to_post.post_id==post_id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0]
+	hashtag_list = [hashtag.content for hashtag in db.session.query(Hashtag).filter(Hashtag_to_post.post_id==post_id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()]
+	usertag_list = [{'userid':user.id,'username':user.name} for user in db.session.query(User).filter(Usertag_to_post.post_id==post_id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
+	photo = None
+	video = None
+	if post.photo is not None:
+		with open(post.photo,"r") as photo_file:
+			photo = photo_file.read()
+	if post.video is not None:
+		with open(post.video,"r") as video_file:
+			video = video_file.read()
+
+	return jsonify({'result':{
+		'userid':post.user_id,
+		'photo':photo,
+		'video':video,
+		'timestamp':post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+		'content':post.content,
+		'lat':post.lat,
+		'lng':post.lng,
+		'placetag':placetag,
+		'hashtag_list':hashtag_list,
+		'usertag_list':usertag_list}})
 
 
 @token_required
 def post_post():
-    content = request.json.get("content")
-    lat = request.json.get("lat")
-    lng = request.json.get("lng")
-    placetag_content = request.json.get("placetag")
-    hashtag_list = request.json.get("hashtag")
-    usertag_list = request.json.get("usertag")
-    photo = request.json.get("photo")
-    movie = request.json.get("movie")
-    post_to = request.json.get("post_to")
+	content = request.json.get("content")
+	lat = request.json.get("lat")
+	lng = request.json.get("lng")
+	placetag_content = request.json.get("placetag")
+	hashtag_list = request.json.get("hashtag")
+	usertag_list = request.json.get("usertag")
+	photo = request.json.get("photo")
+	ext = request.json.get("ext")
 
-    post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content, photo=photo, movie=movie)
-    db.session.add(post)
-    db.session.commit()
+	video = request.json.get("video")
+	post_to = request.json.get("post_to")
+
+	post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content)
+	db.session.add(post)
+	db.session.commit()
+
+	if photo is not None:
+		data = base64.b64decode(photo)
+		filepath = "./app/static/photo/"+str(post.id)+"."+ext
+		#not exist
+		if not os.path.exists(filepath):
+			with open(filepath,"w") as photo_file:
+				photo_file.write(data)
+		post.photo = filepath
+		db.session.commit()
+		'''
+		with open(filepath,"r") as photo_file:
+			photo_file.read()
+		mp3_list.append(mp3_encoded)'''
+
+	if video is not None:
+		data = base64.b64decode(video)
+		filepath = "./app/static/photo/"+str(post.id)+"."+ext
+		#not exist
+		if not os.path.exists(filepath):
+			with open(filepath,"w") as photo_file:
+				photo_file.write(data)
+		post.video = filepath
+		db.session.commit()
 
     #add placetag
-    if placetag_content is None:
-        pass
-    else:
-        placetag = Placetag.query.filter_by(content=placetag_content).first()
-        if placetag is None:
-            placetag = Placetag(content=placetag_content)
-            db.session.add(placetag)
-            db.session.commit()
-            #check if it works without commit
-        placetag_to_post = Placetag_to_post(post_id=post.id,placetag_id=placetag.id)
-        db.session.add(placetag_to_post)
-        db.session.commit()
+	if placetag_content is None:
+		pass
+	else:
+		placetag = Placetag.query.filter_by(content=placetag_content).first()
+		if placetag is None:
+			placetag = Placetag(content=placetag_content)
+			db.session.add(placetag)
+			db.session.commit()
+			#check if it works without commit
+		placetag_to_post = Placetag_to_post(post_id=post.id,placetag_id=placetag.id)
+		db.session.add(placetag_to_post)
+		db.session.commit()
 
-        placetag.update_placetaged_num()
-        db.session.commit()
-        #too many commit, how can I shrink it?
+		placetag.update_placetaged_num()
+		db.session.commit()
+		#too many commit, how can I shrink it?
 
 
     #add hashtag
-    if hashtag_list is None:
-        pass
-    else:
-        for each_hashtag in hashtag_list:
-            print 'each hashtag',each_hashtag
-            hashtag = Hashtag.query.filter_by(content=each_hashtag).first()
-            print 'hashtag',hashtag
-            if hashtag is None:
-                hashtag = Hashtag(content=each_hashtag)
-                db.session.add(hashtag)
-                db.session.commit()
-                #check if it works without commit
-            hashtag_to_post = Hashtag_to_post(post_id=post.id,hashtag_id=hashtag.id)
-            db.session.add(hashtag_to_post)
-            db.session.commit()
+	if hashtag_list is None:
+		pass
+	else:
+		for each_hashtag in hashtag_list:
+			print 'each hashtag',each_hashtag
+			hashtag = Hashtag.query.filter_by(content=each_hashtag).first()
+			print 'hashtag',hashtag
+			if hashtag is None:
+				hashtag = Hashtag(content=each_hashtag)
+				db.session.add(hashtag)
+				db.session.commit()
+				#check if it works without commit
+			hashtag_to_post = Hashtag_to_post(post_id=post.id,hashtag_id=hashtag.id)
+			db.session.add(hashtag_to_post)
+			db.session.commit()
 
-            placetag.update_placetaged_num()
-            db.session.commit()
-        #too many commit, how can I shrink it?
+			placetag.update_placetaged_num()
+			db.session.commit()
+		#too many commit, how can I shrink it?
 
 
-    #add usertag
-    if usertag_list is None:
-        pass
-    else:
-        for usertag in usertag_list:
-            user = User.query.filter_by(id=usertag).first()
-            if user is None:
-                return jsonify({'message':'wrong usertag'}),400
-            usertag_to_post = Usertag_to_post(post_id=post.id,user_id=user.id)
-            db.session.add(usertag_to_post)
-            db.session.commit()            #too many commit, how can I shrink it?
+	#add usertag
+	if usertag_list is None:
+		pass
+	else:
+		for usertag in usertag_list:
+			user = User.query.filter_by(id=usertag).first()
+			if user is None:
+				return jsonify({'message':'wrong usertag'}),400
+			usertag_to_post = Usertag_to_post(post_id=post.id,user_id=user.id)
+			db.session.add(usertag_to_post)
+			db.session.commit()            #too many commit, how can I shrink it?
 
-    #set target to post
-    if post_to is not None:
-        print 'post_to',post_to
-        for each_post_to in post_to:
-            print each_post_to
-            post_type = each_post_to.get('type')
-            if post_type == 'group':
-                post_to = Post_to(post_type="group", post_id=post.id, target_group=each_post_to.get('target_group'))
-                db.session.add(post_to)
-            elif post_type != 'private':
-                post_to = Post_to(post_type=post_type, post_id=post.id)
-                db.session.add(post_to)
-            if Post_to.query.filter_by(post_type="private",post_id=post.id).first() is None:
-                private_post_to = Post_to(post_type="private", post_id=post.id)
-                db.session.add(private_post_to)
-            db.session.commit()
+	#set target to post
+	if post_to is not None:
+		print 'post_to',post_to
+		for each_post_to in post_to:
+			print each_post_to
+			post_type = each_post_to.get('type')
+			if post_type == 'group':
+				post_to = Post_to(post_type="group", post_id=post.id, target_group=each_post_to.get('target_group'))
+				db.session.add(post_to)
+			elif post_type != 'private':
+				post_to = Post_to(post_type=post_type, post_id=post.id)
+				db.session.add(post_to)
+			if Post_to.query.filter_by(post_type="private",post_id=post.id).first() is None:
+				private_post_to = Post_to(post_type="private", post_id=post.id)
+				db.session.add(private_post_to)
+			db.session.commit()
 
-    return jsonify({'result':{'post_id':post.id}})
+	return jsonify({'result':{'post_id':post.id}})
 
 
 
@@ -350,16 +393,16 @@ def get_comments():
         get_comments_query.append(Comment.user_id==user_id)
     if name is not None:
         get_comments_query.append(User.name.contains(name))
-    comments_list = db.session.query(Comment, User).filter(and_(
+    comments_list = db.session.query(Comment).outerjoin(User).filter(and_(
                     *get_comments_query)).order_by(Comment.id).all()
 
     return jsonify({'result':[{
-        'post_id':comment.Comment.post_id,
-        'user_id':comment.Comment.user_id,
-        'name':comment.User.name,
-        'profile_pic':comment.User.profile_pic,
-        'content':comment.Comment.content,
-        'timestamp':comment.Comment.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")} for comment in comments_list]})
+        'post_id':comment.post_id,
+        'user_id':comment.user_id,
+        'name': User.query.filter_by(id=comment.user_id).first().name,
+        'profile_pic':User.query.filter_by(id=comment.user_id).first().profile_pic,
+        'content':comment.content,
+        'timestamp':comment.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")} for comment in comments_list]})
 
 @token_required
 def post_comment():
