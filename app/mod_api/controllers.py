@@ -241,7 +241,7 @@ def get_post(post_id):
 	post = Post.query.filter_by(id=post_id).first()
 	if post is None:
 		return jsonify({'message':'wrong post id'}),404
-		
+
 	placetag = db.session.query(Placetag).filter(Placetag_to_post.post_id==post_id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()
 	if placetag is not None:
 		placetag = placetag[0]
@@ -399,10 +399,10 @@ def get_my_profile_pic():
 	return jsonify({'message':'no profile picture'}),404    
 
 def get_photo(filename):
-    return send_from_directory(app.config['PHOTO_UPLAOD_FOLDER'],filename)
+    return send_from_directory(app.config['PHOTO_UPLOAD_FOLDER'],filename)
 
 def get_movie(filename):
-   return send_from_directory(app.config['VIDEO_UPLAOD_FOLDER'],filename)
+   return send_from_directory(app.config['VIDEO_UPLOAD_FOLDER'],filename)
 
 
 @token_required
