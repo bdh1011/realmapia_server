@@ -2,6 +2,7 @@
 
 from flask import current_app,Blueprint,render_template, flash,jsonify, session, url_for, g, request, redirect, make_response, Response, send_file
 from app import db
+from app import app
 from app import redis
 import hashlib, os, sys, random, re, json, ast
 from functools import wraps
@@ -14,7 +15,6 @@ from ..models import User, Follow, User_alert, Like, Comment, Post, Hashtag_to_p
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 import decorator
 from flask_wtf.csrf import CsrfProtect
-from app import app
 
 import base64
 from werkzeug import secure_filename
