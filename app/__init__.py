@@ -9,22 +9,11 @@ from flask.ext.httpauth import HTTPBasicAuth
 import os
 import redis
 from app.database import db, bcrypt
-
+import config
 
 
 app = Flask(__name__)
 
-app.config['S3_BUCKET_NAME'] = 'mapia'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/mapia.db'
-app.config['ONLINE_LAST_MINUTES'] = 5 #5min
-app.config['SESSION_ALIVE_MINUTES'] = 14400
-app.config['SECRET_KEY'] = 'gi3mHUx8hcLoQrnqP1XOkSORrjxZVkST'
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379'
-
-app.config['PROFILE_PIC_FOLDER'] = './app/static/profile_pic/'
-app.config['PHOTO_UPLOAD_FOLDER'] = './app/static/photo/'
-app.config['VIDEO_UPLOAD_FOLDER'] = './app/static/video/'
 app.secret_key = app.config['SECRET_KEY']
 
 r = redis.Redis(host='localhost', port=6379, db=0)
