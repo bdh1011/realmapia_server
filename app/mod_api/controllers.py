@@ -74,6 +74,7 @@ def login():
             return jsonify({'message':'user not exist'}),400
         else:
             user = user.first()
+            print user.serialize
         user.recent_login_timestamp = datetime.now()
         db.session.commit()
 
