@@ -79,7 +79,7 @@ class User(db.Model):
 	    return {
 	    	'id'		: self.id,
 	    	'name'		: self.name,
-	    	'profile_pic'  : 'http://52.192.0.214/api/profile_pic/'+self.profile_pic,
+	    	'profile_pic'  : 'http://52.192.0.214/api/profile_pic/'+self.profile_pic if self.profile_pic is not None else None,
 	    	'register_timestamp'	: dump_datetime(self.register_timestamp),
 	    	'recent_login_timestamp': dump_datetime(self.recent_login_timestamp)
 	    }
