@@ -11,6 +11,7 @@ from flask_s3 import FlaskS3
 import flask_s3
 import logging, logging.config, yaml
 import config
+import os
 
 app = create_app()
 
@@ -26,10 +27,11 @@ app.config['PROFILE_PIC_UPLOAD_FOLDER']= './app/static/profile_pic/'
 app.config['PHOTO_UPLOAD_FOLDER'] = './app/static/photo/'
 app.config['VIDEO_UPLOAD_FOLDER'] = './app/static/video/'
 
-app.config['PROFILE_PIC_DOWNLOAD_FOLDER'] = 'static/profile_pic/'
-app.config['PHOTO_DOWNLOAD_FOLDER'] = 'static/photo/'
-app.config['VIDEO_DOWNLOAD_FOLDER'] = 'static/video/'
-
+app_name = 'mapia'
+root_dir = os.path.dirname(os.getcwd())
+app.config['PROFILE_PIC_DOWNLOAD_FOLDER']= os.path.join(root_dir, app_name,'app','static','profile_pic/')
+app.config['PHOTO_DOWNLOAD_FOLDER'] = os.path.join(root_dir, app_name,'app','static','photo/')
+app.config['VIDEO_DOWNLOAD_FOLDER'] = os.path.join(root_dir, app_name,'app','static','video/')
 
 manager = Manager(app)
 migrate = Migrate()

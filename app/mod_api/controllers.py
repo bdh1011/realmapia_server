@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import current_app,Blueprint,render_template, flash,jsonify, session, url_for, g, request, redirect, make_response, Response
+from flask import current_app,Blueprint,render_template, flash,jsonify, session, url_for, g, request, redirect, make_response, Response, send_file
 from app import db
 from app import redis
 import hashlib, os, sys, random, re, json, ast
@@ -223,8 +223,8 @@ def get_posts():
     return jsonify({'result':[
         {
         'post_id': each_post.Post.id,
-        'photo' : base_url+'photo/'+post.photo if (each_post.Post.photo is not None) else None,
-        'video' : base_url+'video/'+post.video if (each_post.Post.video is not None) else None,
+        'photo' : base_url+'photo/'+each_post.photo if (each_post.Post.photo is not None) else None,
+        'video' : base_url+'video/'+each_post.video if (each_post.Post.video is not None) else None,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
         'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':each_post.Post.content,
@@ -383,28 +383,25 @@ def post_post():
 	return jsonify({'result':{'post_id':post.id}})
 
 
-
-from flask import send_from_directory
 def get_profile_pic(userid):
 	user = User.query.filter_by(id=userid).first()
 	if user is not None:
 		if user.profile_pic is not None:
-			return send_from_directory(app.config['PROFILE_PIC_DOWNLOAD_FOLDER'],user.profile_pic )
+			return send_file(app.config['PROFILE_PIC_DOWNLOAD_FOLDER']+user.profile_pic )
 	return jsonify({'message':'no profile picture'}),404
 
 def get_my_profile_pic():
 	profile_pic = User.query.filter_by(id=session['userid']).first().profile_pic
 	if profile_pic is not None:
-	    return send_from_directory(app.config['PROFILE_PIC_DOWNLOAD_FOLDER'],profile_pic)
+	    return send_file(app.config['PROFILE_PIC_DOWNLOAD_FOLDER']+profile_pic)
 	return jsonify({'message':'no profile picture'}),404    
 
 def get_photo(filename):
-	print app.config['PHOTO_DOWNLOAD_FOLDER'],filename
 	root_dir = os.path.dirname(os.getcwd())
-	return send_from_directory(os.path.join(root_dir, 'static', 'photo'),filename)
+	return send_file( app.config['PHOTO_DOWNLOAD_FOLDER']+filename)
 
 def get_movie(filename):
-   return send_from_directory(app.config['PHOTO_DOWNLOAD_FOLDER'],filename)
+   return send_file(app.config['PHOTO_DOWNLOAD_FOLDER']+filename)
 
 
 @token_required
