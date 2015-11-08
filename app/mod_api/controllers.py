@@ -107,7 +107,7 @@ def login():
         print 'app.r', ast.literal_eval(app.r.get(token))['id']
         #redis.flushdb() 
 
-        return jsonify({'result':{'token':token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic}})
+        return jsonify({'result':{'token':token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic if user.profile_pic is not None else None}})
 
 
 def register():

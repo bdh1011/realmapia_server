@@ -22,6 +22,7 @@ app.config['SECRET_KEY'] = 'gi3mHUx8hcLoQrnqP1XOkSORrjxZVkST'
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379'
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379'
 
+app.config['PROFILE_PIC_FOLDER'] = './app/static/profile_pic/'
 app.config['PHOTO_UPLOAD_FOLDER'] = './app/static/photo/'
 app.config['VIDEO_UPLOAD_FOLDER'] = './app/static/video/'
 app.secret_key = app.config['SECRET_KEY']
