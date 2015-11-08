@@ -25,6 +25,7 @@ def create_app(config=None):
 	r = redis.Redis(host='localhost', port=6379, db=0)
 	app.redis = r	
 	app.config.from_object('config')
+	app.config.from_pyfile('config.py')
 
 	from app.mod_api.controllers import api
 	# Initialize SQL Alchemy and Flask-Login
