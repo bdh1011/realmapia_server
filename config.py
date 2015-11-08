@@ -10,3 +10,6 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 PROFILE_PIC_FOLDER = './app/static/profile_pic/'
 PHOTO_UPLOAD_FOLDER = './app/static/photo/'
 VIDEO_UPLOAD_FOLDER = './app/static/video/'
+
+PHOTO_DOWNLOAD_FOLDER = 'static/photo/'
+VIDEO_DOWNLOAD_FOLDER = 'static/video/'

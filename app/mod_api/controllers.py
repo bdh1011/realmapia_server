@@ -389,20 +389,20 @@ def get_profile_pic(userid):
 	user = User.query.filter_by(id=userid).first()
 	if user is not None:
 		if user.profile_pic is not None:
-			return send_from_directory(app.config['PROFILE_PIC_FOLDER'],user.profile_pic )
+			return send_from_directory(app.config['PROFILE_PIC_DOWNLOAD_FOLDER'],user.profile_pic )
 	return jsonify({'message':'no profile picture'}),404
 
 def get_my_profile_pic():
 	profile_pic = User.query.filter_by(id=session['userid']).first().profile_pic
 	if profile_pic is not None:
-	    return send_from_directory(app.config['PROFILE_PIC_FOLDER'],profile_pic)
+	    return send_from_directory(app.config['PROFILE_PIC_DOWNLOAD_FOLDER'],profile_pic)
 	return jsonify({'message':'no profile picture'}),404    
 
 def get_photo(filename):
-    return send_from_directory(app.config['PHOTO_UPLOAD_FOLDER'],filename)
+    return send_from_directory(app.config['PHOTO_DOWNLOAD_FOLDER'],filename)
 
 def get_movie(filename):
-   return send_from_directory(app.config['VIDEO_UPLOAD_FOLDER'],filename)
+   return send_from_directory(app.config['PHOTO_DOWNLOAD_FOLDER'],filename)
 
 
 @token_required
