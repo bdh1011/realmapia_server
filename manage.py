@@ -7,11 +7,15 @@ from app.database import db
 from app import models
 from app import create_app
 from app import r
+from flask_s3 import FlaskS3
+import flask_s3
+import logging, logging.config, yaml
 
 app = create_app()
 manager = Manager(app)
 migrate = Migrate()
 migrate.init_app(app, db, directory="./migrations")
+s3 = FlaskS3(app)
 
 
 def _make_context():
@@ -55,5 +59,9 @@ def testall():
 
 
 if __name__ == "__main__":
-    # celery = make_celery()
-    manager.run()
+	logging.config.dictConfig(yaml.load(open('logging.conf')))
+	logfile    = logging.getLogger('file')
+	logconsole = logging.getLogger('console')
+	logfile.debug("Debug FILE")
+	logconsole.debug("Debug CONSOLE")
+	manager.run()
