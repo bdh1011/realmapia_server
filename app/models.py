@@ -278,7 +278,7 @@ class Usertag_to_post(db.Model):
 
 class Group(db.Model):
 	__tablename__ = 'group'
-	name = db.Column(db.String(64), nullable=False, primary_key=True)
+	id = db.Column(db.String(64), nullable=False, primary_key=True)
 	privacy = db.Column(db.String(64), nullable=False)
 	#privacy : privat, protected, public
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
