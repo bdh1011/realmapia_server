@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/mapia.db'
 app.config['ONLINE_LAST_MINUTES'] = 5 #5min
-app.config['SESSION_ALIVE_MINUTES'] = 1440
+app.config['SESSION_ALIVE_MINUTES'] = 14400
 app.config['SECRET_KEY'] = 'gi3mHUx8hcLoQrnqP1XOkSORrjxZVkST'
 app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379'
 app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379'

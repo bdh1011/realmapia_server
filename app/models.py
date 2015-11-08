@@ -23,7 +23,7 @@ class User(db.Model):
 	name = db.Column(db.String(64), nullable=False)
 	register_timestamp = db.Column(db.DateTime, server_default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
-	profile_pic_filename = db.Column(db.String(64), nullable=True)
+	profile_pic = db.Column(db.LargeBinary)
 	
 	facebook_token = db.Column(db.String(64),nullable=True)
 	instagram_token = db.Column(db.String(64),nullable=True)
@@ -79,7 +79,7 @@ class User(db.Model):
 	    return {
 	    	'id'		: self.id,
 	    	'name'		: self.name,
-	    	'profile_pic_filename'  : self.profile_pic_filename,
+	    	'profile_pic'  : self.profile_pic,
 	    	'register_timestamp'	: dump_datetime(self.register_timestamp),
 	    	'recent_login_timestamp': dump_datetime(self.recent_login_timestamp)
 	    }
@@ -148,27 +148,6 @@ class Comment(db.Model):
 
 
 
-class Photo(db.Model):
-	__tablename__ = 'photo'
-	id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
-	post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-	photo_filename = db.Column(db.String(64), nullable=False)
-
-	def __init__(self, **kwargs):
-		super(Photo, self).__init__(**kwargs)
-
-
-class Movie(db.Model):
-	__tablename__ = 'movie'
-	id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
-	post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-	movie_filename = db.Column(db.String(64), nullable=False)
-
-	def __init__(self, **kwargs):
-		super(Movie, self).__init__(**kwargs)
-
-
-
 
 
 class Post(db.Model):
@@ -177,6 +156,8 @@ class Post(db.Model):
 	user_id = db.Column(db.String(64), db.ForeignKey('user.id'))
 	lat = db.Column(db.Float, nullable=False)
 	lng = db.Column(db.Float, nullable=False)
+	photo = db.Column(db.LargeBinary)
+	movie = db.Column(db.LargeBinary)
 	content = db.Column(db.Text)
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
@@ -187,8 +168,7 @@ class Post(db.Model):
 
 	like = db.relationship('Like', backref='Like.post_id', lazy='dynamic')
 	comment = db.relationship('Comment', backref='Comment.post_id', lazy='dynamic')
-	photo = db.relationship('Photo', backref='Photo.post_id', lazy='dynamic')
-	movie = db.relationship('Movie', backref='Movie.post_id', lazy='dynamic')
+	
 	hashtag_to_post = db.relationship('Hashtag_to_post', backref='Hashtag_to_post.post_id', lazy='dynamic')
 	placetag_to_post = db.relationship('Placetag_to_post', backref='Placetag_to_post.post_id', lazy='dynamic')
 	usertag_to_post = db.relationship('Usertag_to_post', backref='Usertag_to_post.post_id', lazy='dynamic')

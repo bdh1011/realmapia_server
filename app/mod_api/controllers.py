@@ -9,7 +9,7 @@ from datetime import date, time, datetime
 import time as ptime
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from sqlalchemy import or_, and_, desc, asc
-from ..models import User, Follow, User_alert, Like, Comment, Photo, Movie, Post, Hashtag_to_post, Hashtag,\
+from ..models import User, Follow, User_alert, Like, Comment, Post, Hashtag_to_post, Hashtag,\
  Placetag_to_post, Placetag, Usertag_to_post, Post_to, Group, Group_member
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 import decorator
@@ -56,37 +56,13 @@ def token_required(f):
         #     return jsonify({'message':'unexpected error'})
     return decorated_function
 
-def allowed_photo_file(filename):
-    return '.' in filename and \
-            filename.rsplit('.',1)[1] in ALLOWED_PHOTO_EXTENSIONS
-
-def post_photo():
-    file = request.files['file']
-    if file and allowed_photo_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLAOD_FOLDER'], filename))
-        return jsonfiy({'result':{'filename':filename}})
-    else:
-        return jsonfiy({'message':'invalid file format'}),400
-
-from flask import send_from_directory
-def get_photo(filename):
-    return send_from_directory(app.config['UPLAOD_FOLDER'],filename)
-
-
-def post_movie():
-    file = request.files['file']
-    if file and allowed_movie_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLAOD_FOLDER'], filename))
-        return jsonfiy({'result':{'filename':filename}})
-    else:
-        return jsonfiy({'message':'invalid file format'}),400
-
-def get_movie():
-   return send_from_directory(app.config['UPLAOD_FOLDER'],filename)
-
-
+@token_required
+def post_profile_pic():
+	profile_pic = request.json.get('photo')
+	user = User.filter_by(id=session['userid']).first()
+	user.profile_pic = profile_pic
+	db.session.commit()
+	return jsonify({'result':'success'})
 
 def login():
     if request.method=='POST':
@@ -111,7 +87,7 @@ def login():
 
         print ptime.time()
         now = int(ptime.time())
-        expires = now + (current_app.config['ONLINE_LAST_MINUTES'] * 60) + 10
+        expires = now + (current_app.config['ONLINE_LAST_MINUTES'] * 600) + 10
         p = app.r.pipeline()
 
         if app.r.get(token) is None:
@@ -238,6 +214,7 @@ def get_posts():
     return jsonify({'result':[
         {
         'post_id': each_post.Post.id,
+        'photo' : each_post.photo,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
         'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':each_post.Post.content,
@@ -257,6 +234,7 @@ def get_post(post_id):
     usertag_list = [{'userid':user.id,'username':user.name} for user in db.session.query(User).filter(Usertag_to_post.post_id==post_id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
     return jsonify({'result':{
         'userid':post.user_id,
+        'photo':post.photo,
         'timestamp':post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':post.content,
         'lat':post.lat,
@@ -278,7 +256,7 @@ def post_post():
     movie = request.json.get("movie")
     post_to = request.json.get("post_to")
 
-    post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content)
+    post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content, photo=photo, movie=movie)
     db.session.add(post)
     db.session.commit()
 
@@ -569,18 +547,13 @@ api.add_url_rule('/users/logout', 'logout', logout, methods=['GET'])
 api.add_url_rule('/users', 'get_user_list', get_user_list) 
 api.add_url_rule('/users/<userid>', 'get_user', get_user) 
 api.add_url_rule('/users/me', 'about me', about_me) 
+api.add_url_rule('/users/me/profile_pic', 'post profile pic', post_profile_pic, methods=['POST']) 
 api.add_url_rule('/users/me/posts', 'get my posts', get_my_posts) 
 api.add_url_rule('/users/me/posts/<post_id>', 'get my post', get_my_post) 
 
 api.add_url_rule('/posts', 'get posts', get_posts, methods=['GET']) 
 api.add_url_rule('/posts/<post_id>', 'get post', get_post, methods=['GET']) 
 api.add_url_rule('/posts', 'post posts', post_post, methods=['POST']) 
-
-api.add_url_rule('/photo','post photo', post_photo, methods=['POST'])
-api.add_url_rule('/photo','get photo', get_photo, methods=['GET'])
-api.add_url_rule('/movie','post movie', post_movie, methods=['POST'])
-api.add_url_rule('/movie','get movie', get_movie, methods=['GET'])
-
 
 
 api.add_url_rule('/hashtag/<hashtag_query>','get hashtag', get_hashtag, methods=['GET'])
