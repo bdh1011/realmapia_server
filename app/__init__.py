@@ -15,8 +15,7 @@ from app.database import db, bcrypt
 
 
 app = Flask(__name__)
-r = redis.Redis(host='localhost', port=6379, db=0)
-app.redis = r	
+app.r = redis.Redis(host='localhost', port=6379, db=0)
 app.config['S3_BUCKET_NAME'] = 'mapia'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/mapia.db'
 app.config['ONLINE_LAST_MINUTES'] = 5
