@@ -15,7 +15,7 @@ from flask.ext.login import LoginManager, login_user, logout_user, current_user,
 import decorator
 from flask_wtf.csrf import CsrfProtect
 import app
-import config
+
 import base64
 from werkzeug import secure_filename
 # from forms import LoginForm

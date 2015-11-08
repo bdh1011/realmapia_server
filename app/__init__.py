@@ -4,7 +4,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, current_user
 from flask.ext.assets import Environment, Bundle
 from flask.ext.httpauth import HTTPBasicAuth
-
+import config
 
 import os
 import redis
@@ -24,7 +24,7 @@ def create_app(config=None):
 
 	r = redis.Redis(host='localhost', port=6379, db=0)
 	app.redis = r	
-
+	app.config.from_object('config')
 
 	from app.mod_api.controllers import api
 	# Initialize SQL Alchemy and Flask-Login
