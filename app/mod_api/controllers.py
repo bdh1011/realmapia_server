@@ -223,8 +223,8 @@ def get_posts():
     return jsonify({'result':[
         {
         'post_id': each_post.Post.id,
-        'photo' : base_url+'photo/'+each_post.photo if (each_post.Post.photo is not None) else None,
-        'video' : base_url+'video/'+each_post.video if (each_post.Post.video is not None) else None,
+        'photo' : base_url+'photo/'+each_post.Post.photo if (each_post.Post.photo is not None) else None,
+        'video' : base_url+'video/'+each_post.Post.video if (each_post.Post.video is not None) else None,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
         'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':each_post.Post.content,
