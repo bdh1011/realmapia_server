@@ -178,7 +178,7 @@ class Post(db.Model):
 	hashtag_to_post = db.relationship('Hashtag_to_post', backref='Hashtag_to_post.post_id', lazy='dynamic')
 	placetag_to_post = db.relationship('Placetag_to_post', backref='Placetag_to_post.post_id', lazy='dynamic')
 	usertag_to_post = db.relationship('Usertag_to_post', backref='Usertag_to_post.post_id', lazy='dynamic')
-	post_to = db.relationship('Post_to', backref='Post_to.post_id', lazy='dynamic')
+	
 
 
 
