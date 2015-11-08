@@ -4,7 +4,6 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, current_user
 from flask.ext.assets import Environment, Bundle
 from flask.ext.httpauth import HTTPBasicAuth
-import config
 
 import os
 import redis
