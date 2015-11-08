@@ -399,7 +399,9 @@ def get_my_profile_pic():
 	return jsonify({'message':'no profile picture'}),404    
 
 def get_photo(filename):
-    return send_from_directory(app.config['PHOTO_DOWNLOAD_FOLDER'],filename)
+	print app.config['PHOTO_DOWNLOAD_FOLDER'],filename
+	root_dir = os.path.dirname(os.getcwd())
+	return send_from_directory(os.path.join(root_dir, 'static', 'photo'),filename)
 
 def get_movie(filename):
    return send_from_directory(app.config['PHOTO_DOWNLOAD_FOLDER'],filename)
