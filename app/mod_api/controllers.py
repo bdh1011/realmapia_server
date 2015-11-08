@@ -14,7 +14,7 @@ from ..models import User, Follow, User_alert, Like, Comment, Post, Hashtag_to_p
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 import decorator
 from flask_wtf.csrf import CsrfProtect
-import app
+from app import app
 import base64
 from werkzeug import secure_filename
 # from forms import LoginForm
