@@ -30,7 +30,7 @@ ALLOWED_MOVIE_EXTENSIONS = set(['avi','mp4','mpec','exo'])
 
 
 api = Blueprint('api', __name__, url_prefix='/api')
-
+base_url = 'http://52.192.0.214/api/'
 
 def token_required(f):
     @wraps(f)
@@ -67,10 +67,11 @@ def post_profile_pic():
 	if not os.path.exists(filepath):
 		with open(filepath,"w") as photo_file:
 			photo_file.write(data)
-	user.profile_pic = filepath
+	file_dir, filename = os.path.split(filepath)
+	user.profile_pic = filename
 	db.session.commit()
 	#test
-	return jsonify({'result':{'profile_pic_path':url_for('static',filename='/profile_pic/'+filepath)}})
+	return jsonify({'result':{'profile_pic_path':base_url+'profile_pic/'+filename}})
 
 def login():
     if request.method=='POST':
@@ -106,7 +107,7 @@ def login():
         print 'app.r', ast.literal_eval(app.r.get(token))['id']
         #redis.flushdb() 
 
-        return jsonify({'result':{'token':token,'name':user.name,'profile_pic':user.profile_pic}})
+        return jsonify({'result':{'token':token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic}})
 
 
 def register():
@@ -222,8 +223,8 @@ def get_posts():
     return jsonify({'result':[
         {
         'post_id': each_post.Post.id,
-        'photo' : url_for('static',filename='/photo/'+post.photo) if (each_post.Post.photo is not None) else None,
-        'video' : url_for('static',filename='/video/'+post.video) if (each_post.Post.video is not None) else None,
+        'photo' : base_url+'photo/'+post.photo if (each_post.Post.photo is not None) else None,
+        'video' : base_url+'video/'+post.video if (each_post.Post.video is not None) else None,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
         'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':each_post.Post.content,
@@ -241,8 +242,8 @@ def get_post(post_id):
 	placetag = db.session.query(Placetag).filter(Placetag_to_post.post_id==post_id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0]
 	hashtag_list = [hashtag.content for hashtag in db.session.query(Hashtag).filter(Hashtag_to_post.post_id==post_id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()]
 	usertag_list = [{'userid':user.id,'username':user.name} for user in db.session.query(User).filter(Usertag_to_post.post_id==post_id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
-	photo = url_for('static',filename='/photo/'+post.photo) if (post.photo is not None) else None
-	video = url_for('static',filename='/video/'+post.video) if (post.video is not None) else None
+	photo = base_url+'photo/'+post.photo if (post.photo is not None) else None
+	video = base_url+'video/'+post.video if (post.video is not None) else None
 
 	return jsonify({'result':{
 		'userid':post.user_id,
@@ -278,7 +279,7 @@ def post_post():
 
 	if photo is not None:
 		data = base64.b64decode(photo)
-		filepath = "./app/static/photo/"+str(post.id)+"."+ext
+		filepath = app.config['PHOTO_UPLOAD_FOLDER']+str(post.id)+"."+ext
 
 		#not exist
 		if not os.path.exists(filepath):
@@ -295,7 +296,7 @@ def post_post():
 
 	if video is not None:
 		data = base64.b64decode(video)
-		filepath = "./app/static/photo/"+str(post.id)+"."+ext
+		filepath = app.config['VIDEO_UPLOAD_FOLDER']+str(post.id)+"."+ext
 		#not exist
 		if not os.path.exists(filepath):
 			with open(filepath,"w") as photo_file:
@@ -383,7 +384,7 @@ def get_profile_pic(userid):
 	user = User.query.filter_by(id=userid).first()
 	if user is not None:
 		if user.profile_pic is not None:
-			return send_from_directory(app.config['PHOTO_UPLAOD_FOLDER'],user.profile_pic )
+			return send_from_directory(app.config['PROFILE_PIC_FOLDER'],user.profile_pic )
 	return jsonify({'message':'no profile picture'}),404
 
 def get_my_profile_pic():
@@ -611,11 +612,9 @@ api.add_url_rule('/users/login', 'login', login, methods=['POST'])
 api.add_url_rule('/users/logout', 'logout', logout, methods=['GET']) 
 api.add_url_rule('/users', 'get_user_list', get_user_list) 
 api.add_url_rule('/users/<userid>', 'get_user', get_user) 
-api.add_url_rule('/users/<userid>/profile_pic', 'get profile pic', get_profile_pic, methods=['GET']) 
 
 api.add_url_rule('/users/me', 'about me', about_me) 
 api.add_url_rule('/users/me/profile_pic', 'post profile pic', post_profile_pic, methods=['POST'])
-api.add_url_rule('/users/me/profile_pic', 'get my profile pic', get_my_profile_pic, methods=['GET']) 
 api.add_url_rule('/users/me/posts', 'get my posts', get_my_posts) 
 api.add_url_rule('/users/me/posts/<post_id>', 'get my post', get_my_post) 
 
@@ -623,6 +622,7 @@ api.add_url_rule('/posts', 'get posts', get_posts, methods=['GET'])
 api.add_url_rule('/posts/<post_id>', 'get post', get_post, methods=['GET']) 
 api.add_url_rule('/posts', 'post posts', post_post, methods=['POST']) 
 
+api.add_url_rule('/profile_pic/<filename>','get profile_pic', get_profile_pic, methods=['GET'])
 api.add_url_rule('/photo/<filename>','get photo', get_photo, methods=['GET'])
 api.add_url_rule('/movie/<filename>','get movie', get_movie, methods=['GET'])
 
