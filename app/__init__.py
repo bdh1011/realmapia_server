@@ -25,23 +25,6 @@ def create_app(config=None):
 	r = redis.Redis(host='localhost', port=6379, db=0)
 	app.redis = r	
 
-	app.config['S3_BUCKET_NAME'] = 'mapia'
-	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/mapia.db'
-	app.config['ONLINE_LAST_MINUTES'] = 5
-	app.config['SESSION_ALIVE_MINUTES'] = 14400
-	app.config['SECRET_KEY'] = 'gi3mHUx8hcLoQrnqP1XOkSORrjxZVkST'
-	app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379'
-	app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379'
-
-	app.config['PROFILE_PIC_UPLOAD_FOLDER']= './app/static/profile_pic/'
-	app.config['PHOTO_UPLOAD_FOLDER'] = './app/static/photo/'
-	app.config['VIDEO_UPLOAD_FOLDER'] = './app/static/video/'
-
-	app_name = 'mapia'
-	root_dir = os.path.dirname(os.getcwd())
-	app.config['PROFILE_PIC_DOWNLOAD_FOLDER']= os.path.join(root_dir, app_name,'app','static','profile_pic/')
-	app.config['PHOTO_DOWNLOAD_FOLDER'] = os.path.join(root_dir, app_name,'app','static','photo/')
-	app.config['VIDEO_DOWNLOAD_FOLDER'] = os.path.join(root_dir, app_name,'app','static','video/')
 
 	from app.mod_api.controllers import api
 	# Initialize SQL Alchemy and Flask-Login
@@ -70,7 +53,10 @@ def create_app(config=None):
 
 
 	app.register_blueprint(api)
-	
+
+
+	from app import views
+
 	app.config['S3_BUCKET_NAME'] = 'mapia'
 	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/mapia.db'
 	app.config['ONLINE_LAST_MINUTES'] = 5
@@ -88,7 +74,4 @@ def create_app(config=None):
 	app.config['PROFILE_PIC_DOWNLOAD_FOLDER']= os.path.join(root_dir, app_name,'app','static','profile_pic/')
 	app.config['PHOTO_DOWNLOAD_FOLDER'] = os.path.join(root_dir, app_name,'app','static','photo/')
 	app.config['VIDEO_DOWNLOAD_FOLDER'] = os.path.join(root_dir, app_name,'app','static','video/')
-
-	from app import views
-
 	return app
