@@ -215,7 +215,7 @@ def get_posts():
     return jsonify({'result':[
         {
         'post_id': each_post.Post.id,
-        'photo' : each_post.photo,
+        'photo' : each_post.Post.photo,
         'username':User.query.filter_by(id=each_post.Post.user_id).first().name,
         'timestamp':each_post.Post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
         'content':each_post.Post.content,
