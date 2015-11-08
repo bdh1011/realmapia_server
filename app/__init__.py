@@ -9,12 +9,12 @@ from flask.ext.httpauth import HTTPBasicAuth
 import os
 import redis
 from app.database import db, bcrypt
-import config
+
 
 
 app = Flask(__name__)
 
-app.secret_key = app.config['SECRET_KEY']
+#app.secret_key = app.config['SECRET_KEY']
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 
