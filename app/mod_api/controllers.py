@@ -239,7 +239,9 @@ def get_posts():
 @token_required
 def get_post(post_id):
 	post = Post.query.filter_by(id=post_id).first()
-	placetag = db.session.query(Placetag).filter(Placetag_to_post.post_id==post_id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0]
+	placetag = db.session.query(Placetag).filter(Placetag_to_post.post_id==post_id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()
+	if placetag is not None:
+		placetag = placetag[0]
 	hashtag_list = [hashtag.content for hashtag in db.session.query(Hashtag).filter(Hashtag_to_post.post_id==post_id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()]
 	usertag_list = [{'userid':user.id,'username':user.name} for user in db.session.query(User).filter(Usertag_to_post.post_id==post_id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
 	photo = base_url+'photo/'+post.photo if (post.photo is not None) else None
