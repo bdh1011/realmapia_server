@@ -7,9 +7,10 @@ SECRET_KEY = 'gi3mHUx8hcLoQrnqP1XOkSORrjxZVkST'
 CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 
-PROFILE_PIC_FOLDER = './app/static/profile_pic/'
+PROFILE_PIC_UPLOAD_FOLDER = './app/static/profile_pic/'
 PHOTO_UPLOAD_FOLDER = './app/static/photo/'
 VIDEO_UPLOAD_FOLDER = './app/static/video/'
 
+PROFILE_PIC_DOWNLOAD_FOLDER = 'static/profile_pic/'
 PHOTO_DOWNLOAD_FOLDER = 'static/photo/'
 VIDEO_DOWNLOAD_FOLDER = 'static/video/'
