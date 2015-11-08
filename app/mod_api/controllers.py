@@ -282,7 +282,7 @@ def post_post():
 	video = request.json.get("video")
 	#post_to = request.json.get("post_to")
 
-	post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content)
+	post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content,map_type=map_type)
 	db.session.add(post)
 	db.session.commit()
 
