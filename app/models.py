@@ -287,7 +287,7 @@ class Group(db.Model):
 	def __init__(self, **kwargs):
 		super(Group, self).__init__(**kwargs)
 
-	post = db.relationship('post', backref='Post.id', lazy='dynamic')
+	post = db.relationship('Post', backref='Post.id', lazy='dynamic')
 
 class Group_member(db.Model):
 	__tablename__ = 'group_member'
