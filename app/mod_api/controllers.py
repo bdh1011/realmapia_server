@@ -239,6 +239,9 @@ def get_posts():
 @token_required
 def get_post(post_id):
 	post = Post.query.filter_by(id=post_id).first()
+	if post is None:
+		return jsonify({'message':'wrong post id'}),404
+		
 	placetag = db.session.query(Placetag).filter(Placetag_to_post.post_id==post_id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()
 	if placetag is not None:
 		placetag = placetag[0]
