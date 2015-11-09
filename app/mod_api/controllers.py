@@ -62,6 +62,9 @@ def token_required(f):
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
 	user = User.query.filter_by(id=session['userid']).first()
+	if profile_pic is None:
+		return jsonify({'message':'needs photo attribute'}),400
+	print profile_pic
 	if 'http' in profile_pic:
 		user.profile_pic = profile_pic
 	else:
