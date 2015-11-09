@@ -155,22 +155,23 @@ def logout():
 
 
 
-def filter_get_user_list(each_user, request):
-    query_user_name = request.args.get('name')
-
-    if query_user_name is not None:
-        if not query_user_name in each_user.name:
-            return False
-    return True
-
 #mobile api
 @token_required
 def get_user_list():
-    try:
-        user_list = [each_user.serialize for each_user in User.query.order_by(User.id).all() if filter_get_user_list(each_user,request) ]
-    except:
-        return jsonify({'message':'unexpected exception'}),400    
-    return jsonify({'result':user_list})
+	name = request.args.get('name')
+	if name is not None:
+		user_list = db.session.query(User).filter(User.name.contains(name)).all()
+	else:
+		user_list = User.query.order_by(User.id).all()
+
+	return jsonify({'result':[
+		{
+		'id':user.id,
+		'name':user.name,
+		'profile_pic':user.profile_pic,
+		'recent_login_timestamp':user.recent_login_timestamp,
+		'register_login_timestamp':user.register_timestamp
+		} for user in user_list]})
 
 #mobile api
 @token_required
