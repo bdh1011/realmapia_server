@@ -61,7 +61,7 @@ def token_required(f):
 @token_required
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
-	user = User.filter_by(id=session['userid']).first()
+	user = User.query.filter_by(id=session['userid']).first()
 	if 'http' in profile_pic:
 		user.profile_pic = profile_pic
 	else:
