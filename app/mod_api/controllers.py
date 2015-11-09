@@ -237,6 +237,30 @@ def get_posts():
         'usertag_list':[{'userid':user.id,'username':user.name} for user in db.session.query(User, Usertag_to_post ).filter(Usertag_to_post.post_id==each_post.id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
         } for each_post in posts_list]})
 
+@token_required
+def get_circle():
+	center_lat=request.args.get('center_lat')
+	center_lng=request.args.get('center_lng')
+	level=request.args.get('level')
+	map_type=request.args.get('map_type')
+	group_name=request.args.get('group_name')
+	if map_type is None or center_lng is None or center_lng is None or level is None:
+		return jsonify({'message':'parameter miss, needs center_lat, center_lng, level, map_type'}),400
+
+	get_circle_query = db.session.query(Post).filter(Post.map_type==map_type)
+	if map_type=='group':
+		get_circle_query = get_circle_query.filter(Post.group_name==group_name)
+	get_circle_query.filter(Post.lat.between(float(center_lat)-0.1,float(center_lat)+0.1 ))
+	get_circle_query.filter(Post.lng.between(float(center_lng)-0.1,float(center_lng)+0.1 ))
+	posts_list = get_circle_query.all()
+
+	return jsonify({'result':[
+		{
+		'circle_id': each_post.id,
+		'center_lat':each_post.lat,
+		'center_lng':each_post.lng,
+		'radius': 1
+		} for each_post in posts_list]})
 
 @token_required
 def get_post(post_id):
@@ -265,6 +289,91 @@ def get_post(post_id):
 		'placetag':placetag,
 		'hashtag_list':hashtag_list,
 		'usertag_list':usertag_list}})
+
+
+@token_required
+def post_sns_post():
+	db.session.rollback()
+	posts = request.json.get("posts")
+	for post_id, sns_post in posts.iteritems():
+		sns = sns_post.get("sns")
+		content = sns_post.get("content")
+		lat = sns_post.get("lat")
+		lng = sns_post.get("lng")
+		placetag_content = sns_post.get("placetag")
+		hashtag_list = sns_post.get("hashtag")
+		usertag_list = sns_post.get("usertag")
+		photo = sns_post.get("photo")
+		video = sns_post.get("video")
+		ext = sns_post.get("ext")
+		map_type = sns_post.get("map_type")
+		post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content,map_type=map_type, sns=sns)
+		db.session.add(post)
+		db.session.commit()
+
+		if photo is not None:
+			data = base64.b64decode(photo)
+			filepath = app.config['                                                                                           ']+str(post.id)+"."+ext
+
+			#not exist
+			if not os.path.exists(filepath):
+				with open(filepath,"w") as photo_file:
+					photo_file.write(data)
+			file_dir, filename = os.path.split(filepath)
+			post.photo = filename
+			db.session.commit()
+
+		if video is not None:
+			data = base64.b64decode(video)
+			filepath = app.config['VIDEO_UPLOAD_FOLDER']+str(post.id)+"."+ext
+			#not exist
+			if not os.path.exists(filepath):
+				with open(filepath,"w") as photo_file:
+					photo_file.write(data)
+			file_dir, filename = os.path.split(filepath)
+			post.video = filename
+			db.session.commit()
+
+	    #add placetag
+		if placetag_content is None:
+			pass
+		else:
+			placetag = Placetag.query.filter_by(content=placetag_content).first()
+			if placetag is None:
+				placetag = Placetag(content=placetag_content)
+				db.session.add(placetag)
+				db.session.commit()
+				#check if it works without commit
+			placetag_to_post = Placetag_to_post(post_id=post.id,placetag_id=placetag.id)
+			db.session.add(placetag_to_post)
+			db.session.commit()
+
+			placetag.update_placetaged_num()
+			db.session.commit()
+			#too many commit, how can I shrink it?
+
+
+	    #add hashtag
+		if hashtag_list is None:
+			pass
+		else:
+			for each_hashtag in hashtag_list:
+				print 'each hashtag',each_hashtag
+				hashtag = Hashtag.query.filter_by(content=each_hashtag).first()
+				print 'hashtag',hashtag
+				if hashtag is None:
+					hashtag = Hashtag(content=each_hashtag)
+					db.session.add(hashtag)
+					db.session.commit()
+					#check if it works without commit
+				hashtag_to_post = Hashtag_to_post(post_id=post.id,hashtag_id=hashtag.id)
+				db.session.add(hashtag_to_post)
+				db.session.commit()
+
+				placetag.update_placetaged_num()
+				db.session.commit()
+			#too many commit, how can I shrink it?
+	return jsonify({'result':{'posts_num':len(posts)}})
 
 
 @token_required
@@ -631,6 +740,8 @@ api.add_url_rule('/users/me/posts/<post_id>', 'get my post', get_my_post)
 api.add_url_rule('/posts', 'get posts', get_posts, methods=['GET']) 
 api.add_url_rule('/posts/<post_id>', 'get post', get_post, methods=['GET']) 
 api.add_url_rule('/posts', 'post posts', post_post, methods=['POST']) 
+api.add_url_rule('/sns/posts', 'post sns posts', post_sns_post, methods=['POST']) 
+api.add_url_rule('/circle', 'get cicles', get_circle, methods=['GET']) 
 
 api.add_url_rule('/profile_pic/<filename>','get profile_pic', get_profile_pic, methods=['GET'])
 api.add_url_rule('/photo/<filename>','get photo', get_photo, methods=['GET'])

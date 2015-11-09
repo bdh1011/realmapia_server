@@ -164,7 +164,7 @@ class Post(db.Model):
 	content = db.Column(db.Text)
 	map_type = db.Column(db.String(64), nullable=True)
 	target_group = db.Column(db.String(64), db.ForeignKey('group.id'))
-
+	sns = db.Column(db.String(64), nullable=True)
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 	
