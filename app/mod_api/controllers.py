@@ -62,14 +62,17 @@ def token_required(f):
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
 	user = User.filter_by(id=session['userid']).first()
-	data = base64.b64decode(photo)
-	filepath = "./app/static/profile_pic/"+str(user.id)+"."+ext
-	#not exist
-	if not os.path.exists(filepath):
-		with open(filepath,"w") as photo_file:
-			photo_file.write(data)
-	file_dir, filename = os.path.split(filepath)
-	user.profile_pic = filename
+	if 'http' in profile_pic:
+		user.profile_pic = profile_pic
+	else:
+		data = base64.b64decode(photo)
+		filepath = "./app/static/profile_pic/"+str(user.id)+"."+ext
+		#not exist
+		if not os.path.exists(filepath):
+			with open(filepath,"w") as photo_file:
+				photo_file.write(data)
+		file_dir, filename = os.path.split(filepath)
+		user.profile_pic = filename
 	db.session.commit()
 	#test
 	return jsonify({'result':{'profile_pic_path':base_url+'profile_pic/'+filename}})
