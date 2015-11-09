@@ -67,6 +67,7 @@ def post_profile_pic():
 	print profile_pic
 	if 'http' in profile_pic:
 		user.profile_pic = profile_pic
+		return jsonify({'result':'success'})
 	else:
 		data = base64.b64decode(photo)
 		filepath = "./app/static/profile_pic/"+str(user.id)+"."+ext
@@ -76,9 +77,9 @@ def post_profile_pic():
 				photo_file.write(data)
 		file_dir, filename = os.path.split(filepath)
 		user.profile_pic = filename
-	db.session.commit()
-	#test
-	return jsonify({'result':{'profile_pic_path':base_url+'profile_pic/'+filename}})
+		db.session.commit()
+		#test
+		return jsonify({'result':{'profile_pic_path':base_url+'profile_pic/'+filename}})
 
 def login():
     if request.method=='POST':
