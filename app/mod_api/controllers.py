@@ -247,6 +247,8 @@ def get_posts():
         'content':each_post.content,
         'lat':each_post.lat,
         'lng':each_post.lng,
+        'like_num':Like.query.filter_by(post_id=each_post.id).count(),
+        'comment_num':Comment.query.filter_by(post_id=each_post.id).count(),
         'placetag':db.session.query(Placetag, Placetag_to_post ).filter(Placetag_to_post.post_id==each_post.id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0],
         'hashtag_list':[hashtag.Hashtag.content for hashtag in db.session.query(Hashtag, Hashtag_to_post ).filter(Hashtag_to_post.post_id==each_post.id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()],
         'usertag_list':[{'userid':user.id,'username':user.name} for user in db.session.query(User, Usertag_to_post ).filter(Usertag_to_post.post_id==each_post.id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
@@ -299,6 +301,8 @@ def get_post(post_id):
 		'target_group':post.target_group,
 		'timestamp':post.register_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
 		'content':post.content,
+		'like_num':Like.query.filter_by(post_id=post.id).count(),
+        'comment_num':Comment.query.filter_by(post_id=post.id).count(),
 		'lat':post.lat,
 		'lng':post.lng,
 		'placetag':placetag,
@@ -793,22 +797,7 @@ def send_push(msg):
 			return jsonify({'message':'wrong register id'}),400
 	else:
 		return jsonify({'message':'msg parameter needs'}),400
-	'''
-    headers = {
-        'appID':'Mg9Gn108xk',
-        'appSecret':' ab85a09907d2153a74701277b2960e46',
-        'Content-Type':'application/json'
-    }
-    data = {
-        "encoding" : "base64",
-        "regID": str(regID),
-        "message":str(message)
-    }
-    print data
-    resp = requests.post(url=url, headers=headers, json=data, verify=False)
-    data = json.loads(resp.content)
-    return jsonify(data)'''
-
+	
 
 api.add_url_rule('/users/register', 'register', register, methods=['POST']) 
 api.add_url_rule('/users/login', 'login', login, methods=['POST']) 
