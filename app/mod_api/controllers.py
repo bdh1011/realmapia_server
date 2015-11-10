@@ -781,7 +781,7 @@ def send_push(msg):
 			data = {'msg':msg}
 			ids = []
 			ids.append(reg_id)
-			response = gcm.json_request(registeration_ids=ids, data=data)
+			response = gcm.json_request(registration_ids=ids, data=data)
 			return jsonfiy({'result':str(response)})
 
 		except Exception as e:
