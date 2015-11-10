@@ -11,7 +11,7 @@ import time as ptime
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from sqlalchemy import or_, and_, desc, asc
 from ..models import User, Follow, User_alert, Like, Comment, Post, Hashtag_to_post, Hashtag,\
- Placetag_to_post, Placetag, Usertag_to_post, Group, Group_member
+ Placetag_to_post, Placetag, Usertag_to_post, Group, Group_member, Push
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 import decorator
 from flask_wtf.csrf import CsrfProtect
@@ -20,8 +20,7 @@ import base64
 from werkzeug import secure_filename
 from gcm import GCM
 
-#with open('api_key.txt') as key:
-#	GCM_API_KEY = key.readline().strip()
+GCM_API_KEY = "AIzaSyDjsPRiKm9o6LqEOGYt5TFR7U6ry22Gvwc"
 
 reg_ids = 'gcm_registered device'
 registered_devices = set()
@@ -771,19 +770,26 @@ def test_push():
     return send_push(msg)
     
 def send_push(msg):
-    push = Push.query.filter_by(user_id=session['userid']).first()
-    if push is None:
-        return jsonify({'message':'register first'}),400
-    regID = push.id
-    print 'regId : ',regID
+	push = Push.query.filter_by(user_id=session['userid']).first()
+	if push is None:
+		return jsonify({'message':'register first'}),400
+	reg_id = push.id
+	url = 'https://gcm-http.googleapis.com/gcm/send'
+	if msg:
+		try:
+			gcm = GCM(GCM_API_KEY)
+			data = {'msg':msg}
+			ids = []
+			ids.append(reg_id)
+			response = gcm.json_request(registeration_ids=ids, data=data)
+			return jsonfiy({'result':str(response)})
 
-    message = "badgeOption=INCREASE&badgeNumber=1&action=ALERT&alertMessage="+msg
-    print 'message : ',message
-    try:
-        url = 'https://gcm-http.googleapis.com/gcm/send'
-    except:
-        return jsonify({'message':'wrong register id'}),400
-
+		except Exception as e:
+			print e
+			return jsonify({'message':'wrong register id'}),400
+	else:
+		return jsonify({'message':'msg parameter needs'}),400
+	'''
     headers = {
         'appID':'Mg9Gn108xk',
         'appSecret':' ab85a09907d2153a74701277b2960e46',
@@ -797,7 +803,7 @@ def send_push(msg):
     print data
     resp = requests.post(url=url, headers=headers, json=data, verify=False)
     data = json.loads(resp.content)
-    return jsonify(data)
+    return jsonify(data)'''
 
 
 api.add_url_rule('/users/register', 'register', register, methods=['POST']) 
