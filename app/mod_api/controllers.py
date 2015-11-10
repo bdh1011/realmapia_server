@@ -64,6 +64,21 @@ def token_required(f):
         #     return jsonify({'message':'unexpected error'})
     return decorated_function
 
+
+#Deferred Request Callbacks
+def after_this_request(f):
+    if not hasattr(g, 'after_request_callbacks'):
+        g.after_request_callbacks = []
+    g.after_request_callbacks.append(f)
+    return f
+
+@app.after_request
+def call_after_request_callbacks(response):
+    for callback in getattr(g, 'after_request_callbacks', ()):
+        callback(response)
+    return response
+
+
 @token_required
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
@@ -777,10 +792,10 @@ def delete_reg_id():
 @token_required
 def test_push():
     msg = request.args.get('msg')
-    return send_push(msg)
+    return send_push(session['userid'], msg)
     
-def send_push(msg):
-	push_list = Push.query.filter_by(user_id=session['userid']).all()
+def send_push(user_id, msg):
+	push_list = Push.query.filter_by(user_id=user_id).all()
 	if push_list is None:
 		return jsonify({'message':'register first'}),400
 	url = 'https://gcm-http.googleapis.com/gcm/send'
@@ -798,6 +813,37 @@ def send_push(msg):
 	else:
 		return jsonify({'message':'msg parameter needs'}),400
 	
+def noti_like(user_from, post_id):
+	user_id = Post.query.filter_by(id=post_id).first().user_id
+	input_noti(user_from, 'like', user_id, post_id)
+
+
+def noti_comment(user_from, post_id):
+	user_id = Post.query.filter_by(id=post_id).first().user_id
+	input_noti(user_from, 'comment', user_id, post_id)
+
+def noti_follow(user_from, user_to):
+	input_noti(user_from, 'follow', user_to, None)
+
+def noti_post_taged(user_from, post_id, user_to):
+	input_noti(user_from, 'tag', user_id, post_id)
+	
+
+def input_noti(user_from, noti_type, user_to, post_id):
+	noti = Noti(user_from=user_from, noti_type=noti_type,user_to=user_to, post_id=post_id)
+	db.session.add(noti)
+	db.commit()
+	if noti_type == 'like':
+		send_push(user_to, user_from + "님이 회원님의 게시글을 좋아합니다.")
+	elif noti_type == 'comment':
+		send_push(user_to, user_from + "님이 회원님의 글에 댓글을 달았습니다.")
+	elif noti_type == 'follow':
+		send_push(user_to, user_from + "님이 회원님을 Follow 하기 시작했습니다.")
+	elif noti_type == 'tag':
+		send_push(user_to, user_from + "님이 회원님을 게시글에 태그했습니다.")
+	else:
+		print 'noti type error'
+
 
 api.add_url_rule('/users/register', 'register', register, methods=['POST']) 
 api.add_url_rule('/users/login', 'login', login, methods=['POST']) 

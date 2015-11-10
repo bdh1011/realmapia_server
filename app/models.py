@@ -39,6 +39,9 @@ class User(db.Model):
 	group_member = db.relationship('Group_member', backref='Group_member.user_id', lazy='dynamic')
 	push = db.relationship('Push', backref='Push.user_id', lazy='dynamic')
 
+	noti_from = db.relationship('Noti', backref='noti_from_user', foreign_keys='Noti.from_user_id', lazy='dynamic')
+	noti_to = db.relationship('Noti', backref='noti_to_user', foreign_keys='Noti.to_user_id', lazy='dynamic')
+
 
 	def __init__(self, **kwargs):
 		self.id = kwargs['id']
@@ -158,8 +161,8 @@ class Post(db.Model):
 	__tablename__ = 'post'
 	id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
 	user_id = db.Column(db.String(64), db.ForeignKey('user.id'))
-	lat = db.Column(db.Float, nullable=False)
-	lng = db.Column(db.Float, nullable=False)
+	lat = db.Column(db.Float, nullable=True)
+	lng = db.Column(db.Float, nullable=True)
 	photo = db.Column(db.String(64), nullable=True)
 	video = db.Column(db.String(64), nullable=True)
 	content = db.Column(db.Text)
@@ -179,6 +182,7 @@ class Post(db.Model):
 	hashtag_to_post = db.relationship('Hashtag_to_post', backref='Hashtag_to_post.post_id', lazy='dynamic')
 	placetag_to_post = db.relationship('Placetag_to_post', backref='Placetag_to_post.post_id', lazy='dynamic')
 	usertag_to_post = db.relationship('Usertag_to_post', backref='Usertag_to_post.post_id', lazy='dynamic')
+	noti = db.relationship('Noti', backref='Noti.post_id', lazy='dynamic')
 	
 
 
@@ -268,7 +272,7 @@ class Usertag_to_post(db.Model):
 	__tablename__ = 'usertag_to_post'
 	id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
 	post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	user_id = db.Column(db.String(64), db.ForeignKey('user.id'))
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 	
@@ -295,9 +299,9 @@ class Group_member(db.Model):
 	role = db.Column(db.String(64), nullable=False)
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
-	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, primary_key=True)
+	user_id = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False, primary_key=True)
 	group_id = db.Column(db.String(64), db.ForeignKey('group.id'), nullable=False, primary_key=True)
-
+	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 
 	def __init__(self, **kwargs):
 		super(Group_member, self).__init__(**kwargs)
@@ -306,4 +310,19 @@ class Push(db.Model):
 	__tablename__ = 'push'
 	id = db.Column(db.String(256), nullable=False, primary_key=True)
 	user_id = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False)
+
+
+class Noti(db.Model):
+	__tablename__ = 'noti'
+	id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+	user_from = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False)
+	noti_type = db.Column(db.String(64), nullable=False)
+	user_to = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False, index=True)
+	post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=True)
+	register_timestamp = db.Column(db.DateTime, default=db.func.now())
+
+	def __init__(self, **kwargs):
+		super(Noti, self).__init__(**kwargs)
+
+
 
