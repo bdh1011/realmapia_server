@@ -783,7 +783,7 @@ def send_push(msg):
 	if msg:
 		try:
 			gcm = GCM(GCM_API_KEY)
-			data = {'msg':msg}
+			data = {'title':'MAPIA','message':msg}
 			ids = [push.id for push in push_list]
 			response = gcm.json_request(registration_ids=ids, data=data)
 			return jsonify({'result':str(response)})
