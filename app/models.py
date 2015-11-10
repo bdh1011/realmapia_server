@@ -304,6 +304,6 @@ class Group_member(db.Model):
 
 class Push(db.Model):
 	__tablename__ = 'push'
-	id = db.Column(db.String(64), nullable=False, primary_key=True)
+	id = db.Column(db.String(256), nullable=False, primary_key=True)
 	user_id = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False)
 
