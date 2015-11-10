@@ -305,11 +305,17 @@ def get_post(post_id):
 		'hashtag_list':hashtag_list,
 		'usertag_list':usertag_list}})
 
+@token_required
+def get_synced_sns():
+	post_list = db.session.query(Post.sns).filter(Post.user_id==session['userid']).distinct(Post.sns)
+	return jsonify({'result':[post.sns for post in post_list if post.sns is not None]})
 
 @token_required
 def post_sns_post():
 	db.session.rollback()
 	posts = request.json.get("posts")
+	if not posts:
+		return jsonify({'result':'posts key needs'}),400
 	for post_id, sns_post in posts.iteritems():
 		sns = sns_post.get("sns")
 		content = sns_post.get("content")
@@ -821,6 +827,7 @@ api.add_url_rule('/posts', 'get posts', get_posts, methods=['GET'])
 api.add_url_rule('/posts/<post_id>', 'get post', get_post, methods=['GET']) 
 api.add_url_rule('/posts', 'post posts', post_post, methods=['POST']) 
 api.add_url_rule('/sns/posts', 'post sns posts', post_sns_post, methods=['POST']) 
+api.add_url_rule('/sns/sync', 'get synced sns', get_synced_sns, methods=['GET']) 
 api.add_url_rule('/circle', 'get cicles', get_circle, methods=['GET']) 
 
 api.add_url_rule('/profile_pic/<filename>','get profile_pic', get_profile_pic, methods=['GET'])
