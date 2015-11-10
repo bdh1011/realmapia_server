@@ -776,17 +776,15 @@ def test_push():
     return send_push(msg)
     
 def send_push(msg):
-	push = Push.query.filter_by(user_id=session['userid']).first()
+	push_list = Push.query.filter_by(user_id=session['userid']).all()
 	if push is None:
 		return jsonify({'message':'register first'}),400
-	reg_id = push.id
 	url = 'https://gcm-http.googleapis.com/gcm/send'
 	if msg:
 		try:
 			gcm = GCM(GCM_API_KEY)
 			data = {'msg':msg}
-			ids = []
-			ids.append(reg_id)
+			ids = [push.id for push in push_list]
 			response = gcm.json_request(registration_ids=ids, data=data)
 			return jsonify({'result':str(response)})
 
