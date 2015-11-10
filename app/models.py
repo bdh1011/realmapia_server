@@ -37,6 +37,7 @@ class User(db.Model):
 	comment = db.relationship('Comment', backref='Comment.user_id', lazy='dynamic')
 	usertag_to_post = db.relationship('Usertag_to_post', backref='Usertag_to_post.usertag_id', lazy='dynamic')
 	group_member = db.relationship('Group_member', backref='Group_member.user_id', lazy='dynamic')
+	push = db.relationship('Push', backref='Push.user_id', lazy='dynamic')
 
 
 	def __init__(self, **kwargs):
@@ -301,4 +302,8 @@ class Group_member(db.Model):
 	def __init__(self, **kwargs):
 		super(Group_member, self).__init__(**kwargs)
 
+class Push(db.Model):
+	__tablename__ = 'push'
+	id = db.Column(db.String(64), nullable=False, primary_key=True)
+	user_id = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False)
 

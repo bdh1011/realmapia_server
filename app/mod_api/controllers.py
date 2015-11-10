@@ -18,6 +18,13 @@ from flask_wtf.csrf import CsrfProtect
 
 import base64
 from werkzeug import secure_filename
+from gcm import GCM
+
+#with open('api_key.txt') as key:
+#	GCM_API_KEY = key.readline().strip()
+
+reg_ids = 'gcm_registered device'
+registered_devices = set()
 # from forms import LoginForm
 
 import sys
@@ -64,6 +71,7 @@ def post_profile_pic():
 	user = User.query.filter_by(id=session['userid']).first()
 	if profile_pic is None:
 		return jsonify({'message':'needs photo attribute'}),400
+
 	print profile_pic
 	if 'http' in profile_pic:
 		user.profile_pic = profile_pic
@@ -213,7 +221,7 @@ def get_my_post(post_id):
 @token_required
 def get_posts():
     map_type=request.args.get('map_type')
-    group_name=request.args.get('group_name')
+    group_id=request.args.get('group_id')
     user_id=request.args.get('user_id')
     lat=request.args.get('lat')
     lng=request.args.get('lng')
@@ -221,7 +229,7 @@ def get_posts():
 
     get_posts_query = db.session.query(Post).filter(Post.map_type==map_type)
     if map_type=='group':
-        get_posts_query = get_posts_query.filter(Post.target_group==group_name)
+        get_posts_query = get_posts_query.filter(Post.target_group==group_id)
     if user_id is not None:
         get_posts_query = get_posts_query.filter(Post.user_id==user_id)
     if (lat is not None) and (lng is not None) and (level is not None):
@@ -251,13 +259,13 @@ def get_circle():
 	center_lng=request.args.get('center_lng')
 	level=request.args.get('level')
 	map_type=request.args.get('map_type')
-	group_name=request.args.get('group_name')
+	group_id=request.args.get('group_id')
 	if map_type is None or center_lng is None or center_lng is None or level is None:
 		return jsonify({'message':'parameter miss, needs center_lat, center_lng, level, map_type'}),400
 
 	get_circle_query = db.session.query(Post).filter(Post.map_type==map_type)
 	if map_type=='group':
-		get_circle_query = get_circle_query.filter(Post.group_name==group_name)
+		get_circle_query = get_circle_query.filter(Post.group_id==group_id)
 	get_circle_query.filter(Post.lat.between(float(center_lat)-0.1,float(center_lat)+0.1 ))
 	get_circle_query.filter(Post.lng.between(float(center_lng)-0.1,float(center_lng)+0.1 ))
 	posts_list = get_circle_query.all()
@@ -663,44 +671,45 @@ def get_groups():
     get_groups_query = db.session.query(Group).join(Group_member).distinct(name)
     # print get_groups_query.all()
     if member is not None:
-        get_groups_query = get_groups_query.filter(Group_member.user_id==member).filter(Group.name==Group_member.group_name)
+        get_groups_query = get_groups_query.filter(Group_member.user_id==member).filter(Group.id==Group_member.group_id)
 
     if name is not None:
-        get_groups_query = get_groups_query.filter(Group.name.contains(name))
+        get_groups_query = get_groups_query.filter(Group.id.contains(name))
 
     group_list = get_groups_query.all()
     print group_list
 
     return jsonify({'result':[
-        {'name':group.name,
-        'members':[user.user_id for user in Group_member.query.filter_by(group_name=group.name).with_entities(Group_member.user_id).all()],
+        {'name':group.id,
+        'members':[user.user_id for user in Group_member.query.filter_by(group_id=group.id).with_entities(Group_member.user_id).all()],
         'privacy':group.privacy,
         } for group in group_list ]})
 
 
 @token_required
-def get_group(group_name):
-    group= db.session.query(Group).join(Group_member).filter(Group.name==group_name).first()
-    
-    return jsonify({'result':{'name':group.name,
-        'members':[user.user_id for user in Group_member.query.filter_by(group_name=group.name).with_entities(Group_member.user_id).all()],
-        'privacy':group.privacy,
+def get_group(group_id):
+    group= db.session.query(Group).join(Group_member).filter(Group.id==group_id).first()
+    if group:
+        return jsonify({'result':{'name':group.id,
+           'members':[user.user_id for user in Group_member.query.filter_by(group_id=group.name).with_entities(Group_member.user_id).all()],
+           'privacy':group.privacy,
         }})
-
+    else:
+    	return jsonify({'message':'group not exists'}),400
 
 @token_required
 def post_group():
     name = request.json.get('name')
     members = request.json.get('members')
     privacy = request.json.get('privacy')
-    if Group.query.filter_by(name=name).first() is not None:
+    if Group.query.filter_by(id=name).first() is not None:
         return jsonify({'message':'group name already exist'}),400
-    group = Group(name=name, privacy=privacy)
+    group = Group(id=name, privacy=privacy)
     db.session.add(group)
-    member = Group_member(role='manager',user_id=session['userid'],group_name=name)
+    member = Group_member(role='manager',user_id=session['userid'],group_id=name)
     db.session.add(member)
     for each_member in members:
-        member = Group_member(user_id=each_member, role='member',group_name=name)
+        member = Group_member(user_id=each_member, role='member',group_id=name)
         db.session.add(member)
     db.session.commit()
     db.session.rollback()
@@ -709,13 +718,13 @@ def post_group():
 
 
 @token_required
-def invite_group_member(group_name):
+def invite_group_member(group_id):
     member_list = request.json.get('members')
     for each_member in member_list:
-        if Group_member.query.filter_by(group_name=group_name, user_id=each_member) is not None:
+        if Group_member.query.filter_by(group_id=group_id, user_id=each_member) is not None:
             pass
         else:
-            group_member = Group_member(group_name=group_name, user_id=each_member)
+            group_member = Group_member(group_id=group_id, user_id=each_member)
             db.session.add(group_member)
             db.session.commit()
 
@@ -724,14 +733,71 @@ def invite_group_member(group_name):
 
 @token_required
 def delete_group():
-    group_name = request.args.get('group_name')
-    member_list = Group_member.query.filter_by(group_name = group_name).all()
+    group_id = request.args.get('group_id')
+    member_list = Group_member.query.filter_by(group_id = group_id).all()
     for each_member in member_list:
         db.session.delete(each_member)
-    group = Group.query.filter_by(group_name=group_name).first()
+    group = Group.query.filter_by(group_id=group_id).first()
     db.session.delete(group)
     db.session.commit()
     return jsonify({'result':'success'})
+
+@token_required
+def post_reg_id():
+	reg_id = request.json.get('reg_id')
+	if reg_id:
+		push = Push.query.filter_by(id=reg_id).first()
+		if not push:
+			push = Push(id=reg_id, user_id=session['userid'])
+			db.session.add(push)
+			db.session.commit()
+		return jsonify({'result':'success'})
+	else:
+		return jsonify({'message':'need reg_id'}),404
+
+@token_required
+def delete_reg_id():
+	push = Push.query.filter_by(user_id=session['userid']).first()
+	if push:
+		db.session.delete(push)
+		db.session.commit()
+		return jsonify({'result':'success'})
+	else:
+		return jsonify({'message':'not registered user'}),400
+
+@token_required
+def test_push():
+    msg = request.args.get('msg')
+    return send_push(msg)
+    
+def send_push(msg):
+    push = Push.query.filter_by(user_id=session['userid']).first()
+    if push is None:
+        return jsonify({'message':'register first'}),400
+    regID = push.id
+    print 'regId : ',regID
+
+    message = "badgeOption=INCREASE&badgeNumber=1&action=ALERT&alertMessage="+msg
+    print 'message : ',message
+    try:
+        url = 'https://gcm-http.googleapis.com/gcm/send'
+    except:
+        return jsonify({'message':'wrong register id'}),400
+
+    headers = {
+        'appID':'Mg9Gn108xk',
+        'appSecret':' ab85a09907d2153a74701277b2960e46',
+        'Content-Type':'application/json'
+    }
+    data = {
+        "encoding" : "base64",
+        "regID": str(regID),
+        "message":str(message)
+    }
+    print data
+    resp = requests.post(url=url, headers=headers, json=data, verify=False)
+    data = json.loads(resp.content)
+    return jsonify(data)
 
 
 api.add_url_rule('/users/register', 'register', register, methods=['POST']) 
@@ -776,7 +842,14 @@ api.add_url_rule('/like', 'post like', post_like, methods=['POST'])
 api.add_url_rule('/like', 'delete like', delete_like, methods=['DELETE']) 
 
 api.add_url_rule('/groups', 'get groups', get_groups, methods=['GET']) 
-api.add_url_rule('/groups/<group_name>', 'get group', get_group, methods=['GET']) 
+api.add_url_rule('/groups/<group_id>', 'get group', get_group, methods=['GET']) 
 api.add_url_rule('/groups', 'post groups', post_group, methods=['POST']) 
-api.add_url_rule('/groups/<group_name>/members', 'invite group member', invite_group_member, methods=['POST']) 
-api.add_url_rule('/groups/<group_name>', 'delete group', delete_group, methods=['DELETE']) 
+api.add_url_rule('/groups/<group_id>/members', 'invite group member', invite_group_member, methods=['POST']) 
+api.add_url_rule('/groups/<group_id>', 'delete group', delete_group, methods=['DELETE']) 
+
+api.add_url_rule('/groups/<group_id>/members', 'invite group member', invite_group_member, methods=['POST']) 
+api.add_url_rule('/groups/<group_id>', 'delete group', delete_group, methods=['DELETE']) 
+
+api.add_url_rule('/push/reg_id', 'register push id', post_reg_id, methods=['POST']) 
+api.add_url_rule('/push/reg_id', 'delete push id', delete_reg_id, methods=['DELETE']) 
+api.add_url_rule('/push/test', 'get test push', test_push, methods=['GET']) 
