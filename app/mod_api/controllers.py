@@ -777,7 +777,7 @@ def test_push():
     
 def send_push(msg):
 	push_list = Push.query.filter_by(user_id=session['userid']).all()
-	if push is None:
+	if push_list is None:
 		return jsonify({'message':'register first'}),400
 	url = 'https://gcm-http.googleapis.com/gcm/send'
 	if msg:
