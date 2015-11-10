@@ -250,7 +250,8 @@ def get_posts():
         pass #level calculate
 
     posts_list = get_posts_query.all()
-
+    if posts_list is None:
+    	return jsonify({'result':[]})
     return jsonify({'result':[
         {
         'post_id': each_post.id,
@@ -332,7 +333,9 @@ def get_synced_sns():
 @token_required
 def post_sns_post():
 	db.session.rollback()
+	print request.json
 	posts = request.json.get("posts")
+
 	if not posts:
 		return jsonify({'result':'posts key needs'}),400
 	for post_id, sns_post in posts.iteritems():
