@@ -43,7 +43,8 @@ def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
             print 'token!',request.headers.get('Authorization')
-        # try:
+        try:
+
             if request.headers.get('Authorization')[6:] == '1':
                 session['userid'] = 'admin'
                 print 'testing access'
@@ -59,9 +60,9 @@ def token_required(f):
                 print 'valid token'
                 session['userid'] = ast.literal_eval(app.r.get(token))['id']
             return f(*args, **kwargs)
-        # except Exception as e:
-        #     print e
-        #     return jsonify({'message':'unexpected error'})
+        except Exception as e:
+            print e
+            return jsonify({'message':'unexpected error'})
     return decorated_function
 
 
