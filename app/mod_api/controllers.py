@@ -807,15 +807,13 @@ def send_push(user_id, msg):
 	user = User.query.filter_by(id=user_id).first()
 	if not user:
 		return jsonify({'message':'user not exist'}),400
-	else:
-
 	push_list = Push.query.filter_by(user_id=user_id).all()
 	if push_list is None:
 		return jsonify({'message':'register first'}),400
 	url = 'https://gcm-http.googleapis.com/gcm/send'
 	if msg:
 		try:
-			gcm = GCM(GCM_API_KEY)
+			gcm = mjl GCM(GCM_API_KEY)
 			data = {'title':'MAPIA','message':msg}
 			ids = [push.id for push in push_list]
 			response = gcm.json_request(registration_ids=ids, data=data)
