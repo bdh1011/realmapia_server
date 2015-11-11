@@ -519,6 +519,7 @@ def post_post():
 			usertag_to_post = Usertag_to_post(post_id=post.id,user_id=user.id)
 			db.session.add(usertag_to_post)
 			db.session.commit()            #too many commit, how can I shrink it?
+			noti_post_taged(session['userid'],post.id,user.id)
 	'''
 	#set target to post
 	if post_to is not None:
@@ -597,6 +598,7 @@ def post_comment():
     comment = Comment(user_id=session['userid'],post_id=postid,content=content)
     db.session.add(comment)
     db.session.commit()
+    noti_comment(session['userid'],postid)
 
     return jsonify({'result':'success'})
 
@@ -620,6 +622,7 @@ def post_follow():
     follow = Follow(from_user_id=session['userid'],to_user_id=to_user_id)
     db.session.add(follow)
     db.session.commit()
+    noti_follow(session['userid'],to_user_id)
     return jsonify({'result':'success'})
 
 
@@ -678,6 +681,7 @@ def post_like():
     like = Like(user_id=session['userid'], post_id=post_id)
     db.session.add(like)
     db.session.commit()
+    noti_like(session['userid'],post_id)
     return jsonify({'result':'success'})
 
 @token_required
