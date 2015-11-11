@@ -117,7 +117,7 @@ def post_profile_pic():
 		user.profile_pic = profile_pic
 		return jsonify({'result':'success'})
 	else:
-		data = base64.b64decode(photo)
+		data = base64.b64decode(profile_pic)
 		filepath = "./app/static/profile_pic/"+str(user.id)+"."+ext
 		#not exist
 		if not os.path.exists(filepath):
