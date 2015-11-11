@@ -813,7 +813,7 @@ def send_push(user_id, msg):
 	url = 'https://gcm-http.googleapis.com/gcm/send'
 	if msg:
 		try:
-			gcm = mjl GCM(GCM_API_KEY)
+			gcm = GCM(GCM_API_KEY)
 			data = {'title':'MAPIA','message':msg}
 			ids = [push.id for push in push_list]
 			response = gcm.json_request(registration_ids=ids, data=data)
