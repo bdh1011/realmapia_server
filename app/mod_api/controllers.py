@@ -42,9 +42,8 @@ base_url = 'http://52.192.0.214/api/'
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-            print 'token!',request.headers.get('Authorization')
+        print 'token!',request.headers.get('Authorization')
         try:
-
             if request.headers.get('Authorization')[6:] == '1':
                 session['userid'] = 'admin'
                 print 'testing access'
