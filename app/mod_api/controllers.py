@@ -11,7 +11,7 @@ import time as ptime
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from sqlalchemy import or_, and_, desc, asc
 from ..models import User, Follow, User_alert, Like, Comment, Post, Hashtag_to_post, Hashtag,\
- Placetag_to_post, Placetag, Usertag_to_post, Group, Group_member, Push
+ Placetag_to_post, Placetag, Usertag_to_post, Group, Group_member, Push, Noti
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 import decorator
 from flask_wtf.csrf import CsrfProtect
@@ -519,6 +519,7 @@ def post_post():
 			usertag_to_post = Usertag_to_post(post_id=post.id,user_id=user.id)
 			db.session.add(usertag_to_post)
 			db.session.commit()            #too many commit, how can I shrink it?
+
 			noti_post_taged(session['userid'],post.id,user.id)
 	'''
 	#set target to post
@@ -833,13 +834,13 @@ def noti_follow(user_from, user_to):
 	input_noti(user_from, 'follow', user_to, None)
 
 def noti_post_taged(user_from, post_id, user_to):
-	input_noti(user_from, 'tag', user_id, post_id)
+	input_noti(user_from, 'tag', user_to, post_id)
 	
 
 def input_noti(user_from, noti_type, user_to, post_id):
 	noti = Noti(user_from=user_from, noti_type=noti_type,user_to=user_to, post_id=post_id)
 	db.session.add(noti)
-	db.commit()
+	db.session.commit()
 	if noti_type == 'like':
 		send_push(user_to, user_from + "님이 회원님의 게시글을 좋아합니다.")
 	elif noti_type == 'comment':
