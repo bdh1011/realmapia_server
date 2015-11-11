@@ -876,7 +876,7 @@ def get_noti_status():
 	user = User.query.filter_by(id=session['userid']).first()
 	if not user:
 		return jsonify({'message':'user not exists'}),400
-	return jsonify({'result':{'is_activated': user.noti_flag})
+	return jsonify({'result':{'is_activated': user.noti_flag}})
 
 
 @token_required
