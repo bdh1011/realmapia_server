@@ -955,7 +955,7 @@ api.add_url_rule('/push/reg_id', 'delete push id', delete_reg_id, methods=['DELE
 api.add_url_rule('/push/test', 'get test push', test_push, methods=['GET']) 
 
 api.add_url_rule('/noti/contents', 'get my noti contents', get_noti, methods=['GET']) 
-api.add_url_rule('/noti/status', 'activate account notification', activate_noti, methods=['GET']) 
+api.add_url_rule('/noti/status', 'activate account notification', get_noti_status, methods=['GET']) 
 api.add_url_rule('/noti/status/activate', 'activate account notification', activate_noti, methods=['GET']) 
 api.add_url_rule('/noti/status/deactivate', 'deactivate account notification', deactivate_noti, methods=['GET']) 
 
