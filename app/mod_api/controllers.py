@@ -241,6 +241,7 @@ def about_me():
     my_info = User.query.filter_by(id=session['userid']).first()
     if my_info is None:
         return jsonify({'message':'login first'}),400
+    print my_info.serialize
     return jsonify({'result':my_info.serialize})
 
 
@@ -746,6 +747,8 @@ def post_group():
     member = Group_member(role='manager',user_id=session['userid'],group_id=name)
     db.session.add(member)
     for each_member in members:
+    	if each_member == session['userid']:
+    		continue
         member = Group_member(user_id=each_member, role='member',group_id=name)
         db.session.add(member)
     db.session.commit()
