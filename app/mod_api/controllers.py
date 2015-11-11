@@ -412,7 +412,7 @@ def post_sns_post():
 				db.session.add(hashtag_to_post)
 				db.session.commit()
 
-				placetag.update_placetaged_num()
+				hashtag.update_hashtaged_num()
 				db.session.commit()
 			#too many commit, how can I shrink it?
 	return jsonify({'result':{'posts_num':len(posts)}})
