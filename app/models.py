@@ -89,7 +89,9 @@ class User(db.Model):
 	    	'name'		: self.name,
 	    	'profile_pic'  : 'http://52.192.0.214/api/profile_pic/'+self.profile_pic if self.profile_pic is not None else None,
 	    	'register_timestamp'	: dump_datetime(self.register_timestamp),
-	    	'recent_login_timestamp': dump_datetime(self.recent_login_timestamp)
+	    	'recent_login_timestamp': dump_datetime(self.recent_login_timestamp),
+	    	'following_num' : Follow.query.filter_by(from_user_id=self.id).count(),
+	    	'followed_num' : Follow.query.filter_by(to_user_id=self.id).count()
 	    }
 	
 
