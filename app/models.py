@@ -297,11 +297,12 @@ class Group(db.Model):
 
 class Group_member(db.Model):
 	__tablename__ = 'group_member'
+	id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
 	role = db.Column(db.String(64), nullable=False)
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 	recent_login_timestamp = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
-	user_id = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False, primary_key=True)
-	group_id = db.Column(db.String(64), db.ForeignKey('group.id'), nullable=False, primary_key=True)
+	user_id = db.Column(db.String(64), db.ForeignKey('user.id'), nullable=False)
+	group_id = db.Column(db.String(64), db.ForeignKey('group.id'), nullable=False)
 	register_timestamp = db.Column(db.DateTime, default=db.func.now())
 
 	def __init__(self, **kwargs):

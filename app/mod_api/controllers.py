@@ -370,32 +370,9 @@ def post_sns_post():
 		video = sns_post.get("video")
 		ext = sns_post.get("ext")
 		map_type = sns_post.get("map_type")
-		post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content,map_type=map_type, sns=sns)
+		post = Post(user_id=session['userid'],lat=lat,lng=lng,content=content,map_type=map_type, sns=sns, photo=photo, video=video)
 		db.session.add(post)
 		db.session.commit()
-
-		if photo is not None:
-			data = base64.b64decode(photo)
-			filepath = app.config['                                                                                           ']+str(post.id)+"."+ext
-
-			#not exist
-			if not os.path.exists(filepath):
-				with open(filepath,"w") as photo_file:
-					photo_file.write(data)
-			file_dir, filename = os.path.split(filepath)
-			post.photo = filename
-			db.session.commit()
-
-		if video is not None:
-			data = base64.b64decode(video)
-			filepath = app.config['VIDEO_UPLOAD_FOLDER']+str(post.id)+"."+ext
-			#not exist
-			if not os.path.exists(filepath):
-				with open(filepath,"w") as photo_file:
-					photo_file.write(data)
-			file_dir, filename = os.path.split(filepath)
-			post.video = filename
-			db.session.commit()
 
 	    #add placetag
 		if placetag_content is None:
@@ -752,12 +729,16 @@ def get_group(group_id):
 @token_required
 def post_group():
     name = request.json.get('name')
+    if Group.query.filter_by(id=name).fisrt():
+    	return jsonify({'message':'already exists'}),400
+
     members = request.json.get('members')
     privacy = request.json.get('privacy')
     if Group.query.filter_by(id=name).first() is not None:
         return jsonify({'message':'group name already exist'}),400
     group = Group(id=name, privacy=privacy)
     db.session.add(group)
+
     member = Group_member(role='manager',user_id=session['userid'],group_id=name)
     db.session.add(member)
     for each_member in members:
@@ -823,6 +804,11 @@ def test_push():
     return send_push(session['userid'], msg)
     
 def send_push(user_id, msg):
+	user = User.query.filter_by(id=user_id).first()
+	if not user:
+		return jsonify({'message':'user not exist'}),400
+	else:
+
 	push_list = Push.query.filter_by(user_id=user_id).all()
 	if push_list is None:
 		return jsonify({'message':'register first'}),400
@@ -885,6 +871,15 @@ def get_noti():
 		'timestamp':noti.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")
 		} for noti in noti_list]
 		})
+
+
+@token_required
+def get_noti_status():
+	user = User.query.filter_by(id=session['userid']).first()
+	if not user:
+		return jsonify({'message':'user not exists'}),400
+	return jsonify({'result':{'is_activated': user.noti_flag})
+
 
 @token_required
 def activate_noti():
@@ -962,6 +957,7 @@ api.add_url_rule('/push/reg_id', 'delete push id', delete_reg_id, methods=['DELE
 api.add_url_rule('/push/test', 'get test push', test_push, methods=['GET']) 
 
 api.add_url_rule('/noti/contents', 'get my noti contents', get_noti, methods=['GET']) 
+api.add_url_rule('/noti/status', 'activate account notification', activate_noti, methods=['GET']) 
 api.add_url_rule('/noti/status/activate', 'activate account notification', activate_noti, methods=['GET']) 
 api.add_url_rule('/noti/status/deactivate', 'deactivate account notification', deactivate_noti, methods=['GET']) 
 
