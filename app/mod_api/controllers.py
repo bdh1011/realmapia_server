@@ -80,6 +80,30 @@ def call_after_request_callbacks(response):
 
 
 @token_required
+def post_name():
+	name = request.json.get('name')
+	user = User.query.filter_by(id=session['userid']).first()
+	if not user:
+		return jsonfiy({'message':'user not exist'}),400
+	if profile_pic is None:
+		return jsonify({'message':'needs name attribute'}),400
+	user.name = name
+	return jsonify({'result':'success'})
+
+
+@token_required
+def post_pw():
+	pw = request.json.get('pw')
+	user = User.query.filter_by(id=session['userid']).first()
+	if not user:
+		return jsonfiy({'message':'user not exist'}),400
+	if pw is None:
+		return jsonify({'message':'needs pw attribute'}),400
+	user.hash_password(pw)
+	token = user.generate_auth_token()
+	return jsonify({'result':{'token':token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic if user.profile_pic is not None else None}})
+
+@token_required
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
 	user = User.query.filter_by(id=session['userid']).first()
@@ -913,6 +937,8 @@ api.add_url_rule('/users', 'get_user_list', get_user_list)
 api.add_url_rule('/users/<userid>', 'get_user', get_user) 
 
 api.add_url_rule('/users/me', 'about me', about_me) 
+api.add_url_rule('/users/me/name', 'change name', post_name) 
+api.add_url_rule('/users/me/pw', 'change pw', post_pw) 
 api.add_url_rule('/users/me/profile_pic', 'post profile pic', post_profile_pic, methods=['POST'])
 api.add_url_rule('/users/me/posts', 'get my posts', get_my_posts) 
 api.add_url_rule('/users/me/posts/<post_id>', 'get my post', get_my_post) 
