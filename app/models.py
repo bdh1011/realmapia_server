@@ -39,6 +39,7 @@ class User(db.Model):
 	group_member = db.relationship('Group_member', backref='Group_member.user_id', lazy='dynamic')
 	push = db.relationship('Push', backref='Push.user_id', lazy='dynamic')
 
+	noti_flag = db.Column(db.Boolean, default=True)
 	noti_from = db.relationship('Noti', backref='noti_from_user', foreign_keys='Noti.user_from', lazy='dynamic')
 	noti_to = db.relationship('Noti', backref='noti_to_user', foreign_keys='Noti.user_to', lazy='dynamic')
 

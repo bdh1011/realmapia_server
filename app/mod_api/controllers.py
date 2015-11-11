@@ -140,6 +140,26 @@ def login():
         return jsonify({'result':{'token':token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic if user.profile_pic is not None else None}})
 
 
+def token_login():
+    if request.method=='POST':
+        login_token = request.json.get('token')
+        if app.r.get(login_token) is None:
+            return jsonify({'error':'token invalid'})
+        print 'valid token'
+        session['userid'] = ast.literal_eval(app.r.get(login_token))['id']
+
+        user = User.query.filter_by(id=session['userid']).first()
+        if user is None:
+            return jsonify({'message':'user not exist'}),400
+        else:
+            print user.serialize
+        user.recent_login_timestamp = datetime.now()
+        db.session.commit()
+
+        return jsonify({'result':{'token':login_token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic if user.profile_pic is not None else None}})
+
+
+
 def register():
     db.session.rollback()
     register_id = request.json.get('id')
@@ -852,9 +872,42 @@ def input_noti(user_from, noti_type, user_to, post_id):
 	else:
 		print 'noti type error'
 
+@token_required
+def get_noti():
+	noti_list = Noti.query.filter_by(user_to=session['userid']).all()
+	if not noti_list:
+		return jsonify({'result':[]})
+	return jsonify({'result':[
+		{'user_from':noti.user_from,
+		'user_to':noti.user_to,
+		'noti_type':noti.noti_type,
+		'post_id':noti.post_id,
+		'timestamp':noti.register_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+		} for noti in noti_list]
+		})
+
+@token_required
+def activate_noti():
+	user = User.query.filter_by(id=session['userid']).first()
+	if not user:
+		return jsonify({'message':'user not exists'}),400
+	user.noti_flag = True
+	return jsonify({'result':'success'})
+
+
+@token_required
+def deactivate_noti():
+	user = User.query.filter_by(id=session['userid']).first()
+	if not user:
+		return jsonify({'message':'user not exists'}),400
+	user.noti_flag = False
+	return jsonify({'result':'success'})
+
+
 
 api.add_url_rule('/users/register', 'register', register, methods=['POST']) 
 api.add_url_rule('/users/login', 'login', login, methods=['POST']) 
+api.add_url_rule('/users/login/token', 'token login', token_login, methods=['POST']) 
 api.add_url_rule('/users/logout', 'logout', logout, methods=['GET']) 
 api.add_url_rule('/users', 'get_user_list', get_user_list) 
 api.add_url_rule('/users/<userid>', 'get_user', get_user) 
@@ -907,3 +960,8 @@ api.add_url_rule('/groups/<group_id>', 'delete group', delete_group, methods=['D
 api.add_url_rule('/push/reg_id', 'register push id', post_reg_id, methods=['POST']) 
 api.add_url_rule('/push/reg_id', 'delete push id', delete_reg_id, methods=['DELETE']) 
 api.add_url_rule('/push/test', 'get test push', test_push, methods=['GET']) 
+
+api.add_url_rule('/noti/contents', 'get my noti contents', get_noti, methods=['GET']) 
+api.add_url_rule('/noti/status/activate', 'activate account notification', activate_noti, methods=['GET']) 
+api.add_url_rule('/noti/status/deactivate', 'deactivate account notification', deactivate_noti, methods=['GET']) 
+
