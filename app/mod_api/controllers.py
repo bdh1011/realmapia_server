@@ -729,7 +729,7 @@ def get_group(group_id):
 @token_required
 def post_group():
     name = request.json.get('name')
-    if Group.query.filter_by(id=name).fisrt():
+    if Group.query.filter_by(id=name).first():
     	return jsonify({'message':'already exists'}),400
 
     members = request.json.get('members')
@@ -876,7 +876,7 @@ def get_noti_status():
 	user = User.query.filter_by(id=session['userid']).first()
 	if not user:
 		return jsonify({'message':'user not exists'}),400
-	return jsonify({'result':{'is_activated': user.noti_flag}})
+	return jsonify({'result':user.noti_flag})
 
 
 @token_required
