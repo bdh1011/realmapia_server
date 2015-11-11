@@ -83,6 +83,8 @@ def call_after_request_callbacks(response):
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
 	user = User.query.filter_by(id=session['userid']).first()
+	if not user:
+		return jsonfiy({'message':'user not exist'}),400
 	if profile_pic is None:
 		return jsonify({'message':'needs photo attribute'}),400
 
