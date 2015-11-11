@@ -262,7 +262,9 @@ def get_posts():
     lat=request.args.get('lat')
     lng=request.args.get('lng')
     level=request.args.get('level')
-
+    circle=request.args.get('circle_id')
+    if circle:
+    	map_type='public'
     get_posts_query = db.session.query(Post).filter(Post.map_type==map_type)
     if map_type=='group':
         get_posts_query = get_posts_query.filter(Post.target_group==group_id)
@@ -287,7 +289,7 @@ def get_posts():
         'lng':each_post.lng,
         'like_num':Like.query.filter_by(post_id=each_post.id).count(),
         'comment_num':Comment.query.filter_by(post_id=each_post.id).count(),
-        'placetag':db.session.query(Placetag, Placetag_to_post ).filter(Placetag_to_post.post_id==each_post.id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0],
+        'placetag':db.session.query(Placetag, Placetag_to_post).filter(Placetag_to_post.post_id==each_post.id).filter(Placetag.id==Placetag_to_post.placetag_id).with_entities(Placetag.content).first()[0],
         'hashtag_list':[hashtag.Hashtag.content for hashtag in db.session.query(Hashtag, Hashtag_to_post ).filter(Hashtag_to_post.post_id==each_post.id).filter(Hashtag.id==Hashtag_to_post.hashtag_id).all()],
         'usertag_list':[{'userid':user.id,'username':user.name} for user in db.session.query(User, Usertag_to_post ).filter(Usertag_to_post.post_id==each_post.id).filter(User.id==Usertag_to_post.user_id).with_entities(User).all()]
         } for each_post in posts_list]})
