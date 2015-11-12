@@ -211,19 +211,8 @@ def register():
 
 @token_required
 def logout():
-    token = request.headers.get('Authorization')
-    
-
-    if token is None:
-        print 'token is None'
-        return jsonify({'message':'no token headers'}),400
-    print 'token is not None'
-    token = token[6:]
-    if app.r.get(token) is not None:
-        app.r.delete(token)
-    else:
-        return jsonify({'message':'token invalid'}),400
-
+    token = request.headers.get('Authorization')[6:]
+    app.r.delete(token)
     return jsonify({'result':'success'})
 
 
