@@ -167,15 +167,11 @@ def login():
         return jsonify({'result':{'token':token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic if user.profile_pic is not None else None}})
 
 
-
+@token_required
 def token_login():
     if request.method=='GET':
         login_token = request.headers.get('Authorization')[6:]
-        if app.r.get(login_token) is None:
-            return jsonify({'error':'token invalid'})
-        print 'valid token'
-        session['userid'] = ast.literal_eval(app.r.get(login_token))['id']
-
+        
         user = User.query.filter_by(id=session['userid']).first()
         if user is None:
             return jsonify({'message':'user not exist'}),400
