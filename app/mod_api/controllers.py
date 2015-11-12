@@ -334,7 +334,7 @@ def get_circle():
 
 	get_circle_query = db.session.query(Post).filter(Post.map_type==map_type)
 	if map_type=='group':
-		get_circle_query = get_circle_query.filter(Post.group_id==group_id)
+		get_circle_query = get_circle_query.filter(Post.target_group==group_id)
 	elif map_type=='follow':
 		pass
 	elif map_type=='private':
@@ -343,7 +343,7 @@ def get_circle():
 	#get_circle_query.filter(Post.lng.between(float(center_lng)-0.1,float(center_lng)+0.1 ))
 	
 	posts_list = get_circle_query.all()
-	
+
 	print posts_list
 	return jsonify({'result':[
 		{
