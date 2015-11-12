@@ -551,12 +551,11 @@ def post_post():
 	return jsonify({'result':{'post_id':post.id}})
 
 
-def get_profile_pic(userid):
-	user = User.query.filter_by(id=userid).first()
-	if user is not None:
-		if user.profile_pic is not None:
-			return send_file(app.config['PROFILE_PIC_DOWNLOAD_FOLDER']+user.profile_pic )
-	return jsonify({'message':'no profile picture'}),404
+def get_profile_pic(filename):
+	try:
+		return send_file(app.config['PROFILE_PIC_DOWNLOAD_FOLDER']+filename )
+	except Exception as e:
+		return jsonify({'message':'no profile picture'}),404
 
 def get_my_profile_pic():
 	profile_pic = User.query.filter_by(id=session['userid']).first().profile_pic
@@ -933,7 +932,7 @@ api.add_url_rule('/sns/posts', 'post sns posts', post_sns_post, methods=['POST']
 api.add_url_rule('/sns/sync', 'get synced sns', get_synced_sns, methods=['GET']) 
 api.add_url_rule('/circle', 'get cicles', get_circle, methods=['GET']) 
 
-api.add_url_rule('/profile_pic/<user_id>','get profile_pic', get_profile_pic, methods=['GET'])
+api.add_url_rule('/profile_pic/<filename>','get profile_pic', get_profile_pic, methods=['GET'])
 api.add_url_rule('/photo/<filename>','get photo', get_photo, methods=['GET'])
 api.add_url_rule('/movie/<filename>','get movie', get_movie, methods=['GET'])
 
