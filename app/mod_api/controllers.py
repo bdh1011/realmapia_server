@@ -107,6 +107,7 @@ def post_pw():
 @token_required
 def post_profile_pic():
 	profile_pic = request.json.get('photo')
+	ext = request.json.get('ext')
 	user = User.query.filter_by(id=session['userid']).first()
 	if not user:
 		return jsonfiy({'message':'user not exist'}),400
