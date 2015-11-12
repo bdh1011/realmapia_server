@@ -348,7 +348,7 @@ def get_circle():
 		'center_lat':each_post.lat,
 		'center_lng':each_post.lng,
 		'post_num':1,
-		'radius': 100
+		'radius': 30
 		} for each_post in posts_list]})
 
 @token_required
