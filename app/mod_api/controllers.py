@@ -167,14 +167,10 @@ def login():
         return jsonify({'result':{'token':token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic if user.profile_pic is not None else None}})
 
 
-def token_login():
-    if request.method=='POST':
-        login_token = request.json.get('token')
-        if app.r.get(login_token) is None:
-            return jsonify({'error':'token invalid'})
-        print 'valid token'
-        session['userid'] = ast.literal_eval(app.r.get(login_token))['id']
 
+def token_login():
+    if request.method=='GET':
+        login_token = request.headers.get('Authorization')[6:]
         user = User.query.filter_by(id=session['userid']).first()
         if user is None:
             return jsonify({'message':'user not exist'}),400
@@ -182,9 +178,7 @@ def token_login():
             print user.serialize
         user.recent_login_timestamp = datetime.now()
         db.session.commit()
-
         return jsonify({'result':{'token':login_token,'name':user.name,'profile_pic':base_url+'profile_pic/'+user.profile_pic if user.profile_pic is not None else None}})
-
 
 
 def register():
@@ -927,7 +921,7 @@ def deactivate_noti():
 
 api.add_url_rule('/users/register', 'register', register, methods=['POST']) 
 api.add_url_rule('/users/login', 'login', login, methods=['POST']) 
-api.add_url_rule('/users/login/token', 'token login', token_login, methods=['POST']) 
+api.add_url_rule('/users/login/token', 'token login', token_login, methods=['GET']) 
 api.add_url_rule('/users/logout', 'logout', logout, methods=['GET']) 
 api.add_url_rule('/users', 'get_user_list', get_user_list) 
 api.add_url_rule('/users/<userid>', 'get_user', get_user) 
