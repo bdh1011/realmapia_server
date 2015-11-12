@@ -53,16 +53,16 @@ def token_required(f):
                 token = request.headers.get('Authorization')
                 print 'token@',token
                 if token is None:
-                    return jsonify({'error':'no token headers'})
+                    return jsonify({'error':'no token headers'}),400
                 token = token[6:]
                 if app.r.get(token) is None:
-                    return jsonify({'error':'token invalid'})
+                    return jsonify({'error':'token invalid'}),400
                 print 'valid token'
                 session['userid'] = ast.literal_eval(app.r.get(token))['id']
             return f(*args, **kwargs)
         except Exception as e:
             print e
-            return jsonify({'message':'token error'})
+            return jsonify({'message':'token error'}),400
     return decorated_function
 
 
