@@ -289,14 +289,16 @@ def get_posts():
     level=request.args.get('level')
     circle=request.args.get('circle_id')
     if circle:
-    	map_type='public'
-    get_posts_query = db.session.query(Post).filter(Post.map_type==map_type)
-    if map_type=='group':
-        get_posts_query = get_posts_query.filter(Post.target_group==group_id)
-    if user_id is not None:
-        get_posts_query = get_posts_query.filter(Post.user_id==user_id)
-    if (lat is not None) and (lng is not None) and (level is not None):
-        pass #level calculate
+        map_type='public'
+        get_posts_query = db.session.query(Post).filter(Post.id==circle)
+    else:
+        get_posts_query = db.session.query(Post).filter(Post.map_type==map_type)
+        if map_type=='group':
+            get_posts_query = get_posts_query.filter(Post.target_group==group_id)
+        if user_id is not None:
+            get_posts_query = get_posts_query.filter(Post.user_id==user_id)
+        if (lat is not None) and (lng is not None) and (level is not None):
+            pass #level calculate
 
     posts_list = get_posts_query.all()
     if posts_list is None:
