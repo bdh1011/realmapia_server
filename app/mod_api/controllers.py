@@ -44,6 +44,7 @@ def token_required(f):
     def decorated_function(*args, **kwargs):
         print 'token!',request.headers.get('Authorization')
         try:
+
             if request.headers.get('Authorization')[6:] == '1':
                 session['userid'] = 'admin'
                 print 'testing access'
@@ -61,7 +62,7 @@ def token_required(f):
             return f(*args, **kwargs)
         except Exception as e:
             print e
-            return jsonify({'message':'unexpected error'})
+            return jsonify({'message':'token error'})
     return decorated_function
 
 
@@ -334,8 +335,10 @@ def get_circle():
 	get_circle_query = db.session.query(Post).filter(Post.map_type==map_type)
 	if map_type=='group':
 		get_circle_query = get_circle_query.filter(Post.group_id==group_id)
-	get_circle_query.filter(Post.lat.between(float(center_lat)-0.1,float(center_lat)+0.1 ))
-	get_circle_query.filter(Post.lng.between(float(center_lng)-0.1,float(center_lng)+0.1 ))
+	
+	#get_circle_query.filter(Post.lat.between(float(center_lat)-0.1,float(center_lat)+0.1 ))
+	#get_circle_query.filter(Post.lng.between(float(center_lng)-0.1,float(center_lng)+0.1 ))
+	
 	posts_list = get_circle_query.all()
 
 	return jsonify({'result':[
@@ -459,6 +462,7 @@ def post_post():
 	photo = request.json.get("photo")
 	ext = request.json.get("ext")
 	map_type = request.json.get("map_type")
+	print request.json
 
 	video = request.json.get("video")
 	#post_to = request.json.get("post_to")
@@ -550,23 +554,8 @@ def post_post():
 			db.session.commit()            #too many commit, how can I shrink it?
 
 			noti_post_taged(session['userid'],post.id,user.id)
-	'''
-	#set target to post
-	if post_to is not None:
-		print 'post_to',post_to
-		for each_post_to in post_to:
-			print each_post_to
-			post_type = each_post_to.get('type')
-			if post_type == 'group':
-				post_to = Post_to(post_type="group", post_id=post.id, target_group=each_post_to.get('target_group'))
-				db.session.add(post_to)
-			elif post_type != 'private':
-				post_to = Post_to(post_type=post_type, post_id=post.id)
-				db.session.add(post_to)
-			if Post_to.query.filter_by(post_type="private",post_id=post.id).first() is None:
-				private_post_to = Post_to(post_type="private", post_id=post.id)
-				db.session.add(private_post_to)
-			db.session.commit()'''
+	
+	print Post.query.filter_by(id=post.id).all()
 
 	return jsonify({'result':{'post_id':post.id}})
 
