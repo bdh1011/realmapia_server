@@ -933,7 +933,7 @@ api.add_url_rule('/sns/posts', 'post sns posts', post_sns_post, methods=['POST']
 api.add_url_rule('/sns/sync', 'get synced sns', get_synced_sns, methods=['GET']) 
 api.add_url_rule('/circle', 'get cicles', get_circle, methods=['GET']) 
 
-api.add_url_rule('/profile_pic/<filename>','get profile_pic', get_profile_pic, methods=['GET'])
+api.add_url_rule('/profile_pic/<user_id>','get profile_pic', get_profile_pic, methods=['GET'])
 api.add_url_rule('/photo/<filename>','get photo', get_photo, methods=['GET'])
 api.add_url_rule('/movie/<filename>','get movie', get_movie, methods=['GET'])
 
