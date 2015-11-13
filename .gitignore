@@ -1,4 +1,6 @@
 venv/*
+app/static/photo/*
+app/static/video/*
 # Byte-compiled / optimized / DLL files
 *.pyc
 __pycache__/
