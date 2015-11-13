@@ -619,10 +619,13 @@ def get_follow():
 
     if from_user_id is not None:
         follow_list = Follow.query.filter_by(from_user_id=from_user_id).all()
-    if to_user_id is not None:
+        return jsonify({'result': [follow.to_serialize for follow in follow_list]})
+    elif to_user_id is not None:
         follow_list = Follow.query.filter_by(to_user_id=to_user_id).all()
-    return jsonify({'result': [follow.serialize for follow in follow_list]})
-
+    	return jsonify({'result': [follow.from_serialize for follow in follow_list]})
+    else:
+    	return jsonify({'message':'parameter error'}),400
+    	
 @token_required
 def post_follow():
     to_user_id = request.json.get('to_user_id')
