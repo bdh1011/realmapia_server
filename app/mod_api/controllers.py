@@ -59,6 +59,9 @@ def token_required(f):
                     return jsonify({'error':'token invalid'}),400
                 print 'valid token'
                 session['userid'] = ast.literal_eval(app.r.get(token))['id']
+                if request.method == 'POST':
+                	print request.json
+
             return f(*args, **kwargs)
         except Exception as e:
             print e
@@ -625,7 +628,7 @@ def get_follow():
     	return jsonify({'result': [follow.from_serialize for follow in follow_list]})
     else:
     	return jsonify({'message':'parameter error'}),400
-    	
+
 @token_required
 def post_follow():
     to_user_id = request.json.get('to_user_id')
