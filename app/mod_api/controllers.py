@@ -551,12 +551,11 @@ def post_post():
 	return jsonify({'result':{'post_id':post.id}})
 
 
-def get_profile_pic(userid):
-	user = User.query.filter_by(id=userid).first()
-	if user is not None:
-		if user.profile_pic is not None:
-			return send_file(app.config['PROFILE_PIC_DOWNLOAD_FOLDER']+user.profile_pic )
-	return jsonify({'message':'no profile picture'}),404
+def get_profile_pic(filename):
+	try:
+		return send_file(app.config['PROFILE_PIC_DOWNLOAD_FOLDER']+filename )
+	except Exception as e:
+		return jsonify({'message':'no profile picture'}),404
 
 def get_my_profile_pic():
 	profile_pic = User.query.filter_by(id=session['userid']).first().profile_pic
