@@ -106,19 +106,19 @@ class Follow(db.Model):
 	@property
 	def from_serialize(self):
 	    return {
-	    	'from_user_id'		: self.from_user_id,
-	    	'from_user_name'	: User.query.filter_by(id=self.from_user_id).first().name,
-	    	'from_user_profile_pic'	: User.query.filter_by(id=self.from_user_id).first().profile_pic,
-	    	'register_timestamp'  : dump_datetime(self.register_timestamp)
+	    	'id'		: self.from_user_id,
+	    	'name'	: User.query.filter_by(id=self.from_user_id).first().name,
+	    	'profile_pic'	: User.query.filter_by(id=self.from_user_id).first().profile_pic,
+	    	'timestamp'  : dump_datetime(self.register_timestamp)
 	    }
 
 	@property
 	def to_serialize(self):
 	    return {
-	    	'to_user_id'		: self.to_user_id,
-	    	'to_user_name'	: User.query.filter_by(id=self.to_user_id).first().name,
-	    	'to_user_profile_pic'	: User.query.filter_by(id=self.to_user_id).first().profile_pic,
-	    	'register_timestamp'  : dump_datetime(self.register_timestamp)
+	    	'id'		: self.to_user_id,
+	    	'name'	: User.query.filter_by(id=self.to_user_id).first().name,
+	    	'profile_pic'	: User.query.filter_by(id=self.to_user_id).first().profile_pic,
+	    	'timestamp'  : dump_datetime(self.register_timestamp)
 	    }
 	
 
