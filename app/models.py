@@ -107,7 +107,9 @@ class Follow(db.Model):
 	def serialize(self):
 	    return {
 	    	'from_user_id'		: self.from_user_id,
+	    	'from_user_name'	: User.query.filter_by(id=self.from_user_id).first().name,
 	    	'to_user_id'		: self.to_user_id,
+	    	'to_user_name'	: User.query.filter_by(id=self.to_user_id).first().name,
 	    	'register_timestamp'  : dump_datetime(self.register_timestamp)
 	    }
 	
