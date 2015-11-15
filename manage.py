@@ -11,10 +11,13 @@ import flask_s3
 import logging, logging.config, yaml
 import os
 
+from flask.ext.cors import CORS
+
 app = create_app()
 
 manager = Manager(app)
 migrate = Migrate()
+cors = CORS(app)
 migrate.init_app(app, db, directory="./migrations")
 s3 = FlaskS3(app)
 
